@@ -53,7 +53,9 @@ export type ValidationStatus = {
 };
 
 export type ValidationResponse = boolean | ValidationStatus;
-export type ValidationRule<TValue> = (value: TValue, fields: FieldsCollection) => ValidationResponse;
+export type SingleValidationRule<TValue> = (value: TValue, fields: FieldsCollection) => ValidationResponse;
+export type MultipleValidationRule<TValue> = (value: TValue, fields: FieldsCollection) => ValidationResponse[];
+export type ValidationRule<TValue> = (value: TValue, fields: FieldsCollection) => ValidationResponse | ValidationResponse[];
 export type ValidationSchema<TValue> = Array<ValidationRule<TValue>>;
 
 export interface PlainFilterChip {
