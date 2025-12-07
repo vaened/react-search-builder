@@ -8,7 +8,7 @@ import { isError, isMultiError } from "./utils";
 
 export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: false): MultipleValidationRule<TValue>;
 export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: true): SingleValidationRule<TValue>;
-export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast?: boolean): SingleValidationRule<TValue>;
+export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast?: boolean): ValidationRule<TValue>;
 
 export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: boolean = true): ValidationRule<TValue> {
   if (failFast) {
