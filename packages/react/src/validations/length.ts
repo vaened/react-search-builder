@@ -1,3 +1,8 @@
+/**
+ * @author enea dhack <contact@vaened.dev>
+ * @link https://vaened.dev DevFolio
+ */
+
 import { ArrayFilterValue, FilterValue, ValidationRule } from "../field";
 
 type ValidableValue = Extract<FilterValue, ArrayFilterValue | string | null>;

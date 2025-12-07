@@ -1,3 +1,8 @@
+/**
+ * @author enea dhack <contact@vaened.dev>
+ * @link https://vaened.dev DevFolio
+ */
+
 import { ScalarTypeKey, ValidationRule } from "../field";
 
 type ValidableValue = Extract<ScalarTypeKey, number | Date | null>;

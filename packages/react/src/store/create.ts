@@ -1,3 +1,8 @@
+/**
+ * @author enea dhack <contact@vaened.dev>
+ * @link https://vaened.dev DevFolio
+ */
+
 import { empty, url } from "../persistence";
 import { PersistenceAdapter } from "../persistence/PersistenceAdapter";
 import { createEventEmitter, EventEmitter } from "./event-emitter";

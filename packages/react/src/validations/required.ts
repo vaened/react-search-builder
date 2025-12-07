@@ -1,3 +1,8 @@
+/**
+ * @author enea dhack <contact@vaened.dev>
+ * @link https://vaened.dev DevFolio
+ */
+
 import { FilterValue, ValidationRule } from "../field";
 import { FieldsCollection } from "../store";
 
