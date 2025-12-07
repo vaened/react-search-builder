@@ -47,15 +47,24 @@ export type ArrayFilterValue = ArrayFilterTypeMap[keyof ArrayFilterTypeMap];
 export type HumanizeReturnType<T> = T extends unknown[] ? FilterMultiLabel<T>[] : string;
 export type SerializeReturnType<T> = T extends unknown[] ? string[] : string;
 
+export type ValidationName = string;
 export type ValidationSucess = true;
-export type ValidationError = {
+export interface ValidationError {
+  name: ValidationName;
+  code: string;
   message?: string;
-};
+}
 
-export type ValidationResponse = ValidationSucess | ValidationError;
-export type SingleValidationRule<TValue> = (value: TValue, fields: FieldsCollection) => ValidationResponse;
-export type MultipleValidationRule<TValue> = (value: TValue, fields: FieldsCollection) => ValidationResponse[];
-export type ValidationRule<TValue> = (value: TValue, fields: FieldsCollection) => ValidationResponse | ValidationResponse[];
+export type ValidationResponse<TError extends ValidationError = ValidationError> = ValidationSucess | TError;
+export type SingleValidationRule<TValue, TError extends ValidationError = ValidationError> = (
+  value: TValue,
+  fields: FieldsCollection
+) => ValidationResponse<TError>;
+export type MultipleValidationRule<TValue> = (value: TValue, fields: FieldsCollection) => ValidationResponse<ValidationError>[];
+export type ValidationRule<TValue, TError extends ValidationError = ValidationError> = (
+  value: TValue,
+  fields: FieldsCollection
+) => ValidationResponse<ValidationError> | ValidationResponse[];
 export type ValidationSchema<TValue> = Array<ValidationRule<TValue>>;
 
 export interface PlainFilterChip {

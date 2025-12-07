@@ -3,11 +3,12 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { FilterValue, ValidationRule } from "../field";
+import { FilterValue, ValidationName, ValidationRule } from "../field";
 import { FieldsCollection } from "../store";
 
 type RequiredRuleProps = {
   onlyIf?: (fields: FieldsCollection) => boolean;
+  name?: ValidationName;
   message?: string;
 };
 
@@ -15,6 +16,7 @@ export function required<TValue extends FilterValue>(params?: RequiredRuleProps 
   return (value: TValue, fields: FieldsCollection) => {
     const isObjectConfiguration = params && typeof params === "object";
     const message = isObjectConfiguration ? params.message : params;
+    const name = isObjectConfiguration ? params.name : undefined;
     const onlyIf = isObjectConfiguration ? params.onlyIf : undefined;
 
     if (onlyIf !== undefined && onlyIf(fields) === false) {
@@ -25,6 +27,8 @@ export function required<TValue extends FilterValue>(params?: RequiredRuleProps 
 
     return (
       isValid || {
+        name: name ?? "required",
+        code: "required",
         message: message ?? "Field is required",
       }
     );

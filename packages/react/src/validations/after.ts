@@ -3,18 +3,40 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { ScalarTypeKey, ValidationRule } from "../field";
+import { ScalarTypeKey, SingleValidationRule } from "../field";
 
 type ValidableValue = Extract<ScalarTypeKey, number | Date | null>;
 
-export function after<TValue extends ValidableValue>(date: TValue, message?: string): ValidationRule<TValue> {
-  return (value: TValue) => {
-    const isValid = value && value >= date;
+type AfterRuleError = {
+  name: string;
+  code: "after";
+  message?: string;
+};
 
-    return (
-      isValid || {
-        message: message ?? `Field must be after ${date}`,
-      }
-    );
+type AfterRuleProps<TValue extends ValidableValue> = {
+  value: TValue;
+  name?: string;
+  message?: string;
+  format?: (value: TValue) => string;
+};
+
+export function after<TValue extends ValidableValue>({
+  value: validable,
+  name,
+  message,
+  format,
+}: AfterRuleProps<TValue>): SingleValidationRule<TValue, AfterRuleError> {
+  return (value: TValue) => {
+    const isValid = value && value >= validable;
+
+    if (isValid) {
+      return true;
+    }
+
+    return {
+      name: name ?? "after",
+      code: "after",
+      message: message ?? `Field must be after ${format?.(validable) ?? validable}`,
+    };
   };
 }
