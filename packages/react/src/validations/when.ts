@@ -3,7 +3,7 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { FilterValue, ValidationRule } from "../field";
+import { FilterValue, MultipleValidationRule, SingleValidationRule, ValidationRule } from "../field";
 import { FieldsCollection } from "../store";
 import { allOf } from "./allOf";
 
@@ -23,6 +23,9 @@ type WhenRulesValidation<TValue> = {
 };
 
 type WhenRuleProps<TValue> = WhenRuleValidation<TValue> | WhenRulesValidation<TValue>;
+
+export function when<TValue extends FilterValue>(props: WhenRuleValidation<TValue>): SingleValidationRule<TValue>;
+export function when<TValue extends FilterValue>(props: WhenRulesValidation<TValue>): MultipleValidationRule<TValue>;
 
 export function when<TValue extends FilterValue>(props: WhenRuleProps<TValue>): ValidationRule<TValue> {
   return (value, fields) => {
