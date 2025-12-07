@@ -57,12 +57,12 @@ export interface ValidationError {
 
 export type ValidationResponse<TError extends ValidationError = ValidationError> = ValidationSucess | TError;
 export type SingleValidationRule<TValue, TError extends ValidationError = ValidationError> = (
-  value: TValue,
+  value: TValue | null,
   fields: FieldsCollection
 ) => ValidationResponse<TError>;
-export type MultipleValidationRule<TValue> = (value: TValue, fields: FieldsCollection) => ValidationResponse<ValidationError>[];
+export type MultipleValidationRule<TValue> = (value: TValue | null, fields: FieldsCollection) => ValidationResponse<ValidationError>[];
 export type ValidationRule<TValue, TError extends ValidationError = ValidationError> = (
-  value: TValue,
+  value: TValue | null,
   fields: FieldsCollection
 ) => ValidationResponse<ValidationError> | ValidationResponse[];
 export type ValidationSchema<TValue> = Array<ValidationRule<TValue>>;

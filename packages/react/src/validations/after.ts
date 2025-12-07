@@ -3,9 +3,9 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { ScalarTypeKey, SingleValidationRule } from "../field";
+import { ScalarFilterValue, SingleValidationRule } from "../field";
 
-type ValidableValue = Extract<ScalarTypeKey, number | Date | null>;
+type ValidableValue = Extract<ScalarFilterValue, number | Date>;
 
 type AfterRuleError = {
   name: string;
@@ -26,7 +26,7 @@ export function after<TValue extends ValidableValue>({
   message,
   format,
 }: AfterRuleProps<TValue>): SingleValidationRule<TValue, AfterRuleError> {
-  return (value: TValue) => {
+  return (value) => {
     const isValid = value && value >= validable;
 
     if (isValid) {

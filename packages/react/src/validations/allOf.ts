@@ -4,7 +4,6 @@
  */
 
 import { MultipleValidationRule, SingleValidationRule, ValidationResponse, ValidationRule } from "../field";
-import { FieldsCollection } from "../store";
 import { isError, isMultiError } from "./utils";
 
 export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: false): MultipleValidationRule<TValue>;
@@ -20,7 +19,7 @@ export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: bo
 }
 
 function createFailFastValidator<TValue>(rules: Array<ValidationRule<TValue>>): SingleValidationRule<TValue> {
-  return (value: TValue, fields: FieldsCollection): ValidationResponse => {
+  return (value, fields): ValidationResponse => {
     for (const rule of rules) {
       const result = rule(value, fields);
       const isMultiple = isMultiError(result);
@@ -44,7 +43,7 @@ function createFailFastValidator<TValue>(rules: Array<ValidationRule<TValue>>): 
   };
 }
 function createCollectAllValidator<TValue>(rules: Array<ValidationRule<TValue>>): MultipleValidationRule<TValue> {
-  return (value: TValue, fields: FieldsCollection): ValidationResponse[] => {
+  return (value, fields): ValidationResponse[] => {
     const errors: ValidationResponse[] = [];
 
     for (const rule of rules) {

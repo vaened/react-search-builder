@@ -26,7 +26,7 @@ export function length<TValue extends ValidableValue>({
   name,
   message,
 }: LengthRuleProps): SingleValidationRule<TValue, LengthRuleError> {
-  return (value: TValue) => {
+  return (value) => {
     const isValid = value && (min === undefined || value.length >= min) && (max === undefined || value.length <= max);
 
     if (isValid) {
