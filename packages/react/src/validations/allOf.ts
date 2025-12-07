@@ -5,6 +5,7 @@
 
 import { MultipleValidationRule, SingleValidationRule, ValidationResponse, ValidationRule } from "../field";
 import { FieldsCollection } from "../store";
+import { isError, isMultiError } from "./utils";
 
 export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: false): MultipleValidationRule<TValue>;
 export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: true): SingleValidationRule<TValue>;
@@ -61,20 +62,4 @@ function createCollectAllValidator<TValue>(rules: Array<ValidationRule<TValue>>)
 
     return errors;
   };
-}
-
-function isError(result: ValidationResponse): boolean {
-  if (result === false) {
-    return true;
-  }
-
-  if (typeof result === "object" && !result.value) {
-    return true;
-  }
-
-  return false;
-}
-
-function isMultiError(result: ValidationResponse | ValidationResponse[]): result is ValidationResponse[] {
-  return Array.isArray(result);
 }
