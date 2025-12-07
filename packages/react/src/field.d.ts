@@ -47,12 +47,12 @@ export type ArrayFilterValue = ArrayFilterTypeMap[keyof ArrayFilterTypeMap];
 export type HumanizeReturnType<T> = T extends unknown[] ? FilterMultiLabel<T>[] : string;
 export type SerializeReturnType<T> = T extends unknown[] ? string[] : string;
 
-export type ValidationStatus = {
-  value: boolean;
+export type ValidationSucess = true;
+export type ValidationError = {
   message?: string;
 };
 
-export type ValidationResponse = boolean | ValidationStatus;
+export type ValidationResponse = ValidationSucess | ValidationError;
 export type SingleValidationRule<TValue> = (value: TValue, fields: FieldsCollection) => ValidationResponse;
 export type MultipleValidationRule<TValue> = (value: TValue, fields: FieldsCollection) => ValidationResponse[];
 export type ValidationRule<TValue> = (value: TValue, fields: FieldsCollection) => ValidationResponse | ValidationResponse[];

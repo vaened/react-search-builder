@@ -1,15 +1,7 @@
-import { ValidationResponse } from "../field";
+import { ValidationError, ValidationResponse } from "../field";
 
-export function isError(result: ValidationResponse): boolean {
-  if (result === false) {
-    return true;
-  }
-
-  if (typeof result === "object" && !result.value) {
-    return true;
-  }
-
-  return false;
+export function isError(result: ValidationResponse): result is ValidationError {
+  return result !== true;
 }
 
 export function isMultiError(result: ValidationResponse | ValidationResponse[]): result is ValidationResponse[] {

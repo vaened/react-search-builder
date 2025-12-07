@@ -13,7 +13,6 @@ export function before<TValue extends ValidableValue>(date: TValue, message?: st
 
     return (
       isValid || {
-        value: false,
         message: message ?? `Field must be before ${date}`,
       }
     );

@@ -19,7 +19,6 @@ export function range<TValue extends ValidableValue>({ min, max, message }: Rang
 
     return (
       isValid || {
-        value: false,
         message: message ?? resolveErrorMessage(min, max),
       }
     );

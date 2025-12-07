@@ -19,7 +19,6 @@ export function length<TValue extends ValidableValue>({ min, max, message }: Len
 
     return (
       isValid || {
-        value: false,
         message: message ?? resolveLengthErrorMessage(value, min, max),
       }
     );

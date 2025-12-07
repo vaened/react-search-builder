@@ -13,7 +13,6 @@ export function after<TValue extends ValidableValue>(date: TValue, message?: str
 
     return (
       isValid || {
-        value: false,
         message: message ?? `Field must be after ${date}`,
       }
     );

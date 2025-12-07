@@ -25,7 +25,6 @@ export function required<TValue extends FilterValue>(params?: RequiredRuleProps 
 
     return (
       isValid || {
-        value: false,
         message: message ?? "Field is required",
       }
     );
