@@ -5,6 +5,7 @@
 
 import { FilterValue, ValidationName, ValidationRule } from "../field";
 import { FieldsCollection } from "../store";
+import { isValidValue } from "./utils";
 
 type RequiredRuleProps = {
   onlyIf?: (fields: FieldsCollection) => boolean;
@@ -23,7 +24,7 @@ export function required<TValue extends FilterValue>(params?: RequiredRuleProps 
       return true;
     }
 
-    const isValid = value !== undefined && value !== null && value !== "" && (!Array.isArray(value) || value.length > 0);
+    const isValid = isValidValue(value) && value !== "" && (!Array.isArray(value) || value.length > 0);
 
     return (
       isValid || {

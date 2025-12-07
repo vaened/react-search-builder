@@ -4,6 +4,7 @@
  */
 
 import { ArrayFilterValue, FilterValue, SingleValidationRule, ValidationName } from "../field";
+import { isValidValue } from "./utils";
 
 type ValidableValue = Extract<FilterValue, ArrayFilterValue | string | null>;
 
@@ -27,7 +28,7 @@ export function length<TValue extends ValidableValue>({
   message,
 }: LengthRuleProps): SingleValidationRule<TValue, LengthRuleError> {
   return (value) => {
-    const isValid = value && (min === undefined || value.length >= min) && (max === undefined || value.length <= max);
+    const isValid = !isValidValue(value) || ((min === undefined || value.length >= min) && (max === undefined || value.length <= max));
 
     if (isValid) {
       return true;

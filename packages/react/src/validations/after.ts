@@ -4,6 +4,7 @@
  */
 
 import { ScalarFilterValue, SingleValidationRule } from "../field";
+import { isValidValue } from "./utils";
 
 type ValidableValue = Extract<ScalarFilterValue, number | Date>;
 
@@ -27,7 +28,7 @@ export function after<TValue extends ValidableValue>({
   format,
 }: AfterRuleProps<TValue>): SingleValidationRule<TValue, AfterRuleError> {
   return (value) => {
-    const isValid = value && value >= validable;
+    const isValid = !isValidValue(value) || value >= validable;
 
     if (isValid) {
       return true;

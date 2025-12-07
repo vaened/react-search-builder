@@ -3,9 +3,10 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { ScalarTypeKey, SingleValidationRule } from "../field";
+import { ScalarFilterValue, SingleValidationRule } from "../field";
+import { isValidValue } from "./utils";
 
-type ValidableValue = Extract<ScalarTypeKey, number | Date | null>;
+type ValidableValue = Extract<ScalarFilterValue, number | Date>;
 
 type BeforeRuleError = {
   name: string;
@@ -27,7 +28,7 @@ export function before<TValue extends ValidableValue>({
   format,
 }: BeforeRuleProps<TValue>): SingleValidationRule<TValue, BeforeRuleError> {
   return (value) => {
-    const isValid = value && value <= validable;
+    const isValid = !isValidValue(value) || value <= validable;
 
     if (isValid) {
       return true;

@@ -3,9 +3,10 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { ScalarTypeKey, SingleValidationRule, ValidationName } from "../field";
+import { ScalarFilterValue, SingleValidationRule, ValidationName } from "../field";
+import { isValidValue } from "./utils";
 
-type ValidableValue = Extract<ScalarTypeKey, number | Date | null>;
+type ValidableValue = Extract<ScalarFilterValue, number | Date | null>;
 
 type RangeRuleError = {
   name: string;
@@ -27,7 +28,7 @@ export function range<TValue extends ValidableValue>({
   message,
 }: RangeRuleProps<TValue>): SingleValidationRule<TValue, RangeRuleError> {
   return (value) => {
-    const isValid = value && (min === undefined || value >= min) && (max === undefined || value <= max);
+    const isValid = !isValidValue(value) || ((min === undefined || value >= min) && (max === undefined || value <= max));
 
     if (isValid) {
       return true;
