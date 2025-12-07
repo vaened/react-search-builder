@@ -48,7 +48,7 @@ export type HumanizeReturnType<T> = T extends unknown[] ? FilterMultiLabel<T>[] 
 export type SerializeReturnType<T> = T extends unknown[] ? string[] : string;
 
 export type ValidationName = string;
-export type ValidationSucess = true;
+export type ValidationSuccess = true;
 export type ValidationError =
   | {
       name: ValidationName;
@@ -57,7 +57,7 @@ export type ValidationError =
     }
   | false;
 
-export type ValidationResponse<TError extends ValidationError = ValidationError> = ValidationSucess | TError;
+export type ValidationResponse<TError extends ValidationError = ValidationError> = ValidationSuccess | TError;
 export type Validation<TValue, TResponse> = (value: TValue | null, fields: FieldsCollection) => TResponse;
 
 export type SingleValidationRule<TValue, TError extends ValidationError = ValidationError> = Validation<TValue, ValidationResponse<TError>>;
