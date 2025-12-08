@@ -3,6 +3,7 @@ import type { GenericField, Serializer } from "../field";
 import type { PersistenceAdapter } from "../persistence/PersistenceAdapter";
 import { FieldStore } from "./FieldStore";
 import { createEventEmitter, type EventEmitter, type Events } from "./event-emitter";
+import { SearchBuilderFieldValidator } from "../validations/SearchBuilderFieldValidator";
 
 const dummySerializer: Serializer<string> = {
   serialize: (v) => v,
@@ -33,7 +34,7 @@ describe("FieldStore", () => {
     persistence = createMockPersistence();
     emitter = createEventEmitter();
     emitSpy = vi.spyOn(emitter, "emit");
-    store = new FieldStore(persistence, emitter);
+    store = new FieldStore(persistence, new SearchBuilderFieldValidator(), emitter);
   });
 
   describe("1. Registration and Lifecycle", () => {
