@@ -7,6 +7,7 @@ import type {
   ArrayFilterFieldConfig,
   ArrayTypeKey,
   EmptyArrayFilterFieldConfig,
+  FieldErrors,
   FieldStore,
   FilterFieldConfig,
   FilterTypeKey,
@@ -19,7 +20,13 @@ import { type ReactElement } from "react";
 
 type Event = { target: any } | any;
 
-export type Control<V> = ({ value, onChange }: { value: V | null; onChange: (event: Event) => void }) => ReactElement;
+export type ControlProps<V> = {
+  value: V | null;
+  errors?: FieldErrors;
+  onChange: (event: Event) => void;
+};
+
+export type Control<V> = (props: ControlProps<V>) => ReactElement;
 
 export type ControllerProps<V> = {
   store: FieldStore;
@@ -60,7 +67,7 @@ export function FilterFieldController<TKey extends ArrayTypeKey, TValue extends 
 export function FilterFieldController<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(props: any) {
   const { store, control, ...restOfProps } = props as FieldController<TKey, TValue>;
 
-  const { value, set } = useFilterField(store, restOfProps as any);
+  const { value, set, errors } = useFilterField(store, restOfProps as any);
 
   function onChange(event: Event) {
     set(getEventValue(event) as TValue);
@@ -68,6 +75,7 @@ export function FilterFieldController<TKey extends FilterTypeKey, TValue extends
 
   return control({
     value: value as TValue,
+    errors,
     onChange,
   });
 }
