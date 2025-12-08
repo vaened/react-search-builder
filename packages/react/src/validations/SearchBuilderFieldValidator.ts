@@ -3,8 +3,8 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { FilterValue, ValidationSchema } from "../field";
-import { FieldErrors, FieldsCollection } from "../store";
+import { FieldRegistry, FilterValue, ValidationSchema } from "../field";
+import { FieldErrors } from "../store";
 import { allOf } from "./allOf";
 import { FieldValidator } from "./FieldValidator";
 import { isMultiError } from "./utils";
@@ -19,11 +19,11 @@ export class SearchBuilderFieldValidator implements FieldValidator {
   validate = <TValue extends FilterValue>(
     value: TValue | null,
     rules: ValidationSchema<TValue>,
-    fields: FieldsCollection
+    registry: FieldRegistry
   ): FieldErrors | undefined => {
     const validator = allOf(rules, this.#failFast);
 
-    const response = validator(value, fields);
+    const response = validator(value, registry);
 
     if (response === true) {
       return;

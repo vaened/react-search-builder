@@ -36,6 +36,11 @@ export type ArrayFilterTypeMap = {
   [K in keyof FilterTypeMap as K extends `${string}[]` ? K : never]: FilterTypeMap[K];
 };
 
+export interface FieldRegistry {
+  exists(name: FilterName): boolean;
+  get<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(name: FilterName): RegisteredField<TKey, TValue> | undefined;
+}
+
 export type FilterTypeKey = keyof FilterTypeMap;
 export type ScalarTypeKey = Exclude<FilterTypeKey, `${string}[]`>;
 export type ArrayTypeKey = Extract<FilterTypeKey, `${string}[]`>;
@@ -58,7 +63,7 @@ export type ValidationError =
   | false;
 
 export type ValidationResponse<TError extends ValidationError = ValidationError> = ValidationSuccess | TError;
-export type Validation<TValue, TResponse> = (value: TValue | null, fields: FieldsCollection) => TResponse;
+export type Validation<TValue, TResponse> = (value: TValue | null, registry: FieldRegistry) => TResponse;
 
 export type SingleValidationRule<TValue, TError extends ValidationError = ValidationError> = Validation<TValue, ValidationResponse<TError>>;
 export type MultipleValidationRule<TValue> = Validation<TValue, ValidationResponse<ValidationError>[]>;
@@ -81,7 +86,7 @@ export type HumanizedValue<V extends ArrayFilterValue> = string | ReadonlyArray<
 export type PrimitiveFilterDictionary = Record<FilterName, PrimitiveValue>;
 export type ValueFilterDictionary = Record<FilterName, FilterValue>;
 
-export type Validator<TValue> = (value: TValue, collection: FieldsCollection) => ValidationSchema<TValue>;
+export type Validator<TValue> = (value: TValue | null, registry: FieldRegistry) => ValidationSchema<TValue>;
 
 export type Humanizer<TValue, TResponse = HumanizeReturnType<TValue>> = (value: TValue, fields: FieldsCollection) => TResponse;
 

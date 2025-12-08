@@ -22,9 +22,9 @@ export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: bo
 }
 
 function createFailFastValidator<TValue>(rules: Array<ValidationRule<TValue>>): SingleValidationRule<TValue> {
-  return (value, fields): ValidationResponse => {
+  return (value, registry): ValidationResponse => {
     for (const rule of rules) {
-      const result = rule(value, fields);
+      const result = rule(value, registry);
       const isMultiple = isMultiError(result);
 
       if (!isMultiple) {
@@ -46,11 +46,11 @@ function createFailFastValidator<TValue>(rules: Array<ValidationRule<TValue>>): 
   };
 }
 function createCollectAllValidator<TValue>(rules: Array<ValidationRule<TValue>>): ErrorableMultipleValidationRule<TValue> {
-  return (value, fields): ValidationError[] => {
+  return (value, registry): ValidationError[] => {
     const errors: ValidationError[] = [];
 
     for (const rule of rules) {
-      const result = rule(value, fields);
+      const result = rule(value, registry);
 
       if (isMultiError(result)) {
         errors.push(...result.filter(isError));
