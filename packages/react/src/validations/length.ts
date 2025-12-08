@@ -6,7 +6,7 @@
 import { ArrayFilterValue, FilterValue, SingleValidationRule, ValidationName } from "../field";
 import { isValidValue } from "./utils";
 
-type ValidableValue = Extract<FilterValue, ArrayFilterValue | string | null>;
+type ValidableValue = Extract<FilterValue, ArrayFilterValue | string>;
 
 type LengthRuleError = {
   name: string;
@@ -14,20 +14,31 @@ type LengthRuleError = {
   message?: string;
 };
 
-type LengthRuleProps = {
-  min?: number;
-  max?: number;
-  name?: ValidationName;
-  message?: string;
+type MinLengthRuleProps = {
+  min: number;
 };
 
+type MaxLengthRuleProps = {
+  max: number;
+};
+
+type BothLengthRuleProps = {
+  min: number;
+  max: number;
+};
+
+type LengthRuleProps = {
+  name?: ValidationName;
+  message?: string;
+} & (MinLengthRuleProps | MaxLengthRuleProps | BothLengthRuleProps);
+
 export function length<TValue extends ValidableValue>({
-  min,
-  max,
   name,
   message,
+  ...restOfProps
 }: LengthRuleProps): SingleValidationRule<TValue, LengthRuleError> {
   return (value) => {
+    const { min, max } = restOfProps as BothLengthRuleProps;
     const isValid = !isValidValue(value) || ((min === undefined || value.length >= min) && (max === undefined || value.length <= max));
 
     if (isValid) {
@@ -35,6 +46,8 @@ export function length<TValue extends ValidableValue>({
     }
 
     const error = resolveLengthError(value, min, max);
+
+    console.log({ error });
 
     return {
       name: name ?? "length",

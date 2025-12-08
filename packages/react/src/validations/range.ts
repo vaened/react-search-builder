@@ -6,7 +6,7 @@
 import { ScalarFilterValue, SingleValidationRule, ValidationName } from "../field";
 import { isValidValue } from "./utils";
 
-type ValidableValue = Extract<ScalarFilterValue, number | Date | null>;
+type ValidableValue = Extract<ScalarFilterValue, number | Date>;
 
 type RangeRuleError = {
   name: string;
@@ -14,20 +14,31 @@ type RangeRuleError = {
   message?: string;
 };
 
-type RangeRuleProps<TValue> = {
-  min?: TValue;
-  max?: TValue;
-  name?: ValidationName;
-  message?: string;
+type MinRangeRuleProps<TValue> = {
+  min: TValue;
 };
 
+type MaxRangeRuleProps<TValue> = {
+  max: TValue;
+};
+
+type BothRangeRuleProps<TValue> = {
+  min: TValue;
+  max: TValue;
+};
+
+type RangeRuleProps<TValue> = {
+  name?: ValidationName;
+  message?: string;
+} & (MinRangeRuleProps<TValue> | MaxRangeRuleProps<TValue> | BothRangeRuleProps<TValue>);
+
 export function range<TValue extends ValidableValue>({
-  min,
-  max,
   name,
   message,
+  ...restOfProps
 }: RangeRuleProps<TValue>): SingleValidationRule<TValue, RangeRuleError> {
   return (value) => {
+    const { min, max } = restOfProps as BothRangeRuleProps<TValue>;
     const isValid = !isValidValue(value) || ((min === undefined || value >= min) && (max === undefined || value <= max));
 
     if (isValid) {
