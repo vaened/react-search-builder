@@ -19,12 +19,13 @@ import type {
   Serializer,
 } from "../field";
 import resolve from "../serializers/resolve";
-import type { RegisteredField } from "../store";
+import type { FieldErrors, RegisteredField } from "../store";
 import { FieldStore } from "../store";
 
 export type FilterFieldReturn<TResolved, TRegistered> = {
   field: TRegistered | undefined;
   value: TResolved | null;
+  errors?: FieldErrors;
   set: (value: TResolved) => void;
 };
 
@@ -138,6 +139,7 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
 
   return {
     field,
+    errors: field?.errors,
     value: (field?.value ?? defaultValue) as TValue,
     set,
   };
