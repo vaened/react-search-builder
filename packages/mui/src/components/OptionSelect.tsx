@@ -130,11 +130,11 @@ export type EmptyArrayOptionSelectWithChildrenConfig<TKey extends OptionSelectAr
     toHumanLabel?: (value: ArrayItemType<FilterTypeMap[TKey]>) => FilterLabel;
   };
 
-export function OptionSelect<TKey extends OptionSelectArrayTypeKey>(props: EmptyArrayOptionSelectWithChildrenConfig<TKey>): ReactElement;
-
 export function OptionSelect<TKey extends OptionSelectScalarTypeKey, TValue extends FilterTypeMap[TKey], TItem, TItemsObj>(
   props: ScalarOptionSelectConfig<TKey, TValue, TItem, TItemsObj>
 ): ReactElement;
+
+export function OptionSelect<TKey extends OptionSelectArrayTypeKey>(props: EmptyArrayOptionSelectWithChildrenConfig<TKey>): ReactElement;
 
 export function OptionSelect<TKey extends OptionSelectArrayTypeKey, TItem, TItemsObj>(
   props: EmptyArrayOptionSelectConfig<TKey, TItem, TItemsObj>
