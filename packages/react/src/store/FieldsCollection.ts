@@ -10,13 +10,19 @@ import type {
   FilterTypeMap,
   PrimitiveFilterDictionary,
   Serializer,
+  ValidationError,
   ValueFilterDictionary,
 } from "../field";
 import type { NonUndefined } from "../internal";
 
+export type FieldErrors = {
+  errors: ValidationError[];
+};
+
 export interface RegisteredField<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]> extends Field<TKey, TValue> {
   defaultValue: TValue | null;
   isHydrating: boolean;
+  errors?: FieldErrors;
   updatedAt: number;
 }
 
