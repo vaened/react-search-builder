@@ -5,11 +5,14 @@
 
 import { empty, url } from "../persistence";
 import { PersistenceAdapter } from "../persistence/PersistenceAdapter";
+import { FieldValidator } from "../validations/FieldValidator";
+import { SearchBuilderFieldValidator } from "../validations/SearchBuilderFieldValidator";
 import { createEventEmitter, EventEmitter } from "./event-emitter";
 import { FieldStore } from "./FieldStore";
 
 export type FieldStoreConfig = {
   persistence?: PersistenceAdapter;
+  validator?: FieldValidator;
   emitter?: EventEmitter;
 };
 
@@ -39,8 +42,8 @@ export function createFieldStore(args: CreateStoreOptions | undefined = undefine
   return create(args);
 }
 
-function create({ persistence = undefined, emitter = undefined }: FieldStoreConfig = {}): FieldStore {
-  return new FieldStore(persistence ?? empty(), emitter ?? createEventEmitter());
+function create({ persistence = undefined, validator = undefined, emitter = undefined }: FieldStoreConfig = {}): FieldStore {
+  return new FieldStore(persistence ?? empty(), validator ?? new SearchBuilderFieldValidator(), emitter ?? createEventEmitter());
 }
 
 function isResolverFunction(arg: unknown): arg is CreateStoreConfigResolver {

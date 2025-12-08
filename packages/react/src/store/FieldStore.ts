@@ -14,9 +14,11 @@ import type {
   PrimitiveFilterDictionary,
   PrimitiveValue,
   Serializer,
+  Validator,
   ValueFilterDictionary,
 } from "../field";
 import type { PersistenceAdapter } from "../persistence/PersistenceAdapter";
+import { FieldValidator } from "../validations/FieldValidator";
 import { FieldsCollection } from "./FieldsCollection";
 import { type EventEmitter, type Unsubscribe } from "./event-emitter";
 import { createTaskMonitor, TaskMonitor } from "./task-monitor";
@@ -38,6 +40,7 @@ export type FieldStoreState = Readonly<{
 
 export class FieldStore {
   readonly #persistence: PersistenceAdapter;
+  readonly #validator: FieldValidator;
   readonly #emitter: EventEmitter;
   readonly #tracker: TaskMonitor;
 
@@ -47,9 +50,10 @@ export class FieldStore {
   #fields: RegisteredFieldDictionary;
   #state: FieldStoreState;
 
-  constructor(persistence: PersistenceAdapter, emitter: EventEmitter) {
+  constructor(persistence: PersistenceAdapter, validator: FieldValidator, emitter: EventEmitter) {
     this.#fields = new Map();
     this.#persistence = persistence;
+    this.#validator = validator;
     this.#emitter = emitter;
     this.#initial = persistence.read();
     this.#state = this.#initialState();
@@ -350,10 +354,21 @@ export class FieldStore {
   };
 
   #override<F extends GenericRegisteredField>(field: F, partial: Partial<Pick<F, "value" | "isHydrating">>): void {
+    const newValue = partial.value;
+    let errors = undefined;
+
+    if (newValue !== undefined && field.validate !== undefined) {
+      const validate = field.validate as Validator<FilterValue>;
+      const rules = validate(newValue, this.collection());
+
+      errors = this.#validator.validate(newValue, rules, this.collection());
+    }
+
     this.#fields.set(field.name, {
       ...(field as F),
       updatedAt: Date.now(),
       ...partial,
+      errors,
     });
   }
 
