@@ -5,7 +5,7 @@ export function isError(result: ValidationResponse): result is ValidationError {
   return result !== true;
 }
 
-export function isMultiError(result: ValidationResponse | ValidationResponse[]): result is ValidationResponse[] {
+export function isMultiError<TResponse extends ValidationResponse>(result: TResponse | TResponse[]): result is TResponse[] {
   return Array.isArray(result);
 }
 
