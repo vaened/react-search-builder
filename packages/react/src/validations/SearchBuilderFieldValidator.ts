@@ -31,11 +31,11 @@ export class SearchBuilderFieldValidator implements FieldValidator {
     }
 
     if (isMultiple) {
-      return { errors: response };
+      return { all: response };
     }
 
     return {
-      errors: [response],
+      all: [response],
     };
   };
 }

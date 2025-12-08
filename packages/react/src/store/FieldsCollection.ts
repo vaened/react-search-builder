@@ -16,7 +16,7 @@ import type {
 import type { NonUndefined } from "../internal";
 
 export type FieldErrors = {
-  errors: ValidationError[];
+  all: ValidationError[];
 };
 
 export interface RegisteredField<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]> extends Field<TKey, TValue> {
