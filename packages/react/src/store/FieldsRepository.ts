@@ -126,6 +126,7 @@ export class FieldRepository implements FieldRegistry {
 
   public clear = (): void => {
     this.#fields.clear();
+    this.#errorManager.clear();
   };
 
   #validate<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
