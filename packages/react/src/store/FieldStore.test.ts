@@ -1,20 +1,18 @@
 import { beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
-import type { GenericField, Serializer } from "../field";
+import type { Field } from "../field";
 import type { PersistenceAdapter } from "../persistence/PersistenceAdapter";
+import { SearchBuilderFieldValidator } from "../validations/SearchBuilderFieldValidator";
 import { FieldStore } from "./FieldStore";
 import { createEventEmitter, type EventEmitter, type Events } from "./event-emitter";
-import { SearchBuilderFieldValidator } from "../validations/SearchBuilderFieldValidator";
 
-const dummySerializer: Serializer<string> = {
-  serialize: (v) => v,
-  unserialize: (v) => v,
-};
-
-const createTestField = (name: string, value = "default"): GenericField => ({
+const createTestField = (name: string, value = "default"): Field<"string", string> => ({
   name,
   type: "string",
   value,
-  serializer: dummySerializer,
+  serializer: {
+    serialize: (v) => v,
+    unserialize: (v) => v,
+  },
   humanize: (v) => v,
 });
 
