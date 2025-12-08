@@ -40,7 +40,6 @@ export type FieldStoreState = Readonly<{
 
 export class FieldStore {
   readonly #persistence: PersistenceAdapter;
-  readonly #validator: FieldValidator;
   readonly #emitter: EventEmitter;
   readonly #tracker: TaskMonitor;
   readonly #repository: FieldRepository;
@@ -52,13 +51,12 @@ export class FieldStore {
 
   constructor(persistence: PersistenceAdapter, validator: FieldValidator, emitter: EventEmitter) {
     this.#persistence = persistence;
-    this.#validator = validator;
     this.#emitter = emitter;
     this.#initial = persistence.read();
     this.#state = this.#initialState();
     this.#whitelist = [];
     this.#tracker = createTaskMonitor();
-    this.#repository = new FieldRepository(this.#validator, new ErrorManager());
+    this.#repository = new FieldRepository(validator, new ErrorManager());
   }
 
   state = () => this.#state;
