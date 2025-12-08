@@ -3,14 +3,17 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { MultipleValidationRule, SingleValidationRule, ValidationResponse, ValidationRule } from "../field";
+import { SingleValidationRule, Validation, ValidationError, ValidationResponse, ValidationRule, ValidationSuccess } from "../field";
 import { isError, isMultiError } from "./utils";
 
-export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: false): MultipleValidationRule<TValue>;
-export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: true): SingleValidationRule<TValue>;
-export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast?: boolean): ValidationRule<TValue>;
+type ErrorableMultipleValidationRule<TValue> = Validation<TValue, ValidationError[]>;
+type ErrorableValidationRule<TValue> = Validation<TValue, ValidationSuccess | ValidationError | ValidationError[]>;
 
-export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: boolean = true): ValidationRule<TValue> {
+export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: false): ErrorableMultipleValidationRule<TValue>;
+export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: true): SingleValidationRule<TValue>;
+export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast?: boolean): ErrorableValidationRule<TValue>;
+
+export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: boolean = true): ErrorableValidationRule<TValue> {
   if (failFast) {
     return createFailFastValidator(rules);
   }
@@ -42,9 +45,9 @@ function createFailFastValidator<TValue>(rules: Array<ValidationRule<TValue>>): 
     return true;
   };
 }
-function createCollectAllValidator<TValue>(rules: Array<ValidationRule<TValue>>): MultipleValidationRule<TValue> {
-  return (value, fields): ValidationResponse[] => {
-    const errors: ValidationResponse[] = [];
+function createCollectAllValidator<TValue>(rules: Array<ValidationRule<TValue>>): ErrorableMultipleValidationRule<TValue> {
+  return (value, fields): ValidationError[] => {
+    const errors: ValidationError[] = [];
 
     for (const rule of rules) {
       const result = rule(value, fields);
