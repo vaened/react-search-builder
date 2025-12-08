@@ -1,3 +1,8 @@
+/**
+ * @author enea dhack <contact@vaened.dev>
+ * @link https://vaened.dev DevFolio
+ */
+
 import { FilterValue, ValidationError, ValidationResponse } from "../field";
 import { NonUndefined } from "../internal";
 
