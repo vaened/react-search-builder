@@ -17,7 +17,7 @@ export class SearchBuilderFieldValidator implements FieldValidator {
   }
 
   validate = <TValue extends FilterValue>(
-    value: TValue,
+    value: TValue | null,
     rules: ValidationSchema<TValue>,
     fields: FieldsCollection
   ): FieldErrors | undefined => {
