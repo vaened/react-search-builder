@@ -52,7 +52,7 @@ export class FieldRepository implements FieldRegistry {
     return this.#fields.get(name) as RegisteredField<TKey, TValue> | undefined;
   };
 
-  public isDirty(field: GenericRegisteredField, value: GenericRegisteredField["value"]): boolean;
+  public isDirty(field: GenericRegisteredField, value: RegisteredFieldValue): boolean;
   public isDirty<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
     value: TValue | null

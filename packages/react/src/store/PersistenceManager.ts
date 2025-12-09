@@ -13,8 +13,7 @@ import {
   SerializeReturnType,
 } from "../field";
 import { PersistenceAdapter } from "../persistence/PersistenceAdapter";
-import { GenericRegisteredField, RegisteredField } from "./FieldsCollection";
-import { FieldRepository } from "./FieldsRepository";
+import { FieldRepository, GenericRegisteredField, RegisteredField, RegisteredFieldValue } from "./FieldsRepository";
 import { TaskMonitor } from "./TaskMonitor";
 
 export type AsynchronousValue<TValue> = { deferred: true; hydrated: Promise<TValue | null> };
@@ -173,9 +172,9 @@ export class PersistenceManager implements PersistenceAdapter {
   }
 
   #parse(
-    newValue: SerializeReturnType<GenericRegisteredField["value"]>,
+    newValue: SerializeReturnType<RegisteredFieldValue>,
     field: Pick<GenericRegisteredField, "defaultValue" | "serializer">
-  ): ParseValue<GenericRegisteredField["value"]>;
+  ): ParseValue<RegisteredFieldValue>;
   #parse<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     newValue: SerializeReturnType<TValue>,
     field: Pick<RegisteredField<TKey, TValue>, "defaultValue" | "serializer">
