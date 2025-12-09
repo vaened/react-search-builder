@@ -15,6 +15,7 @@ import type {
   ScalarFieldConfig,
   ScalarTypeKey,
   Serializer,
+  Validator,
 } from "../field";
 import resolve from "../serializers/resolve";
 import type { FieldErrors, RegisteredField } from "../store";
@@ -77,14 +78,16 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
     submittable,
     serializer: configSerializer,
     humanize: configHumanize,
+    validate: configValidate,
     ...restOfProps
   } = config as FilterFieldConfig<TKey, TValue>;
-  const parser = useRef({ serializer: configSerializer, humanize: configHumanize });
+  const parser = useRef({ serializer: configSerializer, humanize: configHumanize, validate: configValidate });
   const selector = useMemo(() => store.listen<TKey, TValue>(name), [store, name]);
   const field = useSyncExternalStore(store.subscribe, selector, selector);
 
   const defaultSerializer = useMemo(() => resolve(type) as Serializer<TValue>, [type]);
   const humanize = useCallback<Humanizer<TValue>>((value, fields) => parser.current.humanize?.(value, fields), []);
+  const validate = useCallback<Validator<TValue>>((value, registry) => parser.current.validate?.(value, registry) ?? [], []);
   const serializer = useMemo(() => {
     const safe = (userSerializer: Serializer<TValue>) => userSerializer ?? defaultSerializer;
 
@@ -98,6 +101,7 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
     parser.current = {
       serializer: configSerializer,
       humanize: configHumanize,
+      validate: configValidate,
     };
   });
 
@@ -109,6 +113,7 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
       value: defaultValue ?? null,
       serializer,
       humanize,
+      validate,
       ...restOfProps,
     });
 
