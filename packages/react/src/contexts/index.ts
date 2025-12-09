@@ -4,7 +4,7 @@
  */
 
 import { createContext, useContext } from "react";
-import type { PrimitiveFilterDictionary } from "../field";
+import type { ValueFilterDictionary } from "../field";
 import type { FieldStore, FieldStoreState } from "../store";
 
 export interface SearchBuilderContextState {
@@ -12,7 +12,7 @@ export interface SearchBuilderContextState {
   submitOnChange: boolean;
   isLoading: boolean;
   isFormReady: boolean;
-  refresh: (params: PrimitiveFilterDictionary) => void;
+  refresh: (params: ValueFilterDictionary) => void;
 }
 
 export interface SearchState {
