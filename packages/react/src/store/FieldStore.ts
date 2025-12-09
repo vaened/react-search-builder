@@ -5,6 +5,9 @@
 
 import type { RegisteredField, RegisteredFieldValue } from ".";
 import type { Field, FieldOptions, FilterName, FilterTypeKey, FilterTypeMap, FilterValue, ValueFilterDictionary } from "../field";
+import { PersistenceAdapter } from "../persistence/PersistenceAdapter";
+import { FieldValidator } from "../validations/FieldValidator";
+import { ErrorManager } from "./ErrorManager";
 import { FieldsCollection } from "./FieldsCollection";
 import { FieldRepository, NotExecuted } from "./FieldsRepository";
 import { PersistenceManager } from "./PersistenceManager";
@@ -36,13 +39,13 @@ export class FieldStore {
   #listeners: Set<() => void> = new Set();
   #state: FieldStoreState;
 
-  constructor(persistence: PersistenceManager, repository: FieldRepository, tracker: TaskMonitor, emitter: EventEmitter) {
+  constructor(adapter: PersistenceAdapter, validator: FieldValidator, error: ErrorManager, tracker: TaskMonitor, emitter: EventEmitter) {
     this.#whitelist = [];
     this.#state = this.#initialState();
     this.#tracker = tracker;
-    this.#repository = repository;
-    this.#persistence = persistence;
     this.#emitter = emitter;
+    this.#repository = new FieldRepository(validator, error);
+    this.#persistence = new PersistenceManager(adapter, this.#repository, tracker);
   }
 
   state = () => this.#state;

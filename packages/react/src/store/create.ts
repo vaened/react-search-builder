@@ -9,9 +9,7 @@ import { FieldValidator } from "../validations/FieldValidator";
 import { SearchBuilderFieldValidator } from "../validations/SearchBuilderFieldValidator";
 import { ErrorManager } from "./ErrorManager";
 import { createEventEmitter, EventEmitter } from "./event-emitter";
-import { FieldRepository } from "./FieldsRepository";
 import { FieldStore } from "./FieldStore";
-import { PersistenceManager } from "./PersistenceManager";
 import { TaskMonitor } from "./TaskMonitor";
 
 export type FieldStoreConfig = {
@@ -47,10 +45,13 @@ export function createFieldStore(args: CreateStoreOptions | undefined = undefine
 }
 
 function create({ persistence = undefined, validator = undefined, emitter = undefined }: FieldStoreConfig = {}): FieldStore {
-  const tracker = new TaskMonitor();
-  const repository = new FieldRepository(validator ?? new SearchBuilderFieldValidator(), new ErrorManager());
-  const manager = new PersistenceManager(persistence ?? empty(), repository, tracker);
-  return new FieldStore(manager, repository, tracker, emitter ?? createEventEmitter());
+  return new FieldStore(
+    persistence ?? empty(),
+    validator ?? new SearchBuilderFieldValidator(),
+    new ErrorManager(),
+    new TaskMonitor(),
+    emitter ?? createEventEmitter()
+  );
 }
 
 function isResolverFunction(arg: unknown): arg is CreateStoreConfigResolver {
