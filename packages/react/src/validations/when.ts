@@ -3,11 +3,10 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { FilterValue, MultipleValidationRule, SingleValidationRule, ValidationRule } from "../field";
-import { FieldsCollection } from "../store";
+import { FieldRegistry, FilterValue, MultipleValidationRule, SingleValidationRule, ValidationRule } from "../field";
 import { allOf } from "./allOf";
 
-type Predicate = (fields: FieldsCollection) => boolean;
+type Predicate = (registry: FieldRegistry) => boolean;
 
 type Condition = Predicate | boolean;
 
@@ -28,19 +27,19 @@ export function when<TValue extends FilterValue>(props: WhenRuleValidation<TValu
 export function when<TValue extends FilterValue>(props: WhenRulesValidation<TValue>): MultipleValidationRule<TValue>;
 
 export function when<TValue extends FilterValue>(props: WhenRuleProps<TValue>): ValidationRule<TValue> {
-  return (value, fields) => {
-    const shouldValidate = typeof props.is === "function" ? props.is(fields) : props.is;
+  return (value, registry) => {
+    const shouldValidate = typeof props.is === "function" ? props.is(registry) : props.is;
 
     if (!shouldValidate) {
       return true;
     }
 
     if (!isMultiRules(props)) {
-      return props.apply(value, fields);
+      return props.apply(value, registry);
     }
 
     const validator = allOf(props.apply, props.failFast ?? true);
-    return validator(value, fields);
+    return validator(value, registry);
   };
 }
 
