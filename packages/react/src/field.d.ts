@@ -88,7 +88,7 @@ export type ValueFilterDictionary = Record<FilterName, FilterValue>;
 
 export type Validator<TValue> = (value: TValue | null, registry: FieldRegistry) => ValidationSchema<TValue>;
 
-export type Humanizer<TValue, TResponse = HumanizeReturnType<TValue>> = (value: TValue, fields: FieldsCollection) => TResponse;
+export type Humanizer<TValue, TResponse = HumanizeReturnType<TValue>> = (value: TValue, fields: FieldsCollection) => TResponse | undefined;
 
 export type AsynchronousSerializer<TValue> = {
   serialize(value: TValue): SerializeReturnType<TValue>;

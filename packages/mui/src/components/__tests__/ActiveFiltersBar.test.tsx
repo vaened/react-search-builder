@@ -1,6 +1,6 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createFieldStore, GenericField } from "@vaened/react-search-builder";
+import { createFieldStore } from "@vaened/react-search-builder";
 import { describe, expect, it } from "vitest";
 import { ActiveFiltersBar } from "../ActiveFiltersBar";
 import { SearchForm } from "../SearchForm";
@@ -9,7 +9,7 @@ const renderWithStore = (initialData: Record<string, string> = {}) => {
   const store = createFieldStore({ persistInUrl: false });
 
   Object.entries(initialData).forEach(([key, value]) => {
-    store.register({ name: key, type: "string", value: "", humanize: (v: string) => v } as unknown as GenericField);
+    store.register({ name: key, type: "string", value: "" as string, humanize: (v: string) => v });
 
     if (value) {
       store.set(key, value);

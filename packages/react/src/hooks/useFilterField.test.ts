@@ -119,8 +119,8 @@ describe("useFilterField", () => {
 
     const testDate = new Date("2023-01-01T00:00:00.000Z");
 
-    expect(field?.serializer.serialize(testDate)).toBe("2023-01-01T00:00:00.000Z");
-    expect(field?.serializer.unserialize("2023-01-01T00:00:00.000Z")).toBeInstanceOf(Date);
+    expect(field?.serializer?.serialize(testDate)).toBe("2023-01-01T00:00:00.000Z");
+    expect(field?.serializer?.unserialize("2023-01-01T00:00:00.000Z")).toBeInstanceOf(Date);
   });
 
   it("should prefer custom serializer over auto-resolved one", () => {
@@ -142,7 +142,7 @@ describe("useFilterField", () => {
 
     const field = store.get("customField");
 
-    expect(field?.serializer.serialize("hello")).toBe("CUSTOM:hello");
-    expect(field?.serializer.unserialize("CUSTOM:world")).toBe("world");
+    expect(field?.serializer?.serialize("hello")).toBe("CUSTOM:hello");
+    expect(field?.serializer?.unserialize("CUSTOM:world")).toBe("world");
   });
 });
