@@ -132,9 +132,7 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
       touched.submittable = submittable;
     }
 
-    if (Object.keys(touched).length > 0) {
-      store.update(name, touched);
-    }
+    store.update(name, touched);
   }, [submittable, field]);
 
   const set = (value: TValue) => {
