@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Serializer } from "../field";
-import type { GenericRegisteredField } from "../store";
 import { EMPTY_VALUE, FieldsCollection } from "./FieldsCollection";
+import type { GenericRegisteredField } from "./FieldsRepository";
 
 const createField = (
   name: string,

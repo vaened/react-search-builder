@@ -3,37 +3,9 @@
  * @link https://vaened.dev DevFolio
  */
 
-import type {
-  Field,
-  FieldRegistry,
-  FilterName,
-  FilterTypeKey,
-  FilterTypeMap,
-  PrimitiveFilterDictionary,
-  Serializer,
-  ValidationError,
-  ValueFilterDictionary,
-} from "../field";
+import type { FieldRegistry, FilterName, PrimitiveFilterDictionary, Serializer, ValueFilterDictionary } from "../field";
 import type { NonUndefined } from "../internal";
-
-export type FieldErrors = {
-  all: ValidationError[];
-};
-
-export interface RegisteredField<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]> extends Field<TKey, TValue> {
-  defaultValue: TValue | null;
-  isHydrating: boolean;
-  errors?: FieldErrors;
-  updatedAt: number;
-}
-
-export type GenericRegisteredField = {
-  [K in FilterTypeKey]: RegisteredField<K, FilterTypeMap[K]>;
-}[FilterTypeKey];
-
-export type RegisteredFieldValue = GenericRegisteredField["value"];
-
-export type RegisteredFieldDictionary = Map<FilterName, GenericRegisteredField>;
+import { GenericRegisteredField, RegisteredFieldDictionary } from "./FieldsRepository";
 
 export const EMPTY_VALUE = "";
 
