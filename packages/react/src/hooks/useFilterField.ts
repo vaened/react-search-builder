@@ -85,7 +85,8 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
   const selector = useMemo(() => store.listen<TKey, TValue>(name), [store, name]);
   const field = useSyncExternalStore(store.subscribe, selector, selector);
 
-  const defaultSerializer = useMemo(() => resolve(type) as Serializer<TValue>, [type]);
+  const defaultSerializer = useMemo(() => resolve(type), [type]);
+
   const humanize = useCallback<Humanizer<TValue>>((value, fields) => parser.current.humanize?.(value, fields), []);
   const validate = useCallback<Validator<TValue>>((value, registry) => parser.current.validate?.(value, registry) ?? [], []);
   const serializer = useMemo(() => {
