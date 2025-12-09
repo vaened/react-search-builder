@@ -11,8 +11,6 @@ import type {
   FieldOptions,
   FilterTypeKey,
   FilterTypeMap,
-  FilterValue,
-  GenericField,
   Humanizer,
   ScalarFieldConfig,
   ScalarTypeKey,
@@ -80,20 +78,20 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
     serializer: configSerializer,
     humanize: configHumanize,
     ...restOfProps
-  } = config as GenericFilterFieldConfig;
+  } = config as FilterFieldConfig<TKey, TValue>;
   const parser = useRef({ serializer: configSerializer, humanize: configHumanize });
   const selector = useMemo(() => store.listen<TKey, TValue>(name), [store, name]);
   const field = useSyncExternalStore(store.subscribe, selector, selector);
 
-  const defaultSerializer = useMemo(() => resolve(type), [type]);
-  const humanize = useCallback<Humanizer<FilterValue>>((value, fields) => parser.current.humanize?.(value as never, fields), []);
-  const serializer = useMemo<Serializer<FilterValue>>(() => {
-    const safe = (userSerializer: Serializer<FilterValue> | null) => userSerializer ?? defaultSerializer;
+  const defaultSerializer = useMemo(() => resolve(type) as Serializer<TValue>, [type]);
+  const humanize = useCallback<Humanizer<TValue>>((value, fields) => parser.current.humanize?.(value, fields), []);
+  const serializer = useMemo(() => {
+    const safe = (userSerializer: Serializer<TValue>) => userSerializer ?? defaultSerializer;
 
     return {
-      unserialize: (value) => safe(parser.current.serializer).unserialize(value as never),
-      serialize: (value) => safe(parser.current.serializer).serialize(value as never),
-    };
+      unserialize: (value) => safe(parser.current.serializer).unserialize(value),
+      serialize: (value) => safe(parser.current.serializer).serialize(value),
+    } as Serializer<TValue>;
   }, [defaultSerializer]);
 
   useEffect(() => {
@@ -112,7 +110,7 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
       serializer,
       humanize,
       ...restOfProps,
-    } as GenericField);
+    });
 
     return () => store.unregister(name);
   }, [store, name, type]);
