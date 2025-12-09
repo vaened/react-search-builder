@@ -78,10 +78,6 @@ export class FieldsCollection implements Iterable<GenericRegisteredField>, Field
     return this.filter((field) => FieldsCollection.isValidValue(field.value));
   };
 
-  public has = (name: FilterName): boolean => {
-    return this.#values.has(name);
-  };
-
   public exists = (name: FilterName): boolean => {
     return this.#values.has(name);
   };
