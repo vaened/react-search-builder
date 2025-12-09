@@ -15,10 +15,9 @@ import type {
   FilterTypeMap,
   ScalarFilterFieldConfig,
 } from "@vaened/react-search-builder";
-import { EMPTY_VALUE, useSearchBuilderQuietly } from "@vaened/react-search-builder";
+import { EMPTY_VALUE, type FieldController, FilterFieldController, useSearchBuilderQuietly } from "@vaened/react-search-builder";
 import { type ReactElement, type ReactNode, useId, useMemo } from "react";
 import ErrorMessages from "./ErrorMessages";
-import FilterFieldController, { type FieldController } from "./FilterFieldController";
 
 type MuiSelectRef = React.ComponentRef<typeof MuiSelect>;
 

@@ -6,7 +6,6 @@
 export * from "./components/ActiveFiltersBar";
 export * from "./components/DropdownMenu";
 export * from "./components/FilterChip";
-export * from "./components/FilterFieldController";
 export * from "./components/FlagsSelect";
 export * from "./components/IndexSelect";
 export * from "./components/OptionSelect";

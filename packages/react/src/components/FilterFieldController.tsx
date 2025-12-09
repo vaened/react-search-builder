@@ -3,20 +3,10 @@
  * @link https://vaened.dev DevFolio
  */
 
-import type {
-  ArrayFilterFieldConfig,
-  ArrayTypeKey,
-  EmptyArrayFilterFieldConfig,
-  FieldErrors,
-  FieldStore,
-  FilterFieldConfig,
-  FilterTypeKey,
-  FilterTypeMap,
-  ScalarFilterFieldConfig,
-  ScalarTypeKey,
-} from "@vaened/react-search-builder";
-import { useFilterField } from "@vaened/react-search-builder";
 import { type ReactElement } from "react";
+import { ArrayTypeKey, FilterTypeKey, FilterTypeMap, ScalarTypeKey } from "../field";
+import { ArrayFilterFieldConfig, EmptyArrayFilterFieldConfig, FilterFieldConfig, ScalarFilterFieldConfig, useFilterField } from "../hooks";
+import { FieldErrors, FieldStore } from "../store";
 
 type Event = { target: any } | any;
 

@@ -5,9 +5,9 @@
 
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createFieldStore } from "@vaened/react-search-builder";
 import { describe, expect, it } from "vitest";
-import FilterFieldController, { FieldController } from "../FilterFieldController";
+import { createFieldStore } from "../store";
+import FilterFieldController, { FieldController } from "./FilterFieldController";
 
 const renderController = (props: Partial<FieldController<"string" | "number", string | number>> = {}) => {
   const store = createFieldStore({ persistInUrl: false });
