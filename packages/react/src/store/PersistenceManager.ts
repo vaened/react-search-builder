@@ -59,7 +59,7 @@ export class PersistenceManager implements PersistenceAdapter {
 
   public resolveFromDictionary<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     name: FilterName,
-    serializer: Serializer<TValue>|undefined,
+    serializer: Serializer<TValue> | undefined,
     fallback: TValue | null
   ): ParseValue<TValue> {
     const persistedValue = this.#dictionary[name] as SerializeReturnType<TValue>;
