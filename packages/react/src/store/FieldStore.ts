@@ -3,25 +3,16 @@
  * @link https://vaened.dev DevFolio
  */
 
-import type { GenericRegisteredField, RegisteredField, RegisteredFieldValue } from ".";
-import type {
-  Field,
-  FieldOptions,
-  FilterName,
-  FilterTypeKey,
-  FilterTypeMap,
-  FilterValue,
-  PrimitiveFilterDictionary,
-  SerializeReturnType,
-  ValueFilterDictionary,
-} from "../field";
+import type { RegisteredField, RegisteredFieldValue } from ".";
+import type { Field, FieldOptions, FilterName, FilterTypeKey, FilterTypeMap, FilterValue, ValueFilterDictionary } from "../field";
 import type { PersistenceAdapter } from "../persistence/PersistenceAdapter";
 import { FieldValidator } from "../validations/FieldValidator";
 import { ErrorManager } from "./ErrorManager";
 import { FieldsCollection } from "./FieldsCollection";
 import { FieldRepository, NotExecuted } from "./FieldsRepository";
+import { PersistenceManager } from "./PersistenceManager";
+import { TaskMonitor } from "./TaskMonitor";
 import { type EventEmitter, type Unsubscribe } from "./event-emitter";
-import { createTaskMonitor, TaskMonitor } from "./task-monitor";
 
 export type FieldOperation = "set" | "flush" | "update" | "hydrate" | "unregister" | "register" | "rehydrate" | "reset" | null;
 
@@ -39,24 +30,22 @@ export type FieldStoreState = Readonly<{
 }>;
 
 export class FieldStore {
-  readonly #persistence: PersistenceAdapter;
   readonly #emitter: EventEmitter;
   readonly #tracker: TaskMonitor;
   readonly #repository: FieldRepository;
+  readonly #persistence: PersistenceManager;
 
   #whitelist: FilterName[];
-  #initial: PrimitiveFilterDictionary;
   #listeners: Set<() => void> = new Set();
   #state: FieldStoreState;
 
-  constructor(persistence: PersistenceAdapter, validator: FieldValidator, emitter: EventEmitter) {
-    this.#persistence = persistence;
+  constructor(adapter: PersistenceAdapter, validator: FieldValidator, emitter: EventEmitter) {
     this.#emitter = emitter;
-    this.#initial = persistence.read();
-    this.#state = this.#initialState();
     this.#whitelist = [];
-    this.#tracker = createTaskMonitor();
+    this.#state = this.#initialState();
+    this.#tracker = new TaskMonitor();
     this.#repository = new FieldRepository(validator, new ErrorManager());
+    this.#persistence = new PersistenceManager(adapter, this.#repository, this.#tracker);
   }
 
   state = () => this.#state;
@@ -65,7 +54,7 @@ export class FieldStore {
 
   collection = () => this.#state.collection;
 
-  isHydrating = () => this.#tracker.isHydrating();
+  isHydrating = () => this.#tracker.isWorking();
 
   hasErrors = (name?: FilterName) => this.#repository.hasErrors(name);
 
@@ -83,60 +72,21 @@ export class FieldStore {
   };
 
   rehydrate = async (): Promise<void> => {
-    const newValues = this.#persistence.read();
-    const touched: FilterName[] = [];
-    const hydrators: Record<FilterName, Promise<FilterValue>> = {};
-
-    for (const field of this.#repository.all().values()) {
-      const { deferred, hydrated } = this.#parse(newValues[field.name], field);
-
-      if (deferred) {
-        this.#tracker.capture();
-        this.#repository.override(field, { isHydrating: true });
-        hydrators[field.name] = hydrated;
-        continue;
-      }
-
-      if (this.#repository.isDirty(field, hydrated)) {
-        this.#repository.override(field, { value: hydrated });
-        touched.push(field.name);
+    for await (const response of this.#persistence.rehydrate()) {
+      switch (response.status) {
+        case "pending":
+        case "unchanged":
+          continue;
+        case "processing":
+          this.#commit();
+          continue;
+        case "completed":
+          this.#commit({
+            operation: "rehydrate",
+            touched: response.touched,
+          });
       }
     }
-
-    const deferredFieldNames = Object.keys(hydrators);
-
-    if (touched.length > 0 || deferredFieldNames.length > 0) {
-      this.#commit();
-    }
-
-    const results = await Promise.allSettled(Object.values(hydrators));
-
-    results.forEach((result, index) => {
-      const field = this.#repository.get(deferredFieldNames[index]);
-      const isSuccessful = result.status === "fulfilled";
-
-      if (field === undefined) {
-        return;
-      }
-
-      this.#tracker.release();
-      const value = (!isSuccessful ? field.value : result.value) ?? field.defaultValue;
-
-      if (isSuccessful && this.#repository.isDirty(field, result.value)) {
-        touched.push(field.name);
-      }
-
-      this.#repository.override(field, {
-        value,
-        isHydrating: false,
-      });
-    });
-
-    if (touched.length === 0) {
-      return;
-    }
-
-    this.#commit({ operation: "rehydrate", touched });
   };
 
   persist = () => {
@@ -147,8 +97,7 @@ export class FieldStore {
 
   register<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(field: Field<TKey, TValue>): void {
     const defaultValue = field.value;
-    const persistedValue = this.#initial[field.name] as SerializeReturnType<TValue>;
-    const parsed = this.#parse(persistedValue, { defaultValue, serializer: field.serializer });
+    const parsed = this.#persistence.resolveFromDictionary(field.name, field.serializer, defaultValue);
     const { deferred, hydrated } = parsed;
     const value = deferred ? defaultValue : hydrated;
 
@@ -160,13 +109,29 @@ export class FieldStore {
       isHydrating: deferred,
     };
 
-    this.#process(registered, parsed);
+    const processed = this.#persistence.process(registered, parsed);
 
     this.#repository.create(registered);
     this.#whitelist.push(field.name);
 
     this.#commit({
       operation: "register",
+    });
+
+    processed?.then(({ status, touched }) => {
+      const isCompleted = status === "completed";
+
+      if (isCompleted && touched.length === 0) {
+        this.#commit();
+        return;
+      }
+
+      if (isCompleted) {
+        this.#commit({
+          touched,
+          operation: "hydrate",
+        });
+      }
     });
   }
 
@@ -272,48 +237,6 @@ export class FieldStore {
     });
   }
 
-  #process<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
-    { name, defaultValue }: Pick<RegisteredField<TKey, TValue>, "name" | "defaultValue">,
-    { deferred, hydrated }: ParseValue<TValue>
-  ) {
-    if (!deferred) {
-      return;
-    }
-
-    this.#tracker.capture();
-
-    hydrated
-      .then((value) => value ?? defaultValue)
-      .catch(() => defaultValue)
-      .then((value) => {
-        const field = this.#repository.get(name);
-
-        if (!field) {
-          return;
-        }
-
-        this.#tracker.release();
-
-        this.#commit();
-
-        if (!this.#repository.isDirty(field, value)) {
-          this.#repository.override(field, { isHydrating: false });
-          this.#commit();
-
-          return;
-        }
-
-        this.#repository.override(field, {
-          value,
-          isHydrating: false,
-        });
-
-        this.#commit({
-          operation: "hydrate",
-        });
-      });
-  }
-
   #commit = (state: Partial<FieldStoreState> = {}) => {
     const operation = state.operation ?? null;
     const touched = state.touched ?? [];
@@ -324,39 +247,12 @@ export class FieldStore {
       operation,
       touched,
       collection,
-      isHydrating: this.#tracker.isHydrating(),
+      isHydrating: this.isHydrating(),
     };
 
     this.#listeners.forEach((listener) => listener());
     this.#emitter.emit("change", this.#state);
   };
-
-  #parse(
-    newValue: SerializeReturnType<GenericRegisteredField["value"]>,
-    field: Pick<GenericRegisteredField, "defaultValue" | "serializer">
-  ): ParseValue<GenericRegisteredField["value"]>;
-  #parse<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
-    newValue: SerializeReturnType<TValue>,
-    field: Pick<RegisteredField<TKey, TValue>, "defaultValue" | "serializer">
-  ): ParseValue<TValue>;
-  #parse<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
-    newValue: SerializeReturnType<TValue>,
-    field: Pick<RegisteredField<TKey, TValue>, "defaultValue" | "serializer">
-  ): ParseValue<TValue> {
-    if (newValue === undefined || newValue === null || !field.serializer.unserialize) {
-      return {
-        deferred: false,
-        hydrated: field.defaultValue,
-      };
-    }
-
-    const unserialize = field.serializer.unserialize;
-
-    const hydrated = unserialize(newValue);
-    const deferred = hydrated instanceof Promise;
-
-    return { deferred, hydrated } as ParseValue<TValue>;
-  }
 
   #initialState = (): FieldStoreState => ({
     collection: FieldsCollection.empty(),
