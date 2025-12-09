@@ -32,7 +32,15 @@ export class FieldsCollection implements Iterable<GenericRegisteredField>, Field
     return this.#collect((field) => field.value);
   };
 
-  toPrimitives = (): PrimitiveFilterDictionary => {
+  public exists = (name: FilterName): boolean => {
+    return this.#values.has(name);
+  };
+
+  public get = (name: FilterName): GenericRegisteredField | undefined => {
+    return this.#values.get(name);
+  };
+
+  public toPrimitives = (): PrimitiveFilterDictionary => {
     return this.#collect((field) => {
       if (!FieldsCollection.isValidValue(field.value)) {
         return undefined;
@@ -48,14 +56,6 @@ export class FieldsCollection implements Iterable<GenericRegisteredField>, Field
 
   public onlyActives = (): GenericRegisteredField[] => {
     return this.filter((field) => FieldsCollection.isValidValue(field.value));
-  };
-
-  public exists = (name: FilterName): boolean => {
-    return this.#values.has(name);
-  };
-
-  get = (name: FilterName): GenericRegisteredField | undefined => {
-    return this.#values.get(name);
   };
 
   public map = <V extends unknown>(mapper: (field: GenericRegisteredField) => V): V[] => {

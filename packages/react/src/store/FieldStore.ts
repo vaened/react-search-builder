@@ -48,54 +48,30 @@ export class FieldStore {
     this.#persistence = new PersistenceManager(adapter, this.#repository, tracker);
   }
 
-  state = () => this.#state;
+  public state = () => this.#state;
 
-  exists = (name: FilterName) => this.#repository.exists(name);
+  public exists = (name: FilterName) => this.#repository.exists(name);
 
-  collection = () => this.#state.collection;
+  public collection = () => this.#state.collection;
 
-  isHydrating = () => this.#tracker.isWorking();
+  public isHydrating = () => this.#tracker.isWorking();
 
-  hasErrors = (name?: FilterName) => this.#repository.hasErrors(name);
+  public hasErrors = (name?: FilterName) => this.#repository.hasErrors(name);
 
-  whenReady = (name: string, task: () => void) => this.#tracker.whenReady(name, task);
+  public whenReady = (name: string, task: () => void) => this.#tracker.whenReady(name, task);
 
-  subscribe = (listener: () => void): Unsubscribe => {
+  public subscribe = (listener: () => void): Unsubscribe => {
     this.#listeners.add(listener);
     return () => this.#listeners.delete(listener);
   };
 
-  listen = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
+  public listen = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     name: FilterName
   ): (() => RegisteredField<TKey, TValue> | undefined) => {
-    return () => this.#state.collection.get(name) as RegisteredField<TKey, TValue> | undefined;
+    return () => this.#repository.get(name);
   };
 
-  rehydrate = async (): Promise<void> => {
-    for await (const response of this.#persistence.rehydrate()) {
-      switch (response.status) {
-        case "pending":
-        case "unchanged":
-          continue;
-        case "processing":
-          this.#commit();
-          continue;
-        case "completed":
-          this.#commit({
-            operation: "rehydrate",
-            touched: response.touched,
-          });
-      }
-    }
-  };
-
-  persist = () => {
-    const collection = this.#state.collection;
-    this.#persistence.write(collection.toPrimitives(), this.#whitelist);
-    this.#emitter.emit("persist", collection);
-  };
-
-  register<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(field: Field<TKey, TValue>): void {
+  public register<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(field: Field<TKey, TValue>): void {
     const defaultValue = field.value;
     const parsed = this.#persistence.resolveFromDictionary(field.name, field.serializer, defaultValue);
     const { deferred, hydrated } = parsed;
@@ -135,7 +111,20 @@ export class FieldStore {
     });
   }
 
-  unregister = (name: FilterName) => {
+  public update = (name: FilterName, meta: Partial<FieldOptions>) => {
+    const response = this.#repository.update(name, meta);
+
+    if (response === NotExecuted) {
+      return;
+    }
+
+    this.#commit({
+      operation: "update",
+      touched: [name],
+    });
+  };
+
+  public unregister = (name: FilterName) => {
     const response = this.#repository.delete(name);
 
     if (response === NotExecuted) {
@@ -153,32 +142,45 @@ export class FieldStore {
     });
   };
 
-  update = (name: FilterName, meta: Partial<FieldOptions>) => {
-    const response = this.#repository.update(name, meta);
-
-    if (response === NotExecuted) {
-      return;
-    }
-
-    this.#commit({
-      operation: "update",
-      touched: [name],
-    });
-  };
-
-  get = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(name: FilterName): RegisteredField<TKey, TValue> | undefined => {
+  public get = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
+    name: FilterName
+  ): RegisteredField<TKey, TValue> | undefined => {
     return this.#repository.get(name);
   };
 
-  set = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(name: FilterName, value: TValue | null) => {
+  public set = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(name: FilterName, value: TValue | null) => {
     this.#apply(name, value, "set");
   };
 
-  flush = (name: FilterName, value: RegisteredFieldValue) => {
+  public flush = (name: FilterName, value: RegisteredFieldValue) => {
     this.#apply(name, value, "flush");
   };
 
-  reset = (newValues: ValueFilterDictionary = {}): FilterName[] | undefined => {
+  public persist = () => {
+    const collection = this.#state.collection;
+    this.#persistence.write(collection.toPrimitives(), this.#whitelist);
+    this.#emitter.emit("persist", collection);
+  };
+
+  public rehydrate = async (): Promise<void> => {
+    for await (const response of this.#persistence.rehydrate()) {
+      switch (response.status) {
+        case "pending":
+        case "unchanged":
+          continue;
+        case "processing":
+          this.#commit();
+          continue;
+        case "completed":
+          this.#commit({
+            operation: "rehydrate",
+            touched: response.touched,
+          });
+      }
+    }
+  };
+
+  public reset = (newValues: ValueFilterDictionary = {}): FilterName[] | undefined => {
     const touched: FilterName[] = [];
 
     this.#repository.all().forEach((field) => {
@@ -199,24 +201,24 @@ export class FieldStore {
     return touched;
   };
 
-  clean = () => {
+  public clean = () => {
     this.#whitelist = [];
     this.#repository.clear();
     this.#commit(this.#initialState());
   };
 
-  onPersistenceChange = (listener: (state: FieldStoreState) => void): Unsubscribe => {
+  public onPersistenceChange = (listener: (state: FieldStoreState) => void): Unsubscribe => {
     return this.#persistence.subscribe(async () => {
       await this.rehydrate();
       listener(this.#state);
     });
   };
 
-  onFieldPersisted = (listener: (fields: FieldsCollection) => void): Unsubscribe => {
+  public onFieldPersisted = (listener: (fields: FieldsCollection) => void): Unsubscribe => {
     return this.#emitter.on("persist", listener);
   };
 
-  onStateChange = (listener: (state: FieldStoreState) => void): Unsubscribe => {
+  public onStateChange = (listener: (state: FieldStoreState) => void): Unsubscribe => {
     return this.#emitter.on("change", (state) => listener(state));
   };
 
