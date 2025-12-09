@@ -95,7 +95,7 @@ export class FieldRepository implements FieldRegistry {
 
   public update = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     name: FilterName,
-    partial: Partial<RegisteredField<TKey, TValue>>
+    partial: Omit<Partial<RegisteredField<TKey, TValue>>, "value">
   ): Operation<RegisteredField<TKey, TValue>> => {
     if (Object.keys(partial).length === 0) {
       return NotExecuted;
