@@ -40,7 +40,7 @@ describe("FieldsCollection", () => {
       const collection = FieldsCollection.from(map);
 
       expect(collection.size()).toBe(1);
-      expect(collection.has("q")).toBe(true);
+      expect(collection.exists("q")).toBe(true);
     });
 
     it("should be iterable directly", () => {

@@ -5,6 +5,7 @@
 
 import type {
   Field,
+  FieldRegistry,
   FilterName,
   FilterTypeKey,
   FilterTypeMap,
@@ -36,7 +37,7 @@ export type RegisteredFieldDictionary = Map<FilterName, GenericRegisteredField>;
 
 export const EMPTY_VALUE = "";
 
-export class FieldsCollection implements Iterable<GenericRegisteredField> {
+export class FieldsCollection implements Iterable<GenericRegisteredField>, FieldRegistry {
   #values: RegisteredFieldDictionary;
 
   constructor(values: RegisteredFieldDictionary) {
@@ -78,6 +79,10 @@ export class FieldsCollection implements Iterable<GenericRegisteredField> {
   };
 
   public has = (name: FilterName): boolean => {
+    return this.#values.has(name);
+  };
+
+  public exists = (name: FilterName): boolean => {
     return this.#values.has(name);
   };
 

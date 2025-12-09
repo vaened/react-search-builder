@@ -3,8 +3,6 @@
  * @link https://vaened.dev DevFolio
  */
 
-import type { FieldsCollection } from "./store";
-
 export type FilterName = string;
 export type FilterLabel = string;
 export type ArrayItemType<T> = T extends (infer U)[] ? U : never;
@@ -88,7 +86,7 @@ export type ValueFilterDictionary = Record<FilterName, FilterValue>;
 
 export type Validator<TValue> = (value: TValue | null, registry: FieldRegistry) => ValidationSchema<TValue>;
 
-export type Humanizer<TValue, TResponse = HumanizeReturnType<TValue>> = (value: TValue, fields: FieldsCollection) => TResponse | undefined;
+export type Humanizer<TValue, TResponse = HumanizeReturnType<TValue>> = (value: TValue, registry: FieldRegistry) => TResponse | undefined;
 
 export type AsynchronousSerializer<TValue> = {
   serialize(value: TValue): SerializeReturnType<TValue>;
