@@ -120,6 +120,7 @@ export class FieldRepository implements FieldRegistry {
     }
 
     this.#fields.delete(name);
+    this.#errorManager.remove(name);
 
     return field as GenericRegisteredField;
   };
