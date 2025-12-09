@@ -17,6 +17,7 @@ import type {
 } from "@vaened/react-search-builder";
 import { EMPTY_VALUE, useSearchBuilderQuietly } from "@vaened/react-search-builder";
 import { type ReactElement, type ReactNode, useId, useMemo } from "react";
+import ErrorMessages from "./ErrorMessages";
 import FilterFieldController, { type FieldController } from "./FilterFieldController";
 
 type MuiSelectRef = React.ComponentRef<typeof MuiSelect>;
@@ -172,6 +173,7 @@ export function OptionSelect<
     inputProps,
     children,
     toHumanLabel,
+    validate,
     getValue,
     getLabel,
     ...restOfProps
@@ -207,6 +209,7 @@ export function OptionSelect<
     name,
     defaultValue: defaultValue ?? emptyValue,
     submittable,
+    validate,
     humanize,
   } as Partial<FieldController<Tkey, TValue>>;
 
@@ -214,7 +217,9 @@ export function OptionSelect<
     <FilterFieldController
       store={store}
       {...(config as any)}
-      control={({ value, onChange }) => {
+      control={({ value, errors, onChange }) => {
+        const hasErrors = errors !== undefined;
+
         const internalProps = {
           ...restOfProps,
           children,
@@ -222,6 +227,7 @@ export function OptionSelect<
           size,
           label: labelProp,
           multiple,
+          error: hasErrors,
           value: value ?? emptyValue,
           onChange,
           ref,
@@ -241,11 +247,12 @@ export function OptionSelect<
         }
 
         return (
-          <FormControl variant={variant} size={size} fullWidth>
+          <FormControl variant={variant} size={size} error={hasErrors} fullWidth>
             <InputLabel id={labelId} shrink>
               {labelProp}
             </InputLabel>
             <Select {...internalProps} labelId={labelId} />
+            <ErrorMessages name={name} errors={errors} />
           </FormControl>
         );
       }}
