@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
 import type { Field } from "../field";
 import type { PersistenceAdapter } from "../persistence/PersistenceAdapter";
-import { SearchBuilderFieldValidator } from "../validations/SearchBuilderFieldValidator";
 import { FieldStore } from "./FieldStore";
+import { createFieldStore } from "./create";
 import { createEventEmitter, type EventEmitter, type Events } from "./event-emitter";
 
 const createTestField = (name: string, value = "default"): Field<"string", string> => ({
@@ -32,7 +32,7 @@ describe("FieldStore", () => {
     persistence = createMockPersistence();
     emitter = createEventEmitter();
     emitSpy = vi.spyOn(emitter, "emit");
-    store = new FieldStore(persistence, new SearchBuilderFieldValidator(), emitter);
+    store = createFieldStore({ persistence, emitter });
   });
 
   describe("1. Registration and Lifecycle", () => {
