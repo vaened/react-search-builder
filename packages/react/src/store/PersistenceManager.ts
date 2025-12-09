@@ -59,7 +59,7 @@ export class PersistenceManager implements PersistenceAdapter {
 
   public resolveFromDictionary<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     name: FilterName,
-    serializer: Serializer<TValue>,
+    serializer: Serializer<TValue>|undefined,
     fallback: TValue | null
   ): ParseValue<TValue> {
     const persistedValue = this.#dictionary[name] as SerializeReturnType<TValue>;
@@ -184,7 +184,7 @@ export class PersistenceManager implements PersistenceAdapter {
     newValue: SerializeReturnType<TValue>,
     field: Pick<RegisteredField<TKey, TValue>, "defaultValue" | "serializer">
   ): ParseValue<TValue> {
-    if (newValue === undefined || newValue === null || !field.serializer.unserialize) {
+    if (newValue === undefined || newValue === null || !field.serializer?.unserialize) {
       return {
         deferred: false,
         hydrated: field.defaultValue,

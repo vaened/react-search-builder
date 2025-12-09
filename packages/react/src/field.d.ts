@@ -109,9 +109,9 @@ export interface FieldOptions {
 export interface FieldConfig<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]> extends FieldOptions {
   type: TKey;
   name: FilterName;
-  humanize: Humanizer<TValue>;
+  humanize?: Humanizer<TValue>;
   validate?: Validator<TValue>;
-  serializer: Serializer<TValue>;
+  serializer?: Serializer<TValue>;
 }
 
 export type ScalarFieldConfig<TKey extends ScalarTypeKey, TValue extends FilterTypeMap[TKey]> = FieldOptions & {
