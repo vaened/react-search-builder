@@ -19,7 +19,8 @@
     "baseUrl": ".",
     "paths": {
       "@vaened/react-search-builder": ["../../packages/react/src/index.ts"],
-      "@vaened/mui-search-builder": ["../../packages/mui/src/index.ts"]
+      "@vaened/mui-search-builder": ["../../packages/mui/src/index.ts"],
+      "@vaened/mui-search-builder/dates": ["../../packages/mui/src/dates.ts"]
     }
   },
   "include": ["src", "../../packages/react/src", "../../packages/mui/src"]

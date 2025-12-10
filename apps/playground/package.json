@@ -9,19 +9,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "@mui/material": "^7.3.5",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.0.0",
+    "@mui/material": "^7.3.5",
+    "@mui/x-date-pickers": "^7.23.0",
     "@tabler/icons-react": "^3.35.0",
-    "@vaened/mui-search-builder": "workspace:*"
+    "@vaened/mui-search-builder": "workspace:*",
+    "dayjs": "^1.11.19",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^4.3.4",
-    "vite": "^7.1.9",
-    "typescript": "^5.9.0"
+    "typescript": "^5.9.0",
+    "vite": "^7.1.9"
   }
 }
