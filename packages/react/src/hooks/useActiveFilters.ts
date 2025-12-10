@@ -16,11 +16,11 @@ export interface ActiveFilterTag {
   field: GenericRegisteredField;
 }
 
-export interface ActiveFiltersBarProps {
+export interface UseActiveFiltersBarProps {
   preserveFieldsOrder?: boolean;
 }
 
-export function useActiveFilters({ preserveFieldsOrder }: ActiveFiltersBarProps = {}) {
+export function useActiveFilters({ preserveFieldsOrder }: UseActiveFiltersBarProps = {}) {
   const { store } = useSearchBuilder();
   const [actives, setActives] = useState<ActiveFilterTag[]>([]);
   const hasActives = actives.length > 0;
