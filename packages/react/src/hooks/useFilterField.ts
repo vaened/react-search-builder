@@ -30,7 +30,7 @@ export type FilterFieldReturn<TResolved, TRegistered> = {
 };
 
 export interface UseFilterFieldProps<TValue> {
-  defaultValue?: TValue;
+  defaultValue?: TValue | null;
 }
 
 export interface FilterFieldConfig<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>
