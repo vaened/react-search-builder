@@ -15,7 +15,6 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.0.0",
     "@tabler/icons-react": "^3.35.0",
-    "@vaened/react-search-builder": "workspace:*",
     "@vaened/mui-search-builder": "workspace:*"
   },
   "devDependencies": {

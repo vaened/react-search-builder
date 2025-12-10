@@ -15,8 +15,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tabler/icons-react": "^3.35.0",
-    "@vaened/react-search-builder": "workspace:*"
+    "@tabler/icons-react": "^3.35.0"
   },
   "peerDependencies": {
     "@emotion/react": "^11.14.0",
@@ -33,6 +32,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.2",
     "@types/react-dom": "^19.2",
+    "@vaened/react-search-builder": "workspace:*",
     "react": ">=19.2",
     "react-dom": ">=19.2",
     "tsup": "^8.5"
