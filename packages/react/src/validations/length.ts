@@ -33,7 +33,7 @@ type LengthRuleProps = {
 } & (MinLengthRuleProps | MaxLengthRuleProps | BothLengthRuleProps);
 
 export function length({ name, message, ...restOfProps }: LengthRuleProps): SingleValidationRule<ValidableValue, LengthRuleError> {
-  return (value) => {
+  return ({value}) => {
     const { min, max } = restOfProps as BothLengthRuleProps;
     const isValid = !isValidValue(value) || ((min === undefined || value.length >= min) && (max === undefined || value.length <= max));
 

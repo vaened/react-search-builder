@@ -55,8 +55,9 @@ export type ValidationError =
     }
   | false;
 
+export type ValidationContext<TValue> = { value: TValue | null; registry: FieldRegistry };
 export type ValidationResponse<TError extends ValidationError = ValidationError> = ValidationSuccess | TError;
-export type Validation<TValue, TResponse> = (value: TValue | null, registry: FieldRegistry) => TResponse;
+export type Validation<TValue, TResponse> = (context: ValidationContext<TValue>) => TResponse;
 
 export type SingleValidationRule<TValue, TError extends ValidationError = ValidationError> = Validation<TValue, ValidationResponse<TError>>;
 export type MultipleValidationRule<TValue> = Validation<TValue, ValidationResponse<ValidationError>[]>;
@@ -83,7 +84,7 @@ export type HumanizedValue<V extends ArrayFilterValue> = string | ReadonlyArray<
 export type PrimitiveFilterDictionary = Record<FilterName, PrimitiveValue>;
 export type ValueFilterDictionary = Record<FilterName, FilterValue>;
 
-export type Validator<TValue> = (value: TValue | null, registry: FieldRegistry) => ValidationSchema<TValue>;
+export type Validator<TValue> = (context: ValidationContext<TValue>) => ValidationSchema<TValue>;
 
 export type Humanizer<TValue, TResponse = HumanizeReturnType<TValue>> = (value: TValue, registry: FieldRegistry) => TResponse | undefined;
 

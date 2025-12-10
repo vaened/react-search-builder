@@ -27,7 +27,7 @@ export function after<TValue extends ValidableValue>({
   message,
   format,
 }: AfterRuleProps<TValue>): SingleValidationRule<TValue, AfterRuleError> {
-  return (value) => {
+  return ({value}) => {
     const isValid = !isValidValue(value) || value >= validable;
 
     if (isValid) {

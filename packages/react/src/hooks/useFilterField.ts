@@ -89,7 +89,7 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
   const defaultSerializer = useMemo(() => resolve(type), [type]);
 
   const humanize = useCallback<Humanizer<TValue>>((value, fields) => parser.current.humanize?.(value, fields), []);
-  const validate = useCallback<Validator<TValue>>((value, registry) => parser.current.validate?.(value, registry) ?? [], []);
+  const validate = useCallback<Validator<TValue>>((context) => parser.current.validate?.(context) ?? [], []);
   const serializer = useMemo(() => {
     const safe = (userSerializer: Serializer<TValue> | undefined) => userSerializer ?? defaultSerializer;
 

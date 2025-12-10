@@ -37,7 +37,7 @@ export function range<TValue extends ValidableValue>({
   message,
   ...restOfProps
 }: RangeRuleProps<TValue>): SingleValidationRule<TValue, RangeRuleError> {
-  return (value) => {
+  return ({value}) => {
     const { min, max } = restOfProps as BothRangeRuleProps<TValue>;
     const isValid = !isValidValue(value) || ((min === undefined || value >= min) && (max === undefined || value <= max));
 

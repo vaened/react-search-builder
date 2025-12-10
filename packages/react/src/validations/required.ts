@@ -13,7 +13,7 @@ type RequiredRuleProps = {
 };
 
 export function required(params?: RequiredRuleProps | string): ValidationRule<FilterValue> {
-  return (value, registry) => {
+  return ({ value, registry }) => {
     const isObjectConfiguration = params && typeof params === "object";
     const message = isObjectConfiguration ? params.message : params;
     const name = isObjectConfiguration ? params.name : undefined;

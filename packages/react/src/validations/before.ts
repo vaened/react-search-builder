@@ -27,7 +27,7 @@ export function before<TValue extends ValidableValue>({
   message,
   format,
 }: BeforeRuleProps<TValue>): SingleValidationRule<TValue, BeforeRuleError> {
-  return (value) => {
+  return ({value}) => {
     const isValid = !isValidValue(value) || value <= validable;
 
     if (isValid) {

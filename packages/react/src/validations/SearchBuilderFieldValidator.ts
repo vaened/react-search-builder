@@ -22,7 +22,7 @@ export class SearchBuilderFieldValidator implements FieldValidator {
   ): FieldErrors | undefined => {
     const validator = allOf(rules, this.#failFast);
 
-    const response = validator(value, registry);
+    const response = validator({ value, registry });
 
     if (response === true) {
       return;

@@ -27,7 +27,7 @@ export function when<TValue extends FilterValue>(props: WhenRuleValidation<TValu
 export function when<TValue extends FilterValue>(props: WhenRulesValidation<TValue>): MultipleValidationRule<TValue>;
 
 export function when<TValue extends FilterValue>(props: WhenRuleProps<TValue>): ValidationRule<TValue> {
-  return (value, registry) => {
+  return ({value, registry}) => {
     const shouldValidate = typeof props.is === "function" ? props.is(registry) : props.is;
 
     if (!shouldValidate) {
@@ -35,11 +35,11 @@ export function when<TValue extends FilterValue>(props: WhenRuleProps<TValue>): 
     }
 
     if (!isMultiRules(props)) {
-      return props.apply(value, registry);
+      return props.apply({value, registry});
     }
 
     const validator = allOf(props.apply, props.failFast ?? true);
-    return validator(value, registry);
+    return validator({value, registry});
   };
 }
 
