@@ -106,25 +106,25 @@ export interface FieldOptions {
 export interface FieldConfig<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]> extends FieldOptions {
   type: TKey;
   name: FilterName;
+  serializer?: Serializer<TValue>;
   humanize?: Humanizer<TValue>;
   validate?: Validator<TValue>;
-  serializer?: Serializer<TValue>;
 }
 
 export type ScalarFieldConfig<TKey extends ScalarTypeKey, TValue extends FilterTypeMap[TKey]> = FieldOptions & {
-  name: FilterName;
   type: TKey;
+  name: FilterName;
+  serializer?: Serializer<TValue>;
   humanize?: Humanizer<TValue, string>;
   validate?: Validator<TValue>;
-  serializer?: Serializer<TValue>;
 };
 
 export type ArrayFieldConfig<TKey extends ArrayTypeKey, TValue extends FilterTypeMap[TKey]> = FieldOptions & {
-  name: FilterName;
   type: TKey;
+  name: FilterName;
+  serializer?: Serializer<TValue>;
   humanize?: Humanizer<TValue, FilterMultiLabel<TValue>>;
   validate?: Validator<TValue>;
-  serializer?: Serializer<TValue>;
 };
 
 export interface Field<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]> extends FieldConfig<TKey, TValue> {
