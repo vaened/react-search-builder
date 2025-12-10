@@ -3,7 +3,16 @@
  * @link https://vaened.dev DevFolio
  */
 
-import type { FieldRegistry, FilterName, PrimitiveFilterDictionary, Serializer, ValueFilterDictionary } from "../field";
+import type {
+  FieldRegistry,
+  FilterName,
+  FilterTypeKey,
+  FilterTypeMap,
+  PrimitiveFilterDictionary,
+  RegisteredField,
+  Serializer,
+  ValueFilterDictionary,
+} from "../field";
 import type { NonUndefined } from "../internal";
 import { GenericRegisteredField, RegisteredFieldDictionary } from "./FieldsRepository";
 
@@ -36,8 +45,10 @@ export class FieldsCollection implements Iterable<GenericRegisteredField>, Field
     return this.#values.has(name);
   };
 
-  public get = (name: FilterName): GenericRegisteredField | undefined => {
-    return this.#values.get(name);
+  public get = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
+    name: FilterName
+  ): RegisteredField<TKey, TValue> | undefined => {
+    return this.#values.get(name) as RegisteredField<TKey, TValue> | undefined;
   };
 
   public toPrimitives = (): PrimitiveFilterDictionary => {

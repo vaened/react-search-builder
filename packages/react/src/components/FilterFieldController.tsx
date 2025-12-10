@@ -4,9 +4,9 @@
  */
 
 import { type ReactElement } from "react";
-import { ArrayTypeKey, FilterTypeKey, FilterTypeMap, ScalarTypeKey } from "../field";
+import { ArrayTypeKey, FieldErrors, FilterTypeKey, FilterTypeMap, ScalarTypeKey } from "../field";
 import { ArrayFilterFieldConfig, EmptyArrayFilterFieldConfig, FilterFieldConfig, ScalarFilterFieldConfig, useFilterField } from "../hooks";
-import { FieldErrors, FieldStore } from "../store";
+import { FieldStore } from "../store";
 
 type Event = { target: any } | any;
 

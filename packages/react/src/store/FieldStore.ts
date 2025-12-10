@@ -3,12 +3,12 @@
  * @link https://vaened.dev DevFolio
  */
 
-import type { Field, FieldOptions, FilterName, FilterTypeKey, FilterTypeMap, FilterValue, ValueFilterDictionary } from "../field";
+import type { Field, FieldOptions, FilterName, FilterTypeKey, FilterTypeMap, FilterValue, RegisteredField, ValueFilterDictionary } from "../field";
 import { PersistenceAdapter } from "../persistence/PersistenceAdapter";
 import { FieldValidator } from "../validations/FieldValidator";
 import { ErrorManager } from "./ErrorManager";
 import { FieldsCollection } from "./FieldsCollection";
-import type { RegisteredField, RegisteredFieldValue } from "./FieldsRepository";
+import type { RegisteredFieldValue } from "./FieldsRepository";
 import { FieldRepository, NotExecuted } from "./FieldsRepository";
 import { PersistenceManager } from "./PersistenceManager";
 import { TaskMonitor } from "./TaskMonitor";

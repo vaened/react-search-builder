@@ -8,17 +8,18 @@ import type {
   ArrayFieldConfig,
   ArrayTypeKey,
   FieldConfig,
+  FieldErrors,
   FieldOptions,
   FilterTypeKey,
   FilterTypeMap,
   Humanizer,
+  RegisteredField,
   ScalarFieldConfig,
   ScalarTypeKey,
   Serializer,
   Validator,
 } from "../field";
 import resolve from "../serializers/resolve";
-import type { FieldErrors, RegisteredField } from "../store";
 import { FieldStore } from "../store";
 
 export type FilterFieldReturn<TResolved, TRegistered> = {

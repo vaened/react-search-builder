@@ -34,11 +34,6 @@ export type ArrayFilterTypeMap = {
   [K in keyof FilterTypeMap as K extends `${string}[]` ? K : never]: FilterTypeMap[K];
 };
 
-export interface FieldRegistry {
-  exists(name: FilterName): boolean;
-  get<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(name: FilterName): RegisteredField<TKey, TValue> | undefined;
-}
-
 export type FilterTypeKey = keyof FilterTypeMap;
 export type ScalarTypeKey = Exclude<FilterTypeKey, `${string}[]`>;
 export type ArrayTypeKey = Extract<FilterTypeKey, `${string}[]`>;
@@ -69,6 +64,10 @@ export type ValidationRule<TValue, TError extends ValidationError = ValidationEr
   TValue,
   ValidationResponse<ValidationError> | ValidationResponse[]
 >;
+
+export type FieldErrors = {
+  all: ValidationError[];
+};
 
 export type ValidationSchema<TValue> = Array<ValidationRule<TValue>>;
 
@@ -138,6 +137,18 @@ export interface ScalarField<TKey extends ScalarTypeKey, TValue extends FilterTy
 
 export interface ArrayField<TKey extends ArrayTypeKey, TValue extends FilterTypeMap[TKey]> extends ArrayFieldConfig<TKey, TValue> {
   value: TValue | null;
+}
+
+export interface RegisteredField<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]> extends Field<TKey, TValue> {
+  defaultValue: TValue | null;
+  isHydrating: boolean;
+  errors?: FieldErrors;
+  updatedAt: number;
+}
+
+export interface FieldRegistry {
+  exists(name: FilterName): boolean;
+  get<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(name: FilterName): RegisteredField<TKey, TValue> | undefined;
 }
 
 export type GenericField = {

@@ -9,11 +9,12 @@ import {
   FilterTypeMap,
   FilterValue,
   PrimitiveFilterDictionary,
+  RegisteredField,
   Serializer,
   SerializeReturnType,
 } from "../field";
 import { PersistenceAdapter } from "../persistence/PersistenceAdapter";
-import { FieldRepository, GenericRegisteredField, RegisteredField, RegisteredFieldValue } from "./FieldsRepository";
+import { FieldRepository, GenericRegisteredField, RegisteredFieldValue } from "./FieldsRepository";
 import { TaskMonitor } from "./TaskMonitor";
 
 export type AsynchronousValue<TValue> = { deferred: true; hydrated: Promise<TValue | null> };

@@ -3,23 +3,12 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { Field, FieldRegistry, FilterName, FilterTypeKey, FilterTypeMap, ValidationError } from "../field";
+import { Field, FieldErrors, FieldRegistry, FilterName, FilterTypeKey, FilterTypeMap, RegisteredField } from "../field";
 import { FieldValidator } from "../validations/FieldValidator";
 import { ErrorManager } from "./ErrorManager";
 
 type Operation<Field> = false | Readonly<Field>;
 export const NotExecuted = false;
-
-export type FieldErrors = {
-  all: ValidationError[];
-};
-
-export interface RegisteredField<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]> extends Field<TKey, TValue> {
-  defaultValue: TValue | null;
-  isHydrating: boolean;
-  errors?: FieldErrors;
-  updatedAt: number;
-}
 
 export type GenericRegisteredField = {
   [K in FilterTypeKey]: RegisteredField<K, FilterTypeMap[K]>;
