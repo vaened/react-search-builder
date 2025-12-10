@@ -150,6 +150,7 @@ export interface RegisteredField<TKey extends FilterTypeKey, TValue extends Filt
 export interface FieldRegistry {
   exists(name: FilterName): boolean;
   get<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(name: FilterName): RegisteredField<TKey, TValue> | undefined;
+  get<TKey extends FilterTypeKey>(name: FilterName): RegisteredField<TKey, FilterTypeMap[TKey]> | undefined;
 }
 
 export type GenericField = {
