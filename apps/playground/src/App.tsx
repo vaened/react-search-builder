@@ -2,6 +2,7 @@ import {
   Container,
   CssBaseline,
   FormControl,
+  FormHelperText,
   Grid,
   InputLabel,
   MenuItem,
@@ -17,10 +18,18 @@ import {
   Typography,
   createTheme,
 } from "@mui/material";
-import { ActiveFiltersBar, FilterFieldController, OptionSelect, SearchBar, SearchForm, type FlagsKeysOf } from "@vaened/mui-search-builder";
-import type { FieldsCollection } from "@vaened/react-search-builder";
-import { useSearchStore } from "@vaened/react-search-builder";
-import { useState } from "react";
+import type { FieldsCollection, FlagsKeysOf } from "@vaened/mui-search-builder";
+import {
+  ActiveFiltersBar,
+  FilterFieldController,
+  OptionSelect,
+  SearchBar,
+  SearchForm,
+  length,
+  required,
+  useSearchStore,
+} from "@vaened/mui-search-builder";
+import { useEffect, useState } from "react";
 
 const theme = createTheme();
 
@@ -108,7 +117,12 @@ export default function App() {
   const data: number[] = [];
 
   function search(collection: FieldsCollection) {
-    console.log({ submit: [...collection.toArray()] });
+    return new Promise<boolean>((resolve) => {
+      setTimeout(() => {
+        console.log({ submit: [...collection.toArray()] });
+        resolve(true);
+      }, 0);
+    });
   }
 
   function onChange(collection: FieldsCollection) {
@@ -116,6 +130,9 @@ export default function App() {
   }
   const [personName, setPersonName] = useState<string[]>([]);
 
+  useEffect(() => {
+    console.log("INITIALIZE");
+  }, []);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -123,10 +140,10 @@ export default function App() {
         <Typography variant="h4">Playground — mui-search-engine</Typography>
         <Grid container gap={2} flexDirection="column">
           <Grid>
-            <SearchForm store={store} onSearch={search} onChange={onChange} loading={false}>
+            <SearchForm store={store} onSearch={search} onChange={onChange} submitOnChange>
               <Grid size={6}>
                 <OptionSelect
-                  type="number"
+                  type="number[]"
                   name="countries"
                   labelId="countries"
                   label="Paises"
@@ -134,6 +151,9 @@ export default function App() {
                   getValue={(country) => country.value}
                   getLabel={(country) => country.label}
                   toHumanLabel={(v) => countries.find((country) => country.value === v)?.label ?? v.toString()}
+                  validate={() => {
+                    return [length({ min: 2 })];
+                  }}
                   submittable
                   displayEmpty
                 />
@@ -161,6 +181,9 @@ export default function App() {
                   label="Sedesd"
                   defaultValue={""}
                   toHumanLabel={(v) => v}
+                  validate={() => {
+                    return [required({ name: "oli" })];
+                  }}
                   displayEmpty>
                   <MenuItem value="" disabled>
                     Todos
@@ -172,27 +195,32 @@ export default function App() {
               <Grid size={6}>
                 <FilterFieldController
                   store={store}
-                  type="string[]"
+                  type="string"
                   name="classroom"
                   submittable
-                  defaultValue={[]}
                   serializer={{
                     serialize: (c) => c,
-                    unserialize: (c) => c,
+                    unserialize: (c) => new Promise((resolve) => setTimeout(() => resolve(c), 1000)),
                   }}
-                  humanize={(value) => value.map((value) => ({ value: value, label: value.toString() }))}
-                  control={(props) => (
-                    <FormControl fullWidth>
+                  validate={() => {
+                    return [length({ min: 5 })];
+                  }}
+                  humanize={(value) => value.toString()}
+                  control={({ onChange, value, errors }) => (
+                    <FormControl error={!!errors} fullWidth>
                       <InputLabel id="centersd" shrink>
-                        Salonesd
+                        Salones
                       </InputLabel>
-                      <Select name="classroom" labelId="classroom" label="Salones" {...props} multiple displayEmpty>
+                      <Select name="classroom" labelId="classroom" label="Salones" onChange={onChange} value={value ?? ""} displayEmpty>
                         <MenuItem value="" disabled>
                           Todos
                         </MenuItem>
                         <MenuItem value="sjl1">SJL-1</MenuItem>
-                        <MenuItem value="sjl2">JSL-2</MenuItem>
+                        <MenuItem value="sjl-02">JSL-2</MenuItem>
                       </Select>
+                      {errors && (
+                        <FormHelperText>{errors.all.map((error) => (error === false ? "" : error.message)).join(", ")}</FormHelperText>
+                      )}
                     </FormControl>
                   )}
                 />
@@ -202,7 +230,7 @@ export default function App() {
                 <SearchBar name={{ query: "q" }} size="medium" indexes={indexes} flags={flags} defaultIndex={"account"} />
               </Grid>
               <Grid size={12}>
-                <ActiveFiltersBar limitTags={4} />
+                <ActiveFiltersBar disableAutoSubmit />
               </Grid>
             </SearchForm>
           </Grid>
