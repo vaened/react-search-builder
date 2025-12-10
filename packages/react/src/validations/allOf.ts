@@ -6,8 +6,8 @@
 import { SingleValidationRule, Validation, ValidationError, ValidationResponse, ValidationRule, ValidationSuccess } from "../field";
 import { isError, isMultiError } from "./utils";
 
-type ErrorableMultipleValidationRule<TValue> = Validation<TValue, ValidationError[]>;
-type ErrorableValidationRule<TValue> = Validation<TValue, ValidationSuccess | ValidationError | ValidationError[]>;
+export type ErrorableMultipleValidationRule<TValue> = Validation<TValue, ValidationError[]>;
+export type ErrorableValidationRule<TValue> = Validation<TValue, ValidationSuccess | ValidationError | ValidationError[]>;
 
 export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: false): ErrorableMultipleValidationRule<TValue>;
 export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: true): SingleValidationRule<TValue>;
