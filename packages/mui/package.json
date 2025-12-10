@@ -2,14 +2,23 @@
   "name": "@vaened/mui-search-builder",
   "version": "1.0.0",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./dates": {
+      "types": "./dist/dates.d.ts",
+      "import": "./dist/dates.js",
+      "require": "./dist/dates.cjs"
+    }
+  },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --clean --external react",
+    "build": "tsup",
     "test": "vitest",
     "test:ci": "vitest run",
     "typecheck": "tsc --noEmit"
@@ -21,13 +30,20 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.0.0",
     "@mui/material": "^7.3.5",
+    "@mui/x-date-pickers": "^7.0.0",
     "react": ">=19.2",
     "react-dom": ">=19.2"
+  },
+  "peerDependenciesMeta": {
+    "@mui/x-date-pickers": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.0.0",
     "@mui/material": "^7.3.5",
+    "@mui/x-date-pickers": "^7.23.0",
     "@testing-library/react": "^16.3",
     "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.2",
