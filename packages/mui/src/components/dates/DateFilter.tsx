@@ -34,9 +34,12 @@ export function DateFilter<TEnableAccessibleFieldDOMStructure extends boolean = 
   humanize,
   validate,
   onChange: onChangeProp,
+  slotProps,
   ...restOfProps
 }: DateFilterProps<TEnableAccessibleFieldDOMStructure>) {
   const context = useSearchBuilderQuietly();
+
+  const slotPropsTextField = slotProps?.textField;
   const store = source ?? context?.store;
 
   validateStoreAvailability(store);
@@ -61,12 +64,15 @@ export function DateFilter<TEnableAccessibleFieldDOMStructure extends boolean = 
               onChangeProp?.(date, context);
             }}
             slotProps={{
+              ...slotProps,
               textField: {
+                fullWidth: true,
                 error: errors !== NoErrors,
                 FormHelperTextProps: {
                   component: "div",
                 },
                 helperText: <ErrorMessages name={name} errors={errors} />,
+                ...slotPropsTextField,
               },
             }}
             {...restOfProps}
@@ -83,10 +89,8 @@ function InternalDatePicker<TEnableAccessibleFieldDOMStructure extends boolean>(
   minDate,
   maxDate,
   onChange,
-  slotProps,
   ...restOfProps
 }: DatePickerProps<Date, TEnableAccessibleFieldDOMStructure>) {
-  const slotPropsTextField = slotProps?.textField;
   const utils = useUtils<Date>();
 
   const parse = (value: Date | null | undefined) => (value ? utils.date(value as unknown as string, timezone) : undefined);
@@ -97,13 +101,6 @@ function InternalDatePicker<TEnableAccessibleFieldDOMStructure extends boolean>(
       minDate={parse(minDate)}
       maxDate={parse(maxDate)}
       timezone={timezone}
-      slotProps={{
-        ...slotProps,
-        textField: {
-          fullWidth: true,
-          ...slotPropsTextField,
-        },
-      }}
       onChange={(value, context) => {
         if (value === null) {
           onChange?.(null, context);
