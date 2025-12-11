@@ -12,7 +12,7 @@ type Event = { target: any } | any;
 
 export type ControlProps<V> = {
   value: V | null;
-  errors?: FieldValidationStatus;
+  errors: FieldValidationStatus;
   onChange: (event: Event) => void;
 };
 

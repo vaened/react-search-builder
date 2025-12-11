@@ -25,7 +25,7 @@ import { FieldStore, NoErrors } from "../store";
 export type FilterFieldReturn<TResolved, TRegistered> = {
   field: TRegistered | undefined;
   value: TResolved | null;
-  errors?: FieldValidationStatus;
+  errors: FieldValidationStatus;
   set: (value: TResolved) => void;
 };
 
