@@ -49,6 +49,7 @@ export type DateRangeFilterProps<TEnableAccessibleFieldDOMStructure extends bool
   endFieldLabel?: string;
   maxDate?: Date;
   minDate?: Date;
+  disableAutoBoundaries?: boolean;
   slotProps?: {
     StartDatePicker: DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure>;
     EndDatePicker: DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure>;
@@ -66,6 +67,7 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
   endFieldLabel,
   minDate,
   maxDate,
+  disableAutoBoundaries,
   slotProps,
   spacing = 2,
   onChange,
@@ -80,6 +82,9 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
   useEffect(() => {
     onChange?.(value);
   }, [value]);
+
+  const maxStartDate = disableAutoBoundaries ? undefined : value?.endDate ?? undefined;
+  const minEndDate = disableAutoBoundaries ? undefined : value?.startDate ?? undefined;
 
   function updateValue(newValue: Partial<DateRangeValue>) {
     setValue((prev) => {
@@ -118,7 +123,7 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
           name={startFieldName}
           label={startFieldLabel}
           minDate={minDate}
-          maxDate={value?.endDate ?? undefined}
+          maxDate={maxStartDate}
           defaultValue={startDate}
           validate={composeStartRules}
           onChange={onStartDateChange}
@@ -130,7 +135,7 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
           store={store}
           name={endFieldName}
           label={endFieldLabel}
-          minDate={value?.startDate ?? undefined}
+          minDate={minEndDate}
           maxDate={maxDate}
           defaultValue={endDate}
           validate={composeEndRules}
