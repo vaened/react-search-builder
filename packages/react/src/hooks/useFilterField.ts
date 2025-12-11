@@ -143,9 +143,9 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
     store.update(name, touched);
   }, [submittable, field]);
 
-  const set = (value: TValue) => {
+  function set(value: TValue) {
     store.set(name, value);
-  };
+  }
 
   return {
     field,
