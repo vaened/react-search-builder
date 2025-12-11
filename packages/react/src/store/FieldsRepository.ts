@@ -3,9 +3,10 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { Field, FieldErrors, FieldRegistry, FilterName, FilterTypeKey, FilterTypeMap, RegisteredField } from "../field";
+import { Field, FieldRegistry, FieldValidationStatus, FilterName, FilterTypeKey, FilterTypeMap, RegisteredField } from "../field";
 import { FieldValidator } from "../validations/FieldValidator";
 import { ErrorManager } from "./ErrorManager";
+import { NoErrors } from "./FieldStore";
 
 type Operation<Field> = false | Readonly<Field>;
 export const NotExecuted = false;
@@ -144,7 +145,7 @@ export class FieldRepository implements FieldRegistry {
       return false;
     }
 
-    const previous = field.errors;
+    const previous = field.errors ?? null;
     const current = this.#validate(field, field.value);
 
     if (previous === current) {
@@ -161,21 +162,23 @@ export class FieldRepository implements FieldRegistry {
   #validate<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
     newValue: TValue | null
-  ): FieldErrors | undefined {
+  ): FieldValidationStatus {
     if (field.validate === undefined) {
       this.#errorManager.remove(field.name);
-      return undefined;
+      return NoErrors;
     }
 
     const rules = field.validate({ value: newValue, registry: this });
     const errors = this.#validator.validate(newValue, rules, this);
 
-    if (errors !== undefined && errors.all.length > 0) {
+    if (errors !== null && errors.all.length > 0) {
       this.#errorManager.add(field.name);
       return errors;
     }
 
     this.#errorManager.remove(field.name);
+
+    return NoErrors;
   }
 }
 

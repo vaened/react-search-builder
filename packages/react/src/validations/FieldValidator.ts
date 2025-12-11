@@ -3,12 +3,14 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { FieldErrors, FieldRegistry, FilterValue, ValidationSchema } from "../field";
+import { FieldNoErrors, FieldRegistry, FieldValidationStatus, FilterValue, ValidationSchema } from "../field";
+
+export const NoErrors: FieldNoErrors = null;
 
 export interface FieldValidator {
   validate: <TValue extends FilterValue>(
     value: TValue | null,
     rules: ValidationSchema<TValue>,
     registry: FieldRegistry
-  ) => FieldErrors | undefined;
+  ) => FieldValidationStatus;
 }

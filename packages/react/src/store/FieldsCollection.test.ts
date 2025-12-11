@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Serializer } from "../field";
 import { EMPTY_VALUE, FieldsCollection } from "./FieldsCollection";
 import type { GenericRegisteredField } from "./FieldsRepository";
+import { NoErrors } from "./FieldStore";
 
 const createField = (
   name: string,
@@ -17,6 +18,7 @@ const createField = (
     isHydrating: false,
     updatedAt: Date.now(),
     submittable: true,
+    errors: NoErrors,
     humanize: (v: any) => String(v),
     serializer: serializer || {
       serialize: (v: any) => v,

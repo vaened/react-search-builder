@@ -70,6 +70,10 @@ export type FieldErrors = {
   all: ValidationError[];
 };
 
+export type FieldNoErrors = null;
+
+export type FieldValidationStatus = FieldNoErrors | FieldErrors;
+
 export type ValidationSchema<TValue> = Array<ValidationRule<TValue>>;
 
 export interface PlainFilterChip {
@@ -143,7 +147,7 @@ export interface ArrayField<TKey extends ArrayTypeKey, TValue extends FilterType
 export interface RegisteredField<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]> extends Field<TKey, TValue> {
   defaultValue: TValue | null;
   isHydrating: boolean;
-  errors?: FieldErrors;
+  errors: FieldValidationStatus;
   updatedAt: number;
 }
 

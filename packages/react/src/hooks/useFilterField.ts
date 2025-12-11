@@ -8,8 +8,8 @@ import type {
   ArrayFieldConfig,
   ArrayTypeKey,
   FieldConfig,
-  FieldErrors,
   FieldOptions,
+  FieldValidationStatus,
   FilterTypeKey,
   FilterTypeMap,
   Humanizer,
@@ -20,12 +20,12 @@ import type {
   Validator,
 } from "../field";
 import resolve from "../serializers/resolve";
-import { FieldStore } from "../store";
+import { FieldStore, NoErrors } from "../store";
 
 export type FilterFieldReturn<TResolved, TRegistered> = {
   field: TRegistered | undefined;
   value: TResolved | null;
-  errors?: FieldErrors;
+  errors?: FieldValidationStatus;
   set: (value: TResolved) => void;
 };
 
@@ -142,7 +142,7 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
 
   return {
     field,
-    errors: field?.errors,
+    errors: field?.errors ?? NoErrors,
     value: (field?.value ?? defaultValue) as TValue,
     set,
   };

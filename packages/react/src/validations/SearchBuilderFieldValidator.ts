@@ -3,9 +3,9 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { FieldErrors, FieldRegistry, FilterValue, ValidationSchema } from "../field";
+import { FieldRegistry, FieldValidationStatus, FilterValue, ValidationSchema } from "../field";
 import { allOf } from "./allOf";
-import { FieldValidator } from "./FieldValidator";
+import { FieldValidator, NoErrors } from "./FieldValidator";
 import { isMultiError } from "./utils";
 
 export class SearchBuilderFieldValidator implements FieldValidator {
@@ -19,19 +19,19 @@ export class SearchBuilderFieldValidator implements FieldValidator {
     value: TValue | null,
     rules: ValidationSchema<TValue>,
     registry: FieldRegistry
-  ): FieldErrors | undefined => {
+  ): FieldValidationStatus => {
     const validator = allOf(rules, this.#failFast);
 
     const response = validator({ value, registry });
 
     if (response === true) {
-      return;
+      return NoErrors;
     }
 
     const isMultiple = isMultiError(response);
 
     if (isMultiple && response.length === 0) {
-      return;
+      return NoErrors;
     }
 
     if (isMultiple) {

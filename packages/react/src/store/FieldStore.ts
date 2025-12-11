@@ -30,6 +30,7 @@ export type SynchronousValue<TValue> = { deferred: false; hydrated: TValue | nul
 export type ParseValue<TValue> = AsynchronousValue<TValue> | SynchronousValue<TValue>;
 
 export type HydratorResponse = { label: string; value: FilterValue };
+export const NoErrors = null;
 
 export type FieldStoreState = Readonly<{
   collection: FieldsCollection;
@@ -90,6 +91,7 @@ export class FieldStore {
       ...field,
       defaultValue,
       value,
+      errors: NoErrors,
       updatedAt: Date.now(),
       isHydrating: deferred,
     };

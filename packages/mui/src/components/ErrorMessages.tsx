@@ -9,12 +9,12 @@
  */
 
 import { FormHelperText } from "@mui/material";
-import { FieldErrors, FilterName } from "@vaened/react-search-builder";
+import { FieldValidationStatus, FilterName } from "@vaened/react-search-builder";
 import React from "react";
 
 export type ErrorMessagesProps = {
   name: FilterName;
-  errors: FieldErrors | undefined;
+  errors: FieldValidationStatus | undefined;
 };
 
 export const ErrorMessages: React.FC<ErrorMessagesProps> = ({ name, errors }) => {

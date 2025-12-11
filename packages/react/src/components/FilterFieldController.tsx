@@ -4,7 +4,7 @@
  */
 
 import { type ReactElement } from "react";
-import { ArrayTypeKey, FieldErrors, FilterTypeKey, FilterTypeMap, ScalarTypeKey } from "../field";
+import { ArrayTypeKey, FieldValidationStatus, FilterTypeKey, FilterTypeMap, ScalarTypeKey } from "../field";
 import { ArrayFilterFieldConfig, EmptyArrayFilterFieldConfig, FilterFieldConfig, ScalarFilterFieldConfig, useFilterField } from "../hooks";
 import { FieldStore } from "../store";
 
@@ -12,7 +12,7 @@ type Event = { target: any } | any;
 
 export type ControlProps<V> = {
   value: V | null;
-  errors?: FieldErrors;
+  errors?: FieldValidationStatus;
   onChange: (event: Event) => void;
 };
 
