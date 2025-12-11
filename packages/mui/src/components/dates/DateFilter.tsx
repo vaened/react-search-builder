@@ -5,7 +5,14 @@
 
 import { DatePicker, DatePickerProps } from "@mui/x-date-pickers";
 import { useUtils } from "@mui/x-date-pickers/internals";
-import { FieldStore, FilterFieldController, FilterName, NoErrors, ScalarFieldConfig, useSearchBuilderQuietly } from "@vaened/react-search-builder";
+import {
+  FieldStore,
+  FilterFieldController,
+  FilterName,
+  NoErrors,
+  ScalarFieldConfig,
+  useSearchBuilderQuietly,
+} from "@vaened/react-search-builder";
 import ErrorMessages from "../ErrorMessages";
 import { validateStoreAvailabilityInComponent } from "../utils";
 
@@ -47,6 +54,7 @@ export function DateFilter<TEnableAccessibleFieldDOMStructure extends boolean = 
       control={({ value, errors, onChange }) => {
         return (
           <InternalDatePicker
+            name={name}
             value={value}
             onChange={(date, context) => {
               onChange(date);
@@ -72,6 +80,8 @@ export function DateFilter<TEnableAccessibleFieldDOMStructure extends boolean = 
 function InternalDatePicker<TEnableAccessibleFieldDOMStructure extends boolean>({
   value,
   timezone,
+  minDate,
+  maxDate,
   onChange,
   slotProps,
   ...restOfProps
@@ -79,9 +89,13 @@ function InternalDatePicker<TEnableAccessibleFieldDOMStructure extends boolean>(
   const slotPropsTextField = slotProps?.textField;
   const utils = useUtils<Date>();
 
+  const parse = (value: Date | null | undefined) => (value ? utils.date(value as unknown as string, timezone) : undefined);
+
   return (
     <DatePicker
-      value={utils.date(value as unknown as string, timezone)}
+      value={parse(value) ?? null}
+      minDate={parse(minDate)}
+      maxDate={parse(maxDate)}
       timezone={timezone}
       slotProps={{
         ...slotProps,
