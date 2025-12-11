@@ -18,6 +18,7 @@ import type {
 import { EMPTY_VALUE, type FieldController, FilterFieldController, useSearchBuilderQuietly } from "@vaened/react-search-builder";
 import { type ReactElement, type ReactNode, useId, useMemo } from "react";
 import ErrorMessages from "./ErrorMessages";
+import { validateStoreAvailabilityInComponent } from "./utils";
 
 type MuiSelectRef = React.ComponentRef<typeof MuiSelect>;
 
@@ -303,36 +304,9 @@ function normalize<TValue extends string | number, TItem, TItemsObj extends Reco
 
   return null;
 }
+
 function validateStoreAvailability(store: FieldStore | undefined | null): asserts store is FieldStore {
-  if (store) {
-    return;
-  }
-
-  throw new Error(`
-MISSING STORE CONFIGURATION
-================================================================
-
-PROBLEM: The <OptionSelect /> component requires a "store" to function, but none was found.
-It seems you are trying to use this component outside of a <SearchBuilder> context without providing a store manually.
-
-SOLUTION: You must provide a store using one of the following patterns:
-
-PATTERN 1: Context Integration
-  Wrap your component within the main provider:
-
-  <SearchForm>
-    <OptionSelect name="status" items={...} />
-  </SearchForm>
-
-PATTERN 2: Manual Injection
-  Pass the store instance explicitly via props:
-
-  const store = useSearchStore();
-  // ...
-  <OptionSelect store={store} name="status" items={...} />
-
-================================================================
-    `);
+  validateStoreAvailabilityInComponent(store, "OptionSelect", 'name="status" items={...}');
 }
 
 function validateOptionSelectProps<TValue extends string | number, TItem, TItemsObj extends Record<TValue, ReactNode | string>>(
