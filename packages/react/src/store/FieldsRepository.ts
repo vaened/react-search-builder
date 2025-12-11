@@ -172,7 +172,7 @@ export class FieldRepository implements FieldRegistry {
     const rules = field.validate({ value: newValue, registry: this });
     const errors = this.#validator.validate(newValue, rules, this);
 
-    if (errors !== null && errors.all.length > 0) {
+    if (errors !== NoErrors && errors.all.length > 0) {
       this.#errorManager.add(field.name);
       return errors;
     }
