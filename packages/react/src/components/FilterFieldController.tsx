@@ -57,7 +57,7 @@ export function FilterFieldController<TKey extends ArrayTypeKey, TValue extends 
 export function FilterFieldController<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(props: any) {
   const { store, control, ...restOfProps } = props as FieldController<TKey, TValue>;
 
-  const { value, set, errors } = useFilterField(store, restOfProps as any);
+  const { value, errors, set } = useFilterField(store, restOfProps as any);
 
   function onChange(event: Event) {
     set(getEventValue(event) as TValue);
