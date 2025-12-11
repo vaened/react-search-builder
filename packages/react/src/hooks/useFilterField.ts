@@ -25,6 +25,7 @@ import { FieldStore, NoErrors } from "../store";
 export type FilterFieldReturn<TResolved, TRegistered> = {
   field: TRegistered | undefined;
   value: TResolved | null;
+  defaultValue: TResolved | null;
   errors: FieldValidationStatus;
   set: (value: TResolved) => void;
 };
@@ -149,7 +150,8 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
   return {
     field,
     errors: field?.errors ?? NoErrors,
-    value: (field?.value ?? defaultValue) as TValue,
+    value: field?.value ?? defaultValue ?? null,
+    defaultValue: field?.defaultValue ?? defaultValue ?? null,
     set,
   };
 }
