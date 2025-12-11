@@ -33,7 +33,7 @@ export type ValidationDatesSchema = {
 
 export type DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure extends boolean = false> = Omit<
   DateFilterProps<TEnableAccessibleFieldDOMStructure>,
-  "store" | "name" | "defaultValue" | "label"
+  "store" | "name" | "defaultValue" | "label" | "maxDate" | "minDate"
 >;
 
 export type DateRangeFilterProps<TEnableAccessibleFieldDOMStructure extends boolean = false> = Omit<
@@ -47,6 +47,8 @@ export type DateRangeFilterProps<TEnableAccessibleFieldDOMStructure extends bool
   endFieldName: FilterName;
   startFieldLabel?: string;
   endFieldLabel?: string;
+  maxDate?: Date;
+  minDate?: Date;
   slotProps?: {
     StartDatePicker: DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure>;
     EndDatePicker: DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure>;
@@ -62,6 +64,8 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
   endFieldName,
   startFieldLabel,
   endFieldLabel,
+  minDate,
+  maxDate,
   slotProps,
   spacing = 2,
   onChange,
@@ -100,6 +104,7 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
   }
 
   function onEndDateChange(date: Date | null) {
+    console.log({ date });
     updateValue({ endDate: date });
     store?.revalidate(startFieldName);
   }
@@ -112,6 +117,8 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
           store={store}
           name={startFieldName}
           label={startFieldLabel}
+          minDate={minDate}
+          maxDate={value?.endDate ?? undefined}
           defaultValue={startDate}
           validate={composeStartRules}
           onChange={onStartDateChange}
@@ -123,6 +130,8 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
           store={store}
           name={endFieldName}
           label={endFieldLabel}
+          minDate={value?.startDate ?? undefined}
+          maxDate={maxDate}
           defaultValue={endDate}
           validate={composeEndRules}
           onChange={onEndDateChange}
