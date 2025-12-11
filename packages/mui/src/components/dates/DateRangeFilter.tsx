@@ -16,8 +16,14 @@ import {
   ValidationSchema,
   Validator,
 } from "@vaened/react-search-builder";
+import { useEffect, useState } from "react";
 import { validateStoreAvailabilityInComponent } from "../utils";
 import DateFilter, { DateFilterProps } from "./DateFilter";
+
+export type DateRangeValue = {
+  startDate: Date | null;
+  endDate: Date | null;
+};
 
 export type ValidationDatesSchema = {
   failFast?: boolean;
@@ -45,7 +51,7 @@ export type DateRangeFilterProps<TEnableAccessibleFieldDOMStructure extends bool
     StartDatePicker: DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure>;
     EndDatePicker: DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure>;
   };
-  onChange?: (range: { start: Date | null; end: Date | null }) => void;
+  onChange?: (value: DateRangeValue) => void;
 };
 
 export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boolean = false>({
@@ -57,14 +63,28 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
   startFieldLabel,
   endFieldLabel,
   slotProps,
-  onChange,
   spacing = 2,
+  onChange,
   ...restOfProps
 }: DateRangeFilterProps<TEnableAccessibleFieldDOMStructure>) {
   const context = useSearchBuilderQuietly();
+  const [value, setValue] = useState<DateRangeValue>({ startDate: startDate ?? null, endDate: endDate ?? null });
   const store = source ?? context?.store;
 
   validateStoreAvailability(store);
+
+  useEffect(() => {
+    onChange?.(value);
+  }, [value]);
+
+  function updateValue(newValue: Partial<DateRangeValue>) {
+    setValue((prev) => {
+      const value = { ...prev, ...newValue };
+      onChange?.(value);
+
+      return value;
+    });
+  }
 
   function composeStartRules(context: ValidationContext<Date>) {
     return compose(slotProps?.StartDatePicker?.validate?.(context) ?? [], mustBeBeforeEnd(endFieldName, context.registry));
@@ -72,6 +92,16 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
 
   function composeEndRules(context: ValidationContext<Date>) {
     return compose(slotProps?.EndDatePicker?.validate?.(context) ?? [], mustBeAfterStart(startFieldName, context.registry));
+  }
+
+  function onStartDateChange(date: Date | null) {
+    updateValue({ startDate: date });
+    store?.revalidate(endFieldName);
+  }
+
+  function onEndDateChange(date: Date | null) {
+    updateValue({ endDate: date });
+    store?.revalidate(startFieldName);
   }
 
   return (
@@ -84,6 +114,7 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
           label={startFieldLabel}
           defaultValue={startDate}
           validate={composeStartRules}
+          onChange={onStartDateChange}
         />
       </Grid>
       <Grid size={6}>
@@ -94,6 +125,7 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
           label={endFieldLabel}
           defaultValue={endDate}
           validate={composeEndRules}
+          onChange={onEndDateChange}
         />
       </Grid>
     </Grid>
