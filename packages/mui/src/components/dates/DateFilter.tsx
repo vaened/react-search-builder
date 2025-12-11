@@ -5,7 +5,7 @@
 
 import { DatePicker, DatePickerProps } from "@mui/x-date-pickers";
 import { useUtils } from "@mui/x-date-pickers/internals";
-import { FieldStore, FilterFieldController, FilterName, ScalarFieldConfig, useSearchBuilderQuietly } from "@vaened/react-search-builder";
+import { FieldStore, FilterFieldController, FilterName, NoErrors, ScalarFieldConfig, useSearchBuilderQuietly } from "@vaened/react-search-builder";
 import ErrorMessages from "../ErrorMessages";
 import { validateStoreAvailabilityInComponent } from "../utils";
 
@@ -54,7 +54,7 @@ export function DateFilter<TEnableAccessibleFieldDOMStructure extends boolean = 
             }}
             slotProps={{
               textField: {
-                error: errors !== undefined,
+                error: errors !== NoErrors,
                 FormHelperTextProps: {
                   component: "div",
                 },

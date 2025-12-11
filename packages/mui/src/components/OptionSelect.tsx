@@ -15,7 +15,7 @@ import type {
   FilterTypeMap,
   ScalarFilterFieldConfig,
 } from "@vaened/react-search-builder";
-import { EMPTY_VALUE, type FieldController, FilterFieldController, useSearchBuilderQuietly } from "@vaened/react-search-builder";
+import { EMPTY_VALUE, type FieldController, FilterFieldController, NoErrors, useSearchBuilderQuietly } from "@vaened/react-search-builder";
 import { type ReactElement, type ReactNode, useId, useMemo } from "react";
 import ErrorMessages from "./ErrorMessages";
 import { validateStoreAvailabilityInComponent } from "./utils";
@@ -218,7 +218,7 @@ export function OptionSelect<
       store={store}
       {...(config as any)}
       control={({ value, errors, onChange }) => {
-        const hasErrors = errors !== undefined;
+        const hasErrors = errors !== NoErrors;
 
         const internalProps = {
           ...restOfProps,
