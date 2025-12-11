@@ -81,13 +81,14 @@ export class FieldRepository implements FieldRegistry {
     partial: Partial<RegisteredField<TKey, TValue>>
   ): void {
     const newValue = partial.value;
-    const errors = newValue !== undefined ? this.#validate(field, newValue) : partial.errors ?? field.errors;
+    const previousErrors = partial.errors !== undefined ? partial.errors : field.errors;
+    const currentErrors = newValue !== undefined ? this.#validate(field, newValue) : previousErrors;
 
     this.#fields.set(field.name, {
       ...field,
       updatedAt: Date.now(),
       ...partial,
-      errors,
+      errors: currentErrors,
     } as unknown as GenericRegisteredField);
   }
 
