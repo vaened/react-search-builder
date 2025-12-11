@@ -43,13 +43,13 @@ export function DateFilter<TEnableAccessibleFieldDOMStructure extends boolean = 
       humanize={humanize}
       validate={validate}
       type="date"
-      defaultValue={defaultValue ?? null}
+      defaultValue={defaultValue}
       control={({ value, errors, onChange }) => {
         return (
           <InternalDatePicker
             value={value}
             onChange={(date, context) => {
-              onChange?.(date);
+              onChange(date);
               onChangeProp?.(date, context);
             }}
             slotProps={{
