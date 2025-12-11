@@ -94,7 +94,7 @@ export class FieldRepository implements FieldRegistry {
 
   public create = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(field: RegisteredField<TKey, TValue>): void => {
     if (this.exists(field.name)) {
-      throwAlreadyExitsErrorFor(field, this.all());
+      throwAlreadyExistsErrorFor(field, this.all());
     }
 
     this.override(field, {
@@ -183,7 +183,7 @@ export class FieldRepository implements FieldRegistry {
   }
 }
 
-function throwAlreadyExitsErrorFor<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
+function throwAlreadyExistsErrorFor<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
   field: Field<TKey, TValue>,
   fields: Map<string, GenericRegisteredField>
 ) {
