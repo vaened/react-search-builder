@@ -7,6 +7,7 @@ import { Field, FieldRegistry, FieldValidationStatus, FilterName, FilterTypeKey,
 import { FieldValidator } from "../validations/FieldValidator";
 import { ErrorManager } from "./ErrorManager";
 import { NoErrors } from "./FieldStore";
+import { isFieldDirty } from "./utils";
 
 type Operation<Field> = false | Readonly<Field>;
 export const NotExecuted = false;
@@ -42,25 +43,13 @@ export class FieldRepository implements FieldRegistry {
     return this.#fields.get(name) as RegisteredField<TKey, TValue> | undefined;
   };
 
-  public isDirty(field: GenericRegisteredField, value: RegisteredFieldValue): boolean;
-  public isDirty<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
-    field: RegisteredField<TKey, TValue>,
-    value: TValue | null
-  ): boolean;
-  public isDirty<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
-    field: RegisteredField<TKey, TValue>,
-    value: TValue | null
-  ) {
-    return !Object.is(field.value, value);
-  }
-
   public set = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     name: FilterName,
     value: TValue | null
   ): Operation<RegisteredField<TKey, TValue>> => {
     const field = this.get<TKey, TValue>(name);
 
-    if (field === undefined || !this.isDirty(field, value)) {
+    if (field === undefined || !isFieldDirty(field, value)) {
       return NotExecuted;
     }
 

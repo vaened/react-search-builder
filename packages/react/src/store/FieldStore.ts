@@ -22,6 +22,7 @@ import { FieldRepository, NotExecuted } from "./FieldsRepository";
 import { PersistenceManager } from "./PersistenceManager";
 import { TaskMonitor } from "./TaskMonitor";
 import { type EventEmitter, type Unsubscribe } from "./event-emitter";
+import { isFieldDirty } from "./utils";
 
 export type FieldOperation = "set" | "flush" | "update" | "hydrate" | "unregister" | "register" | "rehydrate" | "reset" | null;
 
@@ -205,7 +206,7 @@ export class FieldStore {
     this.#repository.all().forEach((field) => {
       const value = newValues[field.name] ?? field.defaultValue;
 
-      if (this.#repository.isDirty(field, value)) {
+      if (isFieldDirty(field, value)) {
         this.#repository.override(field, { value });
         touched.push(field.name);
       }

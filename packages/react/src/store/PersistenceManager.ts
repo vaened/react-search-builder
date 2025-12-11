@@ -16,6 +16,7 @@ import {
 import { PersistenceAdapter } from "../persistence/PersistenceAdapter";
 import { FieldRepository, GenericRegisteredField, RegisteredFieldValue } from "./FieldsRepository";
 import { TaskMonitor } from "./TaskMonitor";
+import { isFieldDirty } from "./utils";
 
 export type AsynchronousValue<TValue> = { deferred: true; hydrated: Promise<TValue | null> };
 export type SynchronousValue<TValue> = { deferred: false; hydrated: TValue | null };
@@ -84,7 +85,7 @@ export class PersistenceManager implements PersistenceAdapter {
         continue;
       }
 
-      if (this.#repository.isDirty(field, hydrated)) {
+      if (isFieldDirty(field, hydrated)) {
         this.#repository.override(field, { value: hydrated });
         touched.push(field.name);
       }
@@ -118,7 +119,7 @@ export class PersistenceManager implements PersistenceAdapter {
       this.#tracker.release();
       const value = (!isSuccessful ? field.value : result.value) ?? field.defaultValue;
 
-      if (isSuccessful && this.#repository.isDirty(field, result.value)) {
+      if (isSuccessful && isFieldDirty(field, result.value)) {
         touched.push(field.name);
       }
 
@@ -157,7 +158,7 @@ export class PersistenceManager implements PersistenceAdapter {
 
         this.#tracker.release();
 
-        if (!this.#repository.isDirty(field, value)) {
+        if (!isFieldDirty(field, value)) {
           this.#repository.override(field, { isHydrating: false });
 
           return { status: "completed", touched: [] };
