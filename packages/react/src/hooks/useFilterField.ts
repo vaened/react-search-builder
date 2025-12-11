@@ -56,17 +56,17 @@ export type GenericFilterFieldConfig = {
 export function useFilterField<TKey extends ScalarTypeKey, TValue extends FilterTypeMap[TKey]>(
   store: FieldStore,
   config: ScalarFilterFieldConfig<TKey, TValue>
-): FilterFieldReturn<TValue, TKey>;
+): FilterFieldReturn<TValue, RegisteredField<TKey, TValue>>;
 
 export function useFilterField<TKey extends ArrayTypeKey>(
   store: FieldStore,
   config: EmptyArrayFilterFieldConfig<TKey>
-): FilterFieldReturn<FilterTypeMap[TKey], TKey>;
+): FilterFieldReturn<FilterTypeMap[TKey], RegisteredField<TKey, FilterTypeMap[TKey]>>;
 
 export function useFilterField<TKey extends ArrayTypeKey, TValue extends FilterTypeMap[TKey]>(
   store: FieldStore,
   config: ArrayFilterFieldConfig<TKey, TValue>
-): FilterFieldReturn<TValue, TKey>;
+): FilterFieldReturn<TValue, RegisteredField<TKey, TValue>>;
 
 export function useFilterField<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
   store: FieldStore,
@@ -106,6 +106,12 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
       validate: configValidate,
     };
   });
+
+  useEffect(() => {
+    if (name === "startDate") {
+      console.log({ value: field?.value });
+    }
+  }, [field?.value]);
 
   useEffect(() => {
     store.register({
