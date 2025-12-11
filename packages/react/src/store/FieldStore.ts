@@ -3,7 +3,16 @@
  * @link https://vaened.dev DevFolio
  */
 
-import type { Field, FieldOptions, FilterName, FilterTypeKey, FilterTypeMap, FilterValue, RegisteredField, ValueFilterDictionary } from "../field";
+import type {
+  Field,
+  FieldOptions,
+  FilterName,
+  FilterTypeKey,
+  FilterTypeMap,
+  FilterValue,
+  RegisteredField,
+  ValueFilterDictionary,
+} from "../field";
 import { PersistenceAdapter } from "../persistence/PersistenceAdapter";
 import { FieldValidator } from "../validations/FieldValidator";
 import { ErrorManager } from "./ErrorManager";
@@ -177,6 +186,14 @@ export class FieldStore {
             touched: response.touched,
           });
       }
+    }
+  };
+
+  public revalidate = (name: FilterName): void => {
+    const revalidated = this.#repository.revalidate(name);
+
+    if (revalidated) {
+      this.#commit();
     }
   };
 

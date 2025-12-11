@@ -70,17 +70,17 @@ export class FieldRepository implements FieldRegistry {
     return field;
   };
 
-  public override(field: GenericRegisteredField, partial: Partial<Omit<GenericRegisteredField, "errors">>): void;
+  public override(field: GenericRegisteredField, partial: Partial<GenericRegisteredField>): void;
   public override<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
-    partial: Partial<Omit<RegisteredField<TKey, TValue>, "errors">>
+    partial: Partial<RegisteredField<TKey, TValue>>
   ): void;
   public override<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
-    partial: Partial<Omit<RegisteredField<TKey, TValue>, "errors">>
+    partial: Partial<RegisteredField<TKey, TValue>>
   ): void {
     const newValue = partial.value;
-    const errors = newValue !== undefined ? this.#validate(field, newValue) : field.errors;
+    const errors = newValue !== undefined ? this.#validate(field, newValue) : partial.errors ?? field.errors;
 
     this.#fields.set(field.name, {
       ...field,
@@ -135,6 +135,27 @@ export class FieldRepository implements FieldRegistry {
   public clear = (): void => {
     this.#fields.clear();
     this.#errorManager.clear();
+  };
+
+  public revalidate = (name: FilterName): boolean => {
+    const field = this.get(name);
+
+    if (!field) {
+      return false;
+    }
+
+    const previous = field.errors;
+    const current = this.#validate(field, field.value);
+
+    if (previous === current) {
+      return false;
+    }
+
+    this.override(field, {
+      errors: current,
+    });
+
+    return true;
   };
 
   #validate<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
