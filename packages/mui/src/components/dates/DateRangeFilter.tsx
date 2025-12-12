@@ -154,7 +154,7 @@ function mustBeAfterStart(startFieldName: FilterName, registry: FieldRegistry): 
 
   return after({
     value: startValue,
-    name: "end_date_before_start_date",
+    name: "date_range_end_value",
     message: "End date must be after the start date",
   });
 }
@@ -168,7 +168,7 @@ function mustBeBeforeEnd(endFieldName: FilterName, registry: FieldRegistry): Sin
 
   return before({
     value: endValue,
-    name: "start_date_after_end_date",
+    name: "date_range_start_value",
     message: "Start date must be before the end date",
   });
 }
