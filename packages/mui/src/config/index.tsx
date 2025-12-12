@@ -3,7 +3,13 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { SearchBuilderConfigProvider, translateFrom, useSearchBuilderConfig, type GenericTranslator } from "@vaened/react-search-builder";
+import {
+  Paths,
+  SearchBuilderConfigProvider,
+  translateFrom,
+  useSearchBuilderConfig,
+  type GenericTranslator,
+} from "@vaened/react-search-builder";
 import React, { useMemo } from "react";
 import { Locale } from "../types";
 import defaultIcons from "./icons";
@@ -13,6 +19,7 @@ export type MuiIcons = typeof defaultIcons;
 
 export type MuiTranslations = (typeof defaultTranslations)["en"];
 export type Translator = GenericTranslator<MuiTranslations>;
+export type TranslationKey = Paths<MuiTranslations>;
 
 const fallbackConfig = {
   icon: (key: keyof MuiIcons) => defaultIcons[key],
