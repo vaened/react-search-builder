@@ -83,9 +83,14 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
     validate: configValidate,
     ...restOfProps
   } = config as FilterFieldConfig<TKey, TValue>;
-  const parser = useRef({ serializer: configSerializer, humanize: configHumanize, validate: configValidate });
+
   const selector = useMemo(() => store.listen<TKey, TValue>(name), [store, name]);
   const field = useSyncExternalStore(store.subscribe, selector, selector);
+  const parser = useRef({
+    serializer: configSerializer,
+    humanize: configHumanize,
+    validate: configValidate,
+  });
 
   const defaultSerializer = useMemo(() => resolve(type), [type]);
 
