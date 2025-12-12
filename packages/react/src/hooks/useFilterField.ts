@@ -109,12 +109,6 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
   });
 
   useEffect(() => {
-    if (name === "startDate") {
-      console.log({ value: field?.value });
-    }
-  }, [field?.value]);
-
-  useEffect(() => {
     store.register({
       type,
       name,
