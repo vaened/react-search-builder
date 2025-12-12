@@ -16,7 +16,7 @@ import {
 import { PersistenceAdapter } from "../persistence/PersistenceAdapter";
 import { FieldRepository, GenericRegisteredField, RegisteredFieldValue } from "./FieldsRepository";
 import { TaskMonitor } from "./TaskMonitor";
-import { isFieldDirty } from "./utils";
+import { isFieldDirty } from "./isFieldDirty";
 
 export type AsynchronousValue<TValue> = { deferred: true; hydrated: Promise<TValue | null> };
 export type SynchronousValue<TValue> = { deferred: false; hydrated: TValue | null };

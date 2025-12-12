@@ -22,7 +22,7 @@ import { FieldRepository, NotExecuted } from "./FieldsRepository";
 import { PersistenceManager } from "./PersistenceManager";
 import { TaskMonitor } from "./TaskMonitor";
 import { type EventEmitter, type Unsubscribe } from "./event-emitter";
-import { isFieldDirty } from "./utils";
+import { isFieldDirty } from "./isFieldDirty";
 
 export type FieldOperation = "set" | "flush" | "update" | "hydrate" | "unregister" | "register" | "rehydrate" | "reset" | null;
 

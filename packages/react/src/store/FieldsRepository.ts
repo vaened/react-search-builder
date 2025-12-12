@@ -7,7 +7,7 @@ import { Field, FieldRegistry, FieldValidationStatus, FilterName, FilterTypeKey,
 import { FieldValidator } from "../validations/FieldValidator";
 import { ErrorManager } from "./ErrorManager";
 import { NoErrors } from "./FieldStore";
-import { isFieldDirty } from "./utils";
+import { isFieldDirty } from "./isFieldDirty";
 
 type Operation<Field> = false | Readonly<Field>;
 export const NotExecuted = false;
