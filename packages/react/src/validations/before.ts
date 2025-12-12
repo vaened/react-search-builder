@@ -37,12 +37,14 @@ export function before<TValue extends ValidableValue>({
       return true;
     }
 
+    const formatted = format?.(validable) ?? (validable instanceof Date ? validable.toLocaleDateString() : validable.toString());
+
     return {
       name: name ?? "before",
       code: "before",
       message: message ?? `Field must be before ${format?.(validable) ?? validable}`,
       params: {
-        value: format?.(validable) ?? validable.toString(),
+        value: formatted,
       },
     };
   };

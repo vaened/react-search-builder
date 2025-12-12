@@ -37,12 +37,14 @@ export function after<TValue extends ValidableValue>({
       return true;
     }
 
+    const formatted = format?.(validable) ?? (validable instanceof Date ? validable.toLocaleDateString() : validable.toString());
+
     return {
       name: name ?? "after",
       code: "after",
       message: message ?? `Field must be after ${format?.(validable) ?? validable}`,
       params: {
-        value: format?.(validable) ?? validable.toString(),
+        value: formatted,
       },
     };
   };

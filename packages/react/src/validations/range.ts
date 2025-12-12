@@ -53,13 +53,16 @@ export function range<TValue extends ValidableValue>({
 
     const error = resolveError(min, max);
 
+    const minFormatted = parse(min, format);
+    const maxFormatted = parse(max, format);
+
     return {
       name: name ?? "range",
       code: error?.code ?? "invalid_range",
       message: message ?? error?.message,
       params: {
-        min: format?.(min) ?? min?.toString(),
-        max: format?.(max) ?? max?.toString(),
+        min: minFormatted,
+        max: maxFormatted,
       },
     };
   };
@@ -74,4 +77,12 @@ export function resolveError<TValue>(min: TValue, max: TValue): Pick<RangeRuleEr
     case max !== undefined:
       return { code: "invalid_max_range", message: `Field must be less than ${max}` };
   }
+}
+
+function parse<TValue extends ValidableValue>(value: TValue | undefined, defaultFormat: undefined | ((value: TValue) => string)): string {
+  if (value === undefined) {
+    return "";
+  }
+
+  return defaultFormat?.(value) ?? (value instanceof Date ? value.toLocaleDateString() : value.toString());
 }
