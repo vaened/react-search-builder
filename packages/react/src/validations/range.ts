@@ -10,7 +10,7 @@ type ValidableValue = Extract<ScalarFilterValue, number | Date>;
 
 type RangeRuleError = {
   name: string;
-  code: "invalid_range" | "invalid_min_range" | "invalid_max_range";
+  code: "range" | "invalid_range" | "invalid_min_range" | "invalid_max_range";
   message?: string;
   params: {
     min?: string;
@@ -58,7 +58,7 @@ export function range<TValue extends ValidableValue>({
 
     return {
       name: name ?? "range",
-      code: error?.code ?? "invalid_range",
+      code: error?.code ?? "range",
       message: message ?? error?.message,
       params: {
         min: minFormatted,
