@@ -46,7 +46,7 @@ describe("FieldStore", () => {
         "change",
         expect.objectContaining({
           operation: "register",
-          touched: [],
+          touched: ["search"],
         })
       );
     });
@@ -70,6 +70,7 @@ describe("FieldStore", () => {
         "change",
         expect.objectContaining({
           operation: "unregister",
+          touched: ["toDelete"],
         })
       );
     });
