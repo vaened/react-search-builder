@@ -56,7 +56,6 @@ export type DateRangeFilterProps<TEnableAccessibleFieldDOMStructure extends bool
     StartDatePicker: DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure>;
     EndDatePicker: DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure>;
   };
-  onChange?: (value: DateRangeValue) => void;
   validationErrorFormat?: ValidationErrorFormat;
 };
 
@@ -73,7 +72,6 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
   disableAutoBoundaries,
   slotProps,
   spacing = 2,
-  onChange,
   validationErrorFormat,
   ...restOfProps
 }: DateRangeFilterProps<TEnableAccessibleFieldDOMStructure>) {
