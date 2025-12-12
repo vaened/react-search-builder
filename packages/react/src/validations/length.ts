@@ -47,8 +47,6 @@ export function length({ name, message, ...restOfProps }: LengthRuleProps): Sing
 
     const error = resolveLengthError(value, min, max);
 
-    console.log({ error });
-
     return {
       name: name ?? "length",
       code: error?.code ?? "invalid_length",
