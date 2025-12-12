@@ -12,6 +12,10 @@ type LengthRuleError = {
   name: string;
   code: "invalid_length" | "invalid_min_length" | "invalid_max_length";
   message?: string;
+  params: {
+    min?: string;
+    max?: string;
+  };
 };
 
 type MinLengthRuleProps = {
@@ -33,7 +37,7 @@ type LengthRuleProps = {
 } & (MinLengthRuleProps | MaxLengthRuleProps | BothLengthRuleProps);
 
 export function length({ name, message, ...restOfProps }: LengthRuleProps): SingleValidationRule<ValidableValue, LengthRuleError> {
-  return ({value}) => {
+  return ({ value }) => {
     const { min, max } = restOfProps as BothLengthRuleProps;
     const isValid = !isValidValue(value) || ((min === undefined || value.length >= min) && (max === undefined || value.length <= max));
 
@@ -49,11 +53,15 @@ export function length({ name, message, ...restOfProps }: LengthRuleProps): Sing
       name: name ?? "length",
       code: error?.code ?? "invalid_length",
       message: message ?? error?.message,
+      params: {
+        min: min?.toString(),
+        max: max?.toString(),
+      },
     };
   };
 }
 
-function resolveLengthError(value: ValidableValue, min?: number, max?: number): Omit<LengthRuleError, "name"> | undefined {
+function resolveLengthError(value: ValidableValue, min?: number, max?: number): Pick<LengthRuleError, "code" | "message"> | undefined {
   const type = typeof value === "string" ? "characters" : "items";
   switch (true) {
     case min !== undefined && max !== undefined:

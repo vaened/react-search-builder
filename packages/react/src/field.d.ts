@@ -52,6 +52,7 @@ export type ValidationError =
       name: ValidationName;
       code: string;
       message?: string;
+      params?: Record<string, unknown>;
     }
   | false;
 

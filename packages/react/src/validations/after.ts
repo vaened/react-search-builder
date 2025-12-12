@@ -12,6 +12,9 @@ type AfterRuleError = {
   name: string;
   code: "after";
   message?: string;
+  params: {
+    value: string;
+  };
 };
 
 type AfterRuleProps<TValue extends ValidableValue> = {
@@ -27,7 +30,7 @@ export function after<TValue extends ValidableValue>({
   message,
   format,
 }: AfterRuleProps<TValue>): SingleValidationRule<TValue, AfterRuleError> {
-  return ({value}) => {
+  return ({ value }) => {
     const isValid = !isValidValue(value) || value >= validable;
 
     if (isValid) {
@@ -38,6 +41,9 @@ export function after<TValue extends ValidableValue>({
       name: name ?? "after",
       code: "after",
       message: message ?? `Field must be after ${format?.(validable) ?? validable}`,
+      params: {
+        value: format?.(validable) ?? validable.toString(),
+      },
     };
   };
 }

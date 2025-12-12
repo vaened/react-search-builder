@@ -12,6 +12,9 @@ type BeforeRuleError = {
   name: string;
   code: "before";
   message?: string;
+  params: {
+    value: string;
+  };
 };
 
 type BeforeRuleProps<TValue extends ValidableValue> = {
@@ -27,7 +30,7 @@ export function before<TValue extends ValidableValue>({
   message,
   format,
 }: BeforeRuleProps<TValue>): SingleValidationRule<TValue, BeforeRuleError> {
-  return ({value}) => {
+  return ({ value }) => {
     const isValid = !isValidValue(value) || value <= validable;
 
     if (isValid) {
@@ -38,6 +41,9 @@ export function before<TValue extends ValidableValue>({
       name: name ?? "before",
       code: "before",
       message: message ?? `Field must be before ${format?.(validable) ?? validable}`,
+      params: {
+        value: format?.(validable) ?? validable.toString(),
+      },
     };
   };
 }

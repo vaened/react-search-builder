@@ -12,6 +12,10 @@ type RangeRuleError = {
   name: string;
   code: "invalid_range" | "invalid_min_range" | "invalid_max_range";
   message?: string;
+  params: {
+    min?: string;
+    max?: string;
+  };
 };
 
 type MinRangeRuleProps<TValue> = {
@@ -29,15 +33,17 @@ type BothRangeRuleProps<TValue> = {
 
 type RangeRuleProps<TValue> = {
   name?: ValidationName;
+  format?: (value: TValue) => string;
   message?: string;
 } & (MinRangeRuleProps<TValue> | MaxRangeRuleProps<TValue> | BothRangeRuleProps<TValue>);
 
 export function range<TValue extends ValidableValue>({
   name,
   message,
+  format,
   ...restOfProps
 }: RangeRuleProps<TValue>): SingleValidationRule<TValue, RangeRuleError> {
-  return ({value}) => {
+  return ({ value }) => {
     const { min, max } = restOfProps as BothRangeRuleProps<TValue>;
     const isValid = !isValidValue(value) || ((min === undefined || value >= min) && (max === undefined || value <= max));
 
@@ -51,11 +57,15 @@ export function range<TValue extends ValidableValue>({
       name: name ?? "range",
       code: error?.code ?? "invalid_range",
       message: message ?? error?.message,
+      params: {
+        min: format?.(min) ?? min?.toString(),
+        max: format?.(max) ?? max?.toString(),
+      },
     };
   };
 }
 
-export function resolveError<TValue>(min: TValue, max: TValue): Omit<RangeRuleError, "name"> | undefined {
+export function resolveError<TValue>(min: TValue, max: TValue): Pick<RangeRuleError, "code" | "message"> | undefined {
   switch (true) {
     case min !== undefined && max !== undefined:
       return { code: "invalid_range", message: `Field must be between ${min} and ${max}` };
