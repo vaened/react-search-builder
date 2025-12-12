@@ -12,11 +12,11 @@ import {
   FilterName,
   SingleValidationRule,
   useSearchBuilderQuietly,
+  useWatchFilters,
   ValidationContext,
   ValidationSchema,
   Validator,
 } from "@vaened/react-search-builder";
-import { useEffect, useState } from "react";
 import { validateStoreAvailabilityInComponent } from "../utils";
 import DateFilter, { DateFilterProps } from "./DateFilter";
 
@@ -74,26 +74,20 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
   ...restOfProps
 }: DateRangeFilterProps<TEnableAccessibleFieldDOMStructure>) {
   const context = useSearchBuilderQuietly();
-  const [value, setValue] = useState<DateRangeValue>({ startDate: startDate ?? null, endDate: endDate ?? null });
   const store = source ?? context?.store;
 
   validateStoreAvailability(store);
 
-  useEffect(() => {
-    onChange?.(value);
-  }, [value]);
+  const { [startFieldName]: startFieldValue, [endFieldName]: endFieldValue } = useWatchFilters({
+    store,
+    fields: {
+      [startFieldName]: "date",
+      [endFieldName]: "date",
+    },
+  });
 
-  const maxStartDate = disableAutoBoundaries ? undefined : value?.endDate ?? undefined;
-  const minEndDate = disableAutoBoundaries ? undefined : value?.startDate ?? undefined;
-
-  function updateValue(newValue: Partial<DateRangeValue>) {
-    setValue((prev) => {
-      const value = { ...prev, ...newValue };
-      onChange?.(value);
-
-      return value;
-    });
-  }
+  const maxStartDate = disableAutoBoundaries ? undefined : endFieldValue;
+  const minEndDate = disableAutoBoundaries ? undefined : startFieldValue;
 
   function composeStartRules(context: ValidationContext<Date>) {
     return compose(slotProps?.StartDatePicker?.validate?.(context) ?? [], mustBeBeforeEnd(endFieldName, context.registry));
@@ -103,14 +97,11 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
     return compose(slotProps?.EndDatePicker?.validate?.(context) ?? [], mustBeAfterStart(startFieldName, context.registry));
   }
 
-  function onStartDateChange(date: Date | null) {
-    updateValue({ startDate: date });
+  function onStartDateChange() {
     store?.revalidate(endFieldName);
   }
 
-  function onEndDateChange(date: Date | null) {
-    console.log({ date });
-    updateValue({ endDate: date });
+  function onEndDateChange() {
     store?.revalidate(startFieldName);
   }
 
