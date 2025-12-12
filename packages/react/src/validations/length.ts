@@ -10,7 +10,14 @@ type ValidableValue = Extract<FilterValue, ArrayFilterValue | string>;
 
 type LengthRuleError = {
   name: string;
-  code: "invalid_length" | "invalid_min_length" | "invalid_max_length";
+  code:
+    | "length"
+    | "invalid_length_string"
+    | "invalid_length_array"
+    | "invalid_min_length_string"
+    | "invalid_min_length_array"
+    | "invalid_max_length_string"
+    | "invalid_max_length_array";
   message?: string;
   params: {
     min?: string;
@@ -49,7 +56,7 @@ export function length({ name, message, ...restOfProps }: LengthRuleProps): Sing
 
     return {
       name: name ?? "length",
-      code: error?.code ?? "invalid_length",
+      code: error?.code ?? "length",
       message: message ?? error?.message,
       params: {
         min: min?.toString(),
@@ -60,13 +67,16 @@ export function length({ name, message, ...restOfProps }: LengthRuleProps): Sing
 }
 
 function resolveLengthError(value: ValidableValue, min?: number, max?: number): Pick<LengthRuleError, "code" | "message"> | undefined {
-  const type = typeof value === "string" ? "characters" : "items";
+  const isString = typeof value === "string";
+  const type = isString ? "string" : "array";
+  const terminology = isString ? "characters" : "items";
+
   switch (true) {
     case min !== undefined && max !== undefined:
-      return { code: "invalid_length", message: `Field must be between ${min} and ${max} ${type}` };
+      return { code: `invalid_length_${type}`, message: `Field must be between ${min} and ${max} ${terminology}` };
     case min !== undefined:
-      return { code: "invalid_min_length", message: `Field must be greater than ${min} ${type}` };
+      return { code: `invalid_min_length_${type}`, message: `Field must be greater than ${min} ${terminology}` };
     case max !== undefined:
-      return { code: "invalid_max_length", message: `Field must be less than ${max} ${type}` };
+      return { code: `invalid_max_length_${type}`, message: `Field must be less than ${max} ${terminology}` };
   }
 }
