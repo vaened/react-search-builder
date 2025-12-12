@@ -33,6 +33,7 @@ export function DateFilter<TEnableAccessibleFieldDOMStructure extends boolean = 
   defaultValue,
   humanize,
   validate,
+  isValueEqualsTo,
   onChange: onChangeProp,
   slotProps,
   ...restOfProps
@@ -52,6 +53,7 @@ export function DateFilter<TEnableAccessibleFieldDOMStructure extends boolean = 
       serializer={serializer}
       humanize={humanize}
       validate={validate}
+      isValueEqualsTo={isValueEqualsTo}
       type="date"
       defaultValue={defaultValue}
       control={({ value, errors, onChange }) => {

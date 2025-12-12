@@ -176,6 +176,7 @@ export function OptionSelect<
     validate,
     getValue,
     getLabel,
+    isValueEqualsTo,
     ...restOfProps
   } = props;
 
@@ -211,6 +212,7 @@ export function OptionSelect<
     submittable,
     validate,
     humanize,
+    isValueEqualsTo,
   } as Partial<FieldController<Tkey, TValue>>;
 
   return (

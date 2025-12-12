@@ -90,7 +90,7 @@ export type PrimitiveFilterDictionary = Record<FilterName, PrimitiveValue>;
 export type ValueFilterDictionary = Record<FilterName, FilterValue>;
 
 export type Validator<TValue> = (context: ValidationContext<TValue>) => ValidationSchema<TValue>;
-
+export type Equality<TValue> = (current: TValue, next: TValue) => boolean;
 export type Humanizer<TValue, TResponse = HumanizeReturnType<TValue>> = (value: TValue, registry: FieldRegistry) => TResponse | undefined;
 
 export type AsynchronousSerializer<TValue> = {
@@ -115,6 +115,7 @@ export interface FieldConfig<TKey extends FilterTypeKey, TValue extends FilterTy
   serializer?: Serializer<TValue>;
   humanize?: Humanizer<TValue>;
   validate?: Validator<TValue>;
+  isValueEqualsTo?: Equality<TValue>;
 }
 
 export type ScalarFieldConfig<TKey extends ScalarTypeKey, TValue extends FilterTypeMap[TKey]> = FieldOptions & {
@@ -123,6 +124,7 @@ export type ScalarFieldConfig<TKey extends ScalarTypeKey, TValue extends FilterT
   serializer?: Serializer<TValue>;
   humanize?: Humanizer<TValue, string>;
   validate?: Validator<TValue>;
+  isValueEqualsTo?: Equality<TValue>;
 };
 
 export type ArrayFieldConfig<TKey extends ArrayTypeKey, TValue extends FilterTypeMap[TKey]> = FieldOptions & {
@@ -131,6 +133,7 @@ export type ArrayFieldConfig<TKey extends ArrayTypeKey, TValue extends FilterTyp
   serializer?: Serializer<TValue>;
   humanize?: Humanizer<TValue, FilterMultiLabel<TValue>>;
   validate?: Validator<TValue>;
+  isValueEqualsTo?: Equality<TValue>;
 };
 
 export interface Field<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]> extends FieldConfig<TKey, TValue> {
