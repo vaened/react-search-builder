@@ -104,6 +104,7 @@ export class FieldStore {
 
     this.#commit({
       operation: "register",
+      touched: [field.name],
     });
 
     processed?.then(({ status, touched }) => {
@@ -151,6 +152,7 @@ export class FieldStore {
 
     this.#commit({
       operation: "unregister",
+      touched: [name],
     });
   };
 
