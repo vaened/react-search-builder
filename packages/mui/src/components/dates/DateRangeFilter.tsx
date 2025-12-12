@@ -31,6 +31,8 @@ export type ValidationDatesSchema = {
   end?: Validator<Date>;
 };
 
+export type ValidationErrorFormat = (value: Date) => string;
+
 export type DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure extends boolean = false> = Omit<
   DateFilterProps<TEnableAccessibleFieldDOMStructure>,
   "store" | "name" | "defaultValue" | "label" | "maxDate" | "minDate"
@@ -55,6 +57,7 @@ export type DateRangeFilterProps<TEnableAccessibleFieldDOMStructure extends bool
     EndDatePicker: DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure>;
   };
   onChange?: (value: DateRangeValue) => void;
+  validationErrorFormat?: ValidationErrorFormat;
 };
 
 export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boolean = false>({
@@ -71,6 +74,7 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
   slotProps,
   spacing = 2,
   onChange,
+  validationErrorFormat,
   ...restOfProps
 }: DateRangeFilterProps<TEnableAccessibleFieldDOMStructure>) {
   const context = useSearchBuilderQuietly();
@@ -90,11 +94,17 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
   const minEndDate = disableAutoBoundaries ? undefined : startFieldValue;
 
   function composeStartRules(context: ValidationContext<Date>) {
-    return compose(slotProps?.StartDatePicker?.validate?.(context) ?? [], mustBeBeforeEnd(endFieldName, context.registry));
+    return compose(
+      slotProps?.StartDatePicker?.validate?.(context) ?? [],
+      mustBeBeforeEnd(endFieldName, context.registry, validationErrorFormat)
+    );
   }
 
   function composeEndRules(context: ValidationContext<Date>) {
-    return compose(slotProps?.EndDatePicker?.validate?.(context) ?? [], mustBeAfterStart(startFieldName, context.registry));
+    return compose(
+      slotProps?.EndDatePicker?.validate?.(context) ?? [],
+      mustBeAfterStart(startFieldName, context.registry, validationErrorFormat)
+    );
   }
 
   function onStartDateChange() {
@@ -145,7 +155,11 @@ function compose(schema: ValidationSchema<Date>, rule: SingleValidationRule<Date
   return schema;
 }
 
-function mustBeAfterStart(startFieldName: FilterName, registry: FieldRegistry): SingleValidationRule<Date> | undefined {
+function mustBeAfterStart(
+  startFieldName: FilterName,
+  registry: FieldRegistry,
+  defaultFormat: ValidationErrorFormat | undefined
+): SingleValidationRule<Date> | undefined {
   const startValue = registry.get<"date">(startFieldName)?.value;
 
   if (!startValue) {
@@ -154,12 +168,16 @@ function mustBeAfterStart(startFieldName: FilterName, registry: FieldRegistry): 
 
   return after({
     value: startValue,
-    name: "date_range_end_value",
     message: "End date must be after the start date",
+    format: defaultFormat,
   });
 }
 
-function mustBeBeforeEnd(endFieldName: FilterName, registry: FieldRegistry): SingleValidationRule<Date> | undefined {
+function mustBeBeforeEnd(
+  endFieldName: FilterName,
+  registry: FieldRegistry,
+  defaultFormat: ValidationErrorFormat | undefined
+): SingleValidationRule<Date> | undefined {
   const endValue = registry.get<"date">(endFieldName)?.value;
 
   if (!endValue) {
@@ -168,8 +186,8 @@ function mustBeBeforeEnd(endFieldName: FilterName, registry: FieldRegistry): Sin
 
   return before({
     value: endValue,
-    name: "date_range_start_value",
     message: "Start date must be before the end date",
+    format: defaultFormat,
   });
 }
 
