@@ -4,12 +4,12 @@
  */
 
 import type { PrimitiveFilterDictionary } from "../field";
-import type { PersistenceAdapter } from "../persistence/PersistenceAdapter";
+import type { PersistenceAdapter } from "./PersistenceAdapter";
 
-export class UrlPersistenceAdapter implements PersistenceAdapter {
+export class WindowUrlPersistenceAdapter implements PersistenceAdapter {
   constructor() {
     if (typeof window === "undefined") {
-      throw new Error("UrlPersistenceAdapter can only be used in a browser environment");
+      throw new Error("WindowUrlPersistenceAdapter can only be used in a browser environment");
     }
   }
 

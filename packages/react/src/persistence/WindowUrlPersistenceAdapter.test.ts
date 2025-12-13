@@ -4,17 +4,17 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { UrlPersistenceAdapter } from "./UrlPersistenceAdapter";
+import { WindowUrlPersistenceAdapter } from "./WindowUrlPersistenceAdapter";
 
 describe("UrlPersistenceAdapter", () => {
-  let adapter: UrlPersistenceAdapter;
+  let adapter: WindowUrlPersistenceAdapter;
 
   const setUrl = (search: string) => {
     window.history.replaceState({}, "", `/${search}`);
   };
 
   beforeEach(() => {
-    adapter = new UrlPersistenceAdapter();
+    adapter = new WindowUrlPersistenceAdapter();
     setUrl("");
   });
 

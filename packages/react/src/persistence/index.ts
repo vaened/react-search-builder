@@ -4,14 +4,14 @@
  */
 
 import { EmptyPersistenceAdapter } from "./EmptyPersistenceAdapter";
-import { UrlPersistenceAdapter } from "./UrlPersistenceAdapter";
+import { WindowUrlPersistenceAdapter } from "./WindowUrlPersistenceAdapter";
 
 export function url() {
-  return new UrlPersistenceAdapter();
+  return new WindowUrlPersistenceAdapter();
 }
 
 export function empty() {
   return new EmptyPersistenceAdapter();
 }
 
-export { EmptyPersistenceAdapter, UrlPersistenceAdapter };
+export { EmptyPersistenceAdapter, WindowUrlPersistenceAdapter as UrlPersistenceAdapter };
