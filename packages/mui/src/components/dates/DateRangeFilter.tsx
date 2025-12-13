@@ -53,8 +53,8 @@ export type DateRangeFilterProps<TEnableAccessibleFieldDOMStructure extends bool
   minDate?: Date;
   disableAutoBoundaries?: boolean;
   slotProps?: {
-    StartDatePicker: DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure>;
-    EndDatePicker: DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure>;
+    StartDateFilterProps: DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure>;
+    EndDateFilterProps: DateRangeFilterSlotProps<TEnableAccessibleFieldDOMStructure>;
   };
   validationErrorFormat?: ValidationErrorFormat;
 };
@@ -93,14 +93,14 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
 
   function composeStartRules(context: ValidationContext<Date>) {
     return compose(
-      slotProps?.StartDatePicker?.validate?.(context) ?? [],
+      slotProps?.StartDateFilterProps?.validate?.(context) ?? [],
       mustBeBeforeEnd(endFieldName, context.registry, validationErrorFormat)
     );
   }
 
   function composeEndRules(context: ValidationContext<Date>) {
     return compose(
-      slotProps?.EndDatePicker?.validate?.(context) ?? [],
+      slotProps?.EndDateFilterProps?.validate?.(context) ?? [],
       mustBeAfterStart(startFieldName, context.registry, validationErrorFormat)
     );
   }
@@ -117,7 +117,7 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
     <Grid size={12} spacing={spacing} container {...restOfProps}>
       <Grid size={6}>
         <DateFilter
-          {...slotProps?.StartDatePicker}
+          {...slotProps?.StartDateFilterProps}
           store={store}
           name={startFieldName}
           label={startFieldLabel}
@@ -130,7 +130,7 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
       </Grid>
       <Grid size={6}>
         <DateFilter
-          {...slotProps?.EndDatePicker}
+          {...slotProps?.EndDateFilterProps}
           store={store}
           name={endFieldName}
           label={endFieldLabel}
