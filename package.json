@@ -18,6 +18,8 @@
     "mui:build": "pnpm --filter @vaened/mui-search-builder build"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.8",
+    "@testing-library/jest-dom": "^6.9.1",
     "@types/react": "^19.2",
     "@types/react-dom": "^19.2",
     "happy-dom": "^15.0.0",
@@ -26,7 +28,6 @@
     "typescript": "^5.9.0",
     "vite": "^7.1.9",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.0.13",
-    "@testing-library/jest-dom": "^6.9.1"
+    "vitest": "^4.0.13"
   }
 }
