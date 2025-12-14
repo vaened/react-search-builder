@@ -65,6 +65,24 @@ export class FieldsCollection implements Iterable<GenericRegisteredField>, Field
     });
   };
 
+  public toUrlSearchParams = (): URLSearchParams => {
+    const params = new URLSearchParams();
+    const primitives = this.toPrimitives();
+
+    for (const name in primitives) {
+      const primitive = primitives[name];
+
+      if (!Array.isArray(primitive)) {
+        params.append(name, primitive);
+        continue;
+      }
+
+      primitive.forEach((value) => params.append(name, value));
+    }
+
+    return params;
+  };
+
   public onlyActives = (): GenericRegisteredField[] => {
     return this.filter((field) => FieldsCollection.isValidValue(field.value));
   };
