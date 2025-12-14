@@ -15,10 +15,16 @@ import type {
   FilterTypeMap,
   ScalarFilterFieldConfig,
 } from "@vaened/react-search-builder";
-import { EMPTY_VALUE, type FieldController, FilterFieldController, NoErrors, useSearchBuilderQuietly } from "@vaened/react-search-builder";
+import {
+  EMPTY_VALUE,
+  type FieldController,
+  FilterFieldController,
+  NoErrors,
+  useSecureFieldStoreInstance,
+} from "@vaened/react-search-builder";
 import { type ReactElement, type ReactNode, useId, useMemo } from "react";
 import ErrorMessages from "./ErrorMessages";
-import { validateStoreAvailabilityInComponent } from "./utils";
+import { componentMissingStoreError } from "./utils";
 
 type MuiSelectRef = React.ComponentRef<typeof MuiSelect>;
 
@@ -157,7 +163,6 @@ export function OptionSelect<
   TitemsObj extends Record<Extract<TIOption, string | number>, ReactNode | string>
 >(props: OptionSelectConfig<Tkey, TValue, TItem, TIOption, TitemsObj>) {
   validateOptionSelectProps(props);
-  const context = useSearchBuilderQuietly();
 
   const {
     store: source,
@@ -180,13 +185,12 @@ export function OptionSelect<
     ...restOfProps
   } = props;
 
+  const store = useSecureFieldStore(source);
+
   const selectId = useId();
   const labelId = `${selectId}-label`;
-  const store = source ?? context?.store;
   const multiple = type.endsWith("[]");
   const emptyValue = multiple ? [] : EMPTY_VALUE;
-
-  validateStoreAvailability(store);
 
   const humanize = useMemo(() => {
     if (!toHumanLabel) {
@@ -307,8 +311,14 @@ function normalize<TValue extends string | number, TItem, TItemsObj extends Reco
   return null;
 }
 
-function validateStoreAvailability(store: FieldStore | undefined | null): asserts store is FieldStore {
-  validateStoreAvailabilityInComponent(store, "OptionSelect", 'name="status" items={...}');
+function useSecureFieldStore(store: FieldStore | undefined | null): FieldStore {
+  return useSecureFieldStoreInstance(
+    store,
+    componentMissingStoreError({
+      component: "OptionSelect",
+      definition: 'name="status" items={...}',
+    })
+  );
 }
 
 function validateOptionSelectProps<TValue extends string | number, TItem, TItemsObj extends Record<TValue, ReactNode | string>>(

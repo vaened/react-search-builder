@@ -11,10 +11,10 @@ import {
   FilterName,
   NoErrors,
   ScalarFieldConfig,
-  useSearchBuilderQuietly,
+  useSecureFieldStoreInstance,
 } from "@vaened/react-search-builder";
 import ErrorMessages from "../ErrorMessages";
-import { validateStoreAvailabilityInComponent } from "../utils";
+import { componentMissingStoreError } from "../utils";
 
 export type DateFilterProps<TEnableAccessibleFieldDOMStructure extends boolean = false> = Omit<
   DatePickerProps<Date, TEnableAccessibleFieldDOMStructure>,
@@ -38,12 +38,9 @@ export function DateFilter<TEnableAccessibleFieldDOMStructure extends boolean = 
   slotProps,
   ...restOfProps
 }: DateFilterProps<TEnableAccessibleFieldDOMStructure>) {
-  const context = useSearchBuilderQuietly();
+  const store = useSecureFieldStore(source);
 
   const slotPropsTextField = slotProps?.textField;
-  const store = source ?? context?.store;
-
-  validateStoreAvailability(store);
 
   return (
     <FilterFieldController
@@ -116,8 +113,14 @@ function InternalDatePicker<TEnableAccessibleFieldDOMStructure extends boolean>(
   );
 }
 
-function validateStoreAvailability(store: FieldStore | undefined | null): asserts store is FieldStore {
-  validateStoreAvailabilityInComponent(store, "DateFilter", 'name="date"');
+function useSecureFieldStore(store: FieldStore | undefined | null): FieldStore {
+  return useSecureFieldStoreInstance(
+    store,
+    componentMissingStoreError({
+      component: "DateFilter",
+      definition: 'name="date"',
+    })
+  );
 }
 
 export default DateFilter;

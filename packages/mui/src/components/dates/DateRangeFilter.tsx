@@ -11,13 +11,13 @@ import {
   FieldStore,
   FilterName,
   SingleValidationRule,
-  useSearchBuilderQuietly,
+  useSecureFieldStoreInstance,
   useWatchFilters,
   ValidationContext,
   ValidationSchema,
   Validator,
 } from "@vaened/react-search-builder";
-import { validateStoreAvailabilityInComponent } from "../utils";
+import { componentMissingStoreError } from "../utils";
 import DateFilter, { DateFilterProps } from "./DateFilter";
 
 export type DateRangeValue = {
@@ -75,10 +75,7 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
   validationErrorFormat,
   ...restOfProps
 }: DateRangeFilterProps<TEnableAccessibleFieldDOMStructure>) {
-  const context = useSearchBuilderQuietly();
-  const store = source ?? context?.store;
-
-  validateStoreAvailability(store);
+  const store = useSecureFieldStore(source);
 
   const { [startFieldName]: startFieldValue, [endFieldName]: endFieldValue } = useWatchFilters({
     store,
@@ -106,11 +103,11 @@ export function DateRangeFilter<TEnableAccessibleFieldDOMStructure extends boole
   }
 
   function onStartDateChange() {
-    store?.revalidate(endFieldName);
+    store.revalidate(endFieldName);
   }
 
   function onEndDateChange() {
-    store?.revalidate(startFieldName);
+    store.revalidate(startFieldName);
   }
 
   return (
@@ -189,6 +186,12 @@ function mustBeBeforeEnd(
   });
 }
 
-function validateStoreAvailability(store: FieldStore | undefined | null): asserts store is FieldStore {
-  validateStoreAvailabilityInComponent(store, "DateRange", 'startFieldName="startDate" endFieldName="endDate"');
+function useSecureFieldStore(store: FieldStore | undefined | null): FieldStore {
+  return useSecureFieldStoreInstance(
+    store,
+    componentMissingStoreError({
+      component: "DateRangeFilter",
+      definition: 'startFieldName="startDate" endFieldName="endDate"',
+    })
+  );
 }
