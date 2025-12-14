@@ -28,6 +28,10 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
   const dispatch = useCallback(
     function (persist: boolean = true) {
       store.whenReady("search-form", () => {
+        if (store.hasErrors()) {
+          return;
+        }
+
         const response = Promise.resolve(onSearch?.(store.collection()));
 
         const loadingTimer = setTimeout(() => {
