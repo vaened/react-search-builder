@@ -128,18 +128,18 @@ export class FieldRepository implements FieldRegistry {
     this.#errorManager.clear();
   };
 
-  public revalidate = (name: FilterName): boolean => {
+  public revalidate = (name: FilterName): Operation<true> => {
     const field = this.get(name);
 
     if (!field) {
-      return false;
+      return NotExecuted;
     }
 
     const previous = field.errors ?? null;
     const current = this.#validate(field, field.value);
 
     if (previous === current) {
-      return false;
+      return NotExecuted;
     }
 
     this.override(field, {
