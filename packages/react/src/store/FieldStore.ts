@@ -22,7 +22,6 @@ import { FieldRepository, NotExecuted } from "./FieldsRepository";
 import { PersistenceManager } from "./PersistenceManager";
 import { TaskMonitor } from "./TaskMonitor";
 import { type EventEmitter, type Unsubscribe } from "./event-emitter";
-import { isFieldDirty } from "./isFieldDirty";
 
 export type FieldOperation = "set" | "flush" | "update" | "hydrate" | "unregister" | "register" | "rehydrate" | "reset" | null;
 
@@ -36,7 +35,7 @@ export const NoErrors = null;
 export type FieldStoreState = Readonly<{
   collection: FieldsCollection;
   operation: FieldOperation;
-  touched: FilterName[];
+  touched: readonly FilterName[];
   isHydrating: boolean;
 }>;
 
@@ -202,25 +201,16 @@ export class FieldStore {
     }
   };
 
-  public reset = (newValues: ValueFilterDictionary = {}): FilterName[] | undefined => {
-    const touched: FilterName[] = [];
+  public reset = (newValues: ValueFilterDictionary = {}): Readonly<FilterName[]> | undefined => {
+    const response = this.#repository.bulk(newValues);
 
-    this.#repository.all().forEach((field) => {
-      const value = newValues[field.name] ?? field.defaultValue;
-
-      if (isFieldDirty(field, value)) {
-        this.#repository.override(field, { value });
-        touched.push(field.name);
-      }
-    });
-
-    if (touched.length === 0) {
+    if (response === NotExecuted) {
       return;
     }
 
-    this.#commit({ operation: "reset", touched });
+    this.#commit({ operation: "reset", touched: response });
 
-    return touched;
+    return response;
   };
 
   public clean = () => {

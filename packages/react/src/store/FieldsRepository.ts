@@ -3,7 +3,16 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { Field, FieldRegistry, FieldValidationStatus, FilterName, FilterTypeKey, FilterTypeMap, RegisteredField } from "../field";
+import {
+  Field,
+  FieldRegistry,
+  FieldValidationStatus,
+  FilterName,
+  FilterTypeKey,
+  FilterTypeMap,
+  RegisteredField,
+  ValueFilterDictionary,
+} from "../field";
 import { FieldValidator } from "../validations/FieldValidator";
 import { ErrorManager } from "./ErrorManager";
 import { NoErrors } from "./FieldStore";
@@ -53,40 +62,38 @@ export class FieldRepository implements FieldRegistry {
       return NotExecuted;
     }
 
-    this.override(field, {
+    this.#override(field, {
       value,
     });
 
     return field;
   };
 
-  public override(field: GenericRegisteredField, partial: Partial<GenericRegisteredField>): void;
-  public override<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
-    field: RegisteredField<TKey, TValue>,
-    partial: Partial<RegisteredField<TKey, TValue>>
-  ): void;
-  public override<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
-    field: RegisteredField<TKey, TValue>,
-    partial: Partial<RegisteredField<TKey, TValue>>
-  ): void {
-    const newValue = partial.value;
-    const previousErrors = partial.errors !== undefined ? partial.errors : field.errors;
-    const currentErrors = newValue !== undefined ? this.#validate(field, newValue) : previousErrors;
+  public bulk = (newValues: ValueFilterDictionary): Operation<FilterName[]> => {
+    const touched: FilterName[] = [];
 
-    this.#fields.set(field.name, {
-      ...field,
-      updatedAt: Date.now(),
-      ...partial,
-      errors: currentErrors,
-    } as unknown as GenericRegisteredField);
-  }
+    this.#fields.forEach((field) => {
+      const value = newValues[field.name] ?? field.defaultValue;
+
+      if (isFieldDirty(field, value)) {
+        this.#override(field, { value });
+        touched.push(field.name);
+      }
+    });
+
+    if (touched.length === 0) {
+      return NotExecuted;
+    }
+
+    return touched;
+  };
 
   public create = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(field: RegisteredField<TKey, TValue>): void => {
     if (this.exists(field.name)) {
       throwAlreadyExistsErrorFor(field, this.all());
     }
 
-    this.override(field, {
+    this.#override(field, {
       updatedAt: Date.now(),
     });
   };
@@ -105,7 +112,7 @@ export class FieldRepository implements FieldRegistry {
       throw new Error(`Field "${name}" does not exist`);
     }
 
-    this.override(field, partial);
+    this.#override(field, partial);
 
     return field;
   };
@@ -142,12 +149,33 @@ export class FieldRepository implements FieldRegistry {
       return NotExecuted;
     }
 
-    this.override(field, {
+    this.#override(field, {
       errors: current,
     });
 
     return true;
   };
+
+  #override(field: GenericRegisteredField, partial: Partial<GenericRegisteredField>): void;
+  #override<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
+    field: RegisteredField<TKey, TValue>,
+    partial: Partial<RegisteredField<TKey, TValue>>
+  ): void;
+  #override<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
+    field: RegisteredField<TKey, TValue>,
+    partial: Partial<RegisteredField<TKey, TValue>>
+  ): void {
+    const newValue = partial.value;
+    const previousErrors = partial.errors !== undefined ? partial.errors : field.errors;
+    const currentErrors = newValue !== undefined ? this.#validate(field, newValue) : previousErrors;
+
+    this.#fields.set(field.name, {
+      ...field,
+      updatedAt: Date.now(),
+      ...partial,
+      errors: currentErrors,
+    } as unknown as GenericRegisteredField);
+  }
 
   #validate<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
