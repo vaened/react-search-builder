@@ -11,7 +11,7 @@ export type ErrorableValidationRule<TValue> = Validation<TValue, ValidationSucce
 
 export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: false): ErrorableMultipleValidationRule<TValue>;
 export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: true): SingleValidationRule<TValue>;
-export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast?: boolean): ErrorableValidationRule<TValue>;
+export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast?: boolean): SingleValidationRule<TValue>;
 
 export function allOf<TValue>(rules: Array<ValidationRule<TValue>>, failFast: boolean = true): ErrorableValidationRule<TValue> {
   if (failFast) {
