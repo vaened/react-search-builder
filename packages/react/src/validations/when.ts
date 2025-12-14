@@ -3,20 +3,20 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { FieldRegistry, FilterValue, MultipleValidationRule, SingleValidationRule, ValidationRule } from "../field";
+import { FilterValue, MultipleValidationRule, SingleValidationRule, ValidationRule } from "../field";
 import { allOf } from "./allOf";
 
-type Predicate = (registry: FieldRegistry) => boolean;
+type Predicate<TValue> = SingleValidationRule<TValue>;
 
-type Condition = Predicate | boolean;
+type Condition<TValue> = Predicate<TValue> | boolean;
 
 type WhenRuleValidation<TValue> = {
-  is: Condition;
+  is: Condition<TValue>;
   apply: ValidationRule<TValue>;
 };
 
 type WhenRulesValidation<TValue> = {
-  is: Condition;
+  is: Condition<TValue>;
   apply: Array<ValidationRule<TValue>>;
   failFast?: boolean;
 };
@@ -27,19 +27,20 @@ export function when<TValue extends FilterValue>(props: WhenRuleValidation<TValu
 export function when<TValue extends FilterValue>(props: WhenRulesValidation<TValue>): MultipleValidationRule<TValue>;
 
 export function when<TValue extends FilterValue>(props: WhenRuleProps<TValue>): ValidationRule<TValue> {
-  return ({value, registry}) => {
-    const shouldValidate = typeof props.is === "function" ? props.is(registry) : props.is;
+  return (context) => {
+    const result = typeof props.is === "function" ? props.is(context) : props.is;
+    const shouldValidate = result === true;
 
     if (!shouldValidate) {
       return true;
     }
 
     if (!isMultiRules(props)) {
-      return props.apply({value, registry});
+      return props.apply(context);
     }
 
     const validator = allOf(props.apply, props.failFast ?? true);
-    return validator({value, registry});
+    return validator(context);
   };
 }
 
