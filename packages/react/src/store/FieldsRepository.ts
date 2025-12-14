@@ -9,7 +9,7 @@ import { ErrorManager } from "./ErrorManager";
 import { NoErrors } from "./FieldStore";
 import { isFieldDirty } from "./isFieldDirty";
 
-type Operation<Field> = false | Readonly<Field>;
+type Operation<Result> = false | Readonly<Result>;
 export const NotExecuted = false;
 
 export type GenericRegisteredField = {
