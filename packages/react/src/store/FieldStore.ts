@@ -193,7 +193,7 @@ export class FieldStore {
     }
   };
 
-  public revalidate = (name: FilterName): void => {
+  public revalidate = (name?: FilterName): void => {
     const revalidated = this.#repository.revalidate(name);
 
     if (revalidated) {

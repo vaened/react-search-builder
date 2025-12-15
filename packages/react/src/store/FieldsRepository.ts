@@ -139,25 +139,32 @@ export class FieldRepository implements FieldRegistry {
     this.#errorManager.clear();
   };
 
-  public revalidate = (name: FilterName): Operation<true> => {
-    const field = this.get(name);
+  public revalidate = (name?: FilterName): Operation<true> => {
+    let executed = NotExecuted;
+    const fields = name ? [name] : this.#fields.keys();
 
-    if (!field) {
-      return NotExecuted;
+    for (const name of fields) {
+      const field = this.get(name);
+
+      if (!field) {
+        continue;
+      }
+
+      const previous = field.errors ?? null;
+      const current = this.#validate(field, field.value);
+
+      if (current === previous) {
+        continue;
+      }
+
+      executed = true;
+
+      this.#override(field, {
+        errors: current,
+      });
     }
 
-    const previous = field.errors ?? null;
-    const current = this.#validate(field, field.value);
-
-    if (previous === current) {
-      return NotExecuted;
-    }
-
-    this.#override(field, {
-      errors: current,
-    });
-
-    return true;
+    return executed;
   };
 
   public apply(name: GenericRegisteredField, partial: Partial<FieldPatch<RegisteredFieldValue>>): void;
@@ -214,6 +221,10 @@ export class FieldRepository implements FieldRegistry {
     this.#errorManager.remove(field.name);
 
     return NoErrors;
+  }
+
+  #pick<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(name: FilterName): RegisteredField<TKey, TValue> {
+    return this.#fields.get(name) as RegisteredField<TKey, TValue>;
   }
 
   #pickAllowedPatch<T extends object, K extends readonly (keyof T)[]>(source: T, allowed: K): Partial<Pick<T, K[number]>> {
