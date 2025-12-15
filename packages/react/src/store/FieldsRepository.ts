@@ -223,10 +223,6 @@ export class FieldRepository implements FieldRegistry {
     return NoErrors;
   }
 
-  #pick<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(name: FilterName): RegisteredField<TKey, TValue> {
-    return this.#fields.get(name) as RegisteredField<TKey, TValue>;
-  }
-
   #pickAllowedPatch<T extends object, K extends readonly (keyof T)[]>(source: T, allowed: K): Partial<Pick<T, K[number]>> {
     const out: Partial<Pick<T, K[number]>> = {};
 
