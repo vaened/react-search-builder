@@ -24,12 +24,12 @@ export function useReadyState({ isReady, isHydrating }: UseReadyStateProps) {
     }
   }, [isFormReady, isTimerCompleted, isHydrating]);
 
-  function markTimmerAsCompleted() {
+  function markTimerAsCompleted() {
     setTimerStatus(true);
   }
 
   return {
     isFormReady,
-    markTimmerAsCompleted,
+    markTimerAsCompleted,
   };
 }

@@ -64,7 +64,7 @@ export function SearchForm({
   const store = useResolveFieldStoreInstance(source, configuration);
 
   const isHydrating = useSyncExternalStore(store.subscribe, store.isHydrating, store.isHydrating);
-  const { isFormReady, markTimmerAsCompleted } = useReadyState({ isReady: manualStart === true, isHydrating });
+  const { isFormReady, markTimerAsCompleted } = useReadyState({ isReady: manualStart === true, isHydrating });
   const { isFormLoading, dispatch, performAutoSearch } = useFormSubmit({
     store,
     submitOnChange,
@@ -99,7 +99,7 @@ export function SearchForm({
 
     const timer = setTimeout(() => {
       dispatch();
-      markTimmerAsCompleted();
+      markTimerAsCompleted();
     }, autoStartDelay);
 
     return () => {
