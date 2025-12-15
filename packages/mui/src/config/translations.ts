@@ -3,7 +3,7 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { TranslationStrings } from "@vaened/react-search-builder";
+import { TranslationStrings } from "@vaened/react-search-builder/core";
 import type { Locale } from "../types";
 
 export default {

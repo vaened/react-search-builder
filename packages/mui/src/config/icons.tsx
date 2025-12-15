@@ -4,7 +4,7 @@
  */
 
 import { IconEraser, IconFilter, IconFilterOff, IconPrompt, IconRestore, IconSearch } from "@tabler/icons-react";
-import { IconSet } from "@vaened/react-search-builder";
+import { IconSet } from "@vaened/react-search-builder/core";
 
 export default {
   searchBarSearchIcon: <IconSearch />,
