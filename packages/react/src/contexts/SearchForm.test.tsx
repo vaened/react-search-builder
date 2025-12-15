@@ -9,8 +9,7 @@ import { PrimitiveValue, ValueFilterDictionary } from "../field";
 import { PersistenceAdapter } from "../persistence/PersistenceAdapter";
 import { createFieldStore } from "../store";
 import { createControlledPromise } from "../test-utils";
-import { SearchBuilderContextState, useSearchBuilder } from "./index";
-import { SearchForm } from "./SearchForm";
+import { SearchBuilderContextState, SearchForm, useSearchBuilder } from "./SearchForm";
 
 function TestInspector({ onState }: { onState: (state: SearchBuilderContextState) => void }) {
   const context = useSearchBuilder();

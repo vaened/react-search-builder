@@ -6,16 +6,17 @@
 import React, {
   cloneElement,
   ComponentProps,
+  createContext,
   FormEventHandler,
   isValidElement,
   ReactElement,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { SearchBuilderContext } from ".";
 import type { ValueFilterDictionary } from "../field";
 import { useResolveFieldStoreInstance } from "../hooks/useResolveFieldStoreInstance";
 import { CreateStoreOptions, FieldsCollection, FieldStore } from "../store";
@@ -31,6 +32,14 @@ type FormProps = {
 
 type SubmitResult = void | boolean;
 
+export interface SearchBuilderContextState {
+  store: FieldStore;
+  submitOnChange: boolean;
+  isLoading: boolean;
+  isFormReady: boolean;
+  refresh: (params: ValueFilterDictionary) => void;
+}
+
 export type SearchFormProps = {
   children: ReactNode;
   store?: FieldStore;
@@ -43,6 +52,8 @@ export type SearchFormProps = {
   onSearch?: (params: FieldsCollection) => SubmitResult | Promise<SubmitResult>;
   onChange?: (params: FieldsCollection) => void;
 } & Omit<ComponentProps<"form">, "onSubmit" | "onChange">;
+
+export const SearchBuilderContext = createContext<SearchBuilderContextState | undefined>(undefined);
 
 export function SearchForm({
   children,
@@ -159,4 +170,33 @@ export function SearchForm({
   );
 }
 
-export default SearchForm;
+export const useSearchBuilderQuietly = (): SearchBuilderContextState | undefined => {
+  return useContext(SearchBuilderContext);
+};
+
+export const useSearchBuilder = (): SearchBuilderContextState => {
+  const context = useContext(SearchBuilderContext);
+
+  if (context) {
+    return context;
+  }
+
+  throw new Error(`
+SEARCH CONTEXT MISSING
+================================================================
+
+PROBLEM: You are calling "useSearchBuilder()" (or a component that relies on it) 
+outside of the <SearchForm /> provider hierarchy.
+
+The component attempting to access search actions or configuration 
+cannot find the required context.
+
+SOLUTION: Wrap your component tree with the main provider:
+
+  <SearchForm>
+    <YourFieldComponent />  <-- Allows useSearchBuilder() here
+  </SearchForm>
+
+================================================================
+    `);
+};
