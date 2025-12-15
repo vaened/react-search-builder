@@ -15,10 +15,11 @@ import React, {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { SearchBuilderContext, SearchStateContext } from ".";
+import { SearchBuilderContext } from ".";
 import type { ValueFilterDictionary } from "../field";
 import { useResolveFieldStoreInstance } from "../hooks/useResolveFieldStoreInstance";
 import { CreateStoreOptions, FieldsCollection, FieldStore } from "../store";
+import { SearchStateContextProvider } from "./SearchState";
 import { SKIP_PERSISTENCE, useFormSubmit } from "./useFormSubmit";
 import { useReadyState } from "./useReadyState";
 
@@ -42,11 +43,6 @@ export type SearchFormProps = {
   onSearch?: (params: FieldsCollection) => SubmitResult | Promise<SubmitResult>;
   onChange?: (params: FieldsCollection) => void;
 } & Omit<ComponentProps<"form">, "onSubmit" | "onChange">;
-
-function SearchStateContextProvider({ store, children }: { store: FieldStore; children: ReactNode }) {
-  const state = useSyncExternalStore(store.subscribe, store.state, store.state);
-  return <SearchStateContext.Provider value={{ state }}>{children}</SearchStateContext.Provider>;
-}
 
 export function SearchForm({
   children,
