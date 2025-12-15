@@ -19,7 +19,7 @@ export function filled<TValue extends FilterValue>({
   return ({ value, registry }) => {
     const required = field ? registry.get(field)?.value : value;
 
-    if (required !== undefined && required !== null) {
+    if (required !== undefined && required !== null && (Array.isArray(required) ? required.length > 0 : required !== "")) {
       return true;
     }
 
