@@ -28,6 +28,8 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
   const dispatch = useCallback(
     function (persist: boolean = true) {
       store.whenReady("search-form", () => {
+        store.revalidate();
+
         if (store.hasErrors()) {
           return;
         }
