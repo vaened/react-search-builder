@@ -6,16 +6,20 @@
 import { FilterName, FilterValue, SingleValidationRule } from "../field";
 
 export type FilledRuleProps = {
-  field: FilterName;
+  field?: FilterName;
   name?: string;
   message?: string;
 };
 
-export function filled<TValue extends FilterValue>({ field, name, message }: FilledRuleProps): SingleValidationRule<TValue> {
-  return ({ registry }) => {
-    const required = registry.get(field);
+export function filled<TValue extends FilterValue>({
+  field,
+  name,
+  message,
+}: FilledRuleProps | undefined = {}): SingleValidationRule<TValue> {
+  return ({ value, registry }) => {
+    const required = field ? registry.get(field)?.value : value;
 
-    if (required?.value !== null && required?.value !== undefined) {
+    if (required !== undefined && required !== null) {
       return true;
     }
 
