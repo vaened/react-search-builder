@@ -25,12 +25,15 @@ import {
   OptionSelect,
   SearchBar,
   SearchForm,
+  allOf,
+  filled,
   length,
   required,
   useSearchStore,
+  when,
 } from "@vaened/mui-search-builder";
+import { DateFilter, DateRangeFilter } from "@vaened/mui-search-builder/dates";
 import { useEffect, useState } from "react";
-
 const theme = createTheme();
 
 type NumberValue = 1 | 2 | 3;
@@ -117,6 +120,7 @@ export default function App() {
   const data: number[] = [];
 
   function search(collection: FieldsCollection) {
+    console.log({ url: collection.toUrlSearchParams().toString() });
     return new Promise<boolean>((resolve) => {
       setTimeout(() => {
         console.log({ submit: [...collection.toArray()] });
@@ -140,7 +144,21 @@ export default function App() {
         <Typography variant="h4">Playground — mui-search-engine</Typography>
         <Grid container gap={2} flexDirection="column">
           <Grid>
-            <SearchForm store={store} onSearch={search} onChange={onChange} submitOnChange>
+            <SearchForm store={store} onSearch={search} onChange={onChange}>
+              <Grid size={12} container>
+                <DateRangeFilter
+                  startFieldName="startDate"
+                  endFieldName="endDate"
+                  startFieldLabel="Inicio de búsqueda"
+                  endFieldLabel="Fin de búsqueda"
+                  disableAutoBoundaries
+                  size={12}
+                  gap={2}
+                />
+              </Grid>
+              <Grid size={12}>
+                <DateFilter store={store} name="date" label="Fecha" />
+              </Grid>
               <Grid size={6}>
                 <OptionSelect
                   type="number[]"
@@ -152,9 +170,13 @@ export default function App() {
                   getLabel={(country) => country.label}
                   toHumanLabel={(v) => countries.find((country) => country.value === v)?.label ?? v.toString()}
                   validate={() => {
-                    return [length({ min: 2 })];
+                    return [
+                      when({
+                        is: filled(),
+                        apply: allOf([length({ min: 2, message: "Contries must be at least 2 items." })]),
+                      }),
+                    ];
                   }}
-                  submittable
                   displayEmpty
                 />
               </Grid>
@@ -166,7 +188,6 @@ export default function App() {
                   defaultValue={[]}
                   label="Aditivos"
                   toHumanLabel={(value) => additives[value as keyof typeof additives] as string}
-                  submittable
                   displayEmpty>
                   <MenuItem value="" disabled>
                     Todos
@@ -177,10 +198,9 @@ export default function App() {
                 <OptionSelect
                   type="string"
                   name="centers"
-                  labelId="centers"
                   label="Sedesd"
-                  defaultValue={""}
                   toHumanLabel={(v) => v}
+                  isValueEqualsTo={(a, b) => a === b}
                   validate={() => {
                     return [required({ name: "oli" })];
                   }}
@@ -230,7 +250,7 @@ export default function App() {
                 <SearchBar name={{ query: "q" }} size="medium" indexes={indexes} flags={flags} defaultIndex={"account"} />
               </Grid>
               <Grid size={12}>
-                <ActiveFiltersBar disableAutoSubmit />
+                <ActiveFiltersBar />
               </Grid>
             </SearchForm>
           </Grid>
