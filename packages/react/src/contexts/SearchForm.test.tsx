@@ -9,7 +9,7 @@ import { PrimitiveValue, ValueFilterDictionary } from "../field";
 import { PersistenceAdapter } from "../persistence/PersistenceAdapter";
 import { createFieldStore } from "../store";
 import { createControlledPromise } from "../test-utils";
-import { SearchBuilderContextState, SearchForm, useSearchBuilder } from "./SearchForm";
+import { SearchBuilderContextState, SearchFormProvider, useSearchBuilder } from "./SearchForm";
 
 function TestInspector({ onState }: { onState: (state: SearchBuilderContextState) => void }) {
   const context = useSearchBuilder();
@@ -40,9 +40,9 @@ describe("SearchForm Integration", () => {
       const store = createFieldStore({ persistInUrl: false });
 
       render(
-        <SearchForm store={store} onSearch={onSearch} autoStartDelay={autoStartDelay}>
+        <SearchFormProvider store={store} onSearch={onSearch} autoStartDelay={autoStartDelay}>
           <div />
-        </SearchForm>
+        </SearchFormProvider>
       );
 
       expect(onSearch).not.toHaveBeenCalled();
@@ -59,9 +59,9 @@ describe("SearchForm Integration", () => {
       const store = createFieldStore({ persistInUrl: false });
 
       render(
-        <SearchForm store={store} onSearch={onSearch} manualStart={true} autoStartDelay={autoStartDelay}>
+        <SearchFormProvider store={store} onSearch={onSearch} manualStart={true} autoStartDelay={autoStartDelay}>
           <div />
-        </SearchForm>
+        </SearchFormProvider>
       );
 
       await act(async () => {
@@ -92,9 +92,9 @@ describe("SearchForm Integration", () => {
       const inspector = vi.fn();
 
       render(
-        <SearchForm store={store} manualStart>
+        <SearchFormProvider store={store} manualStart>
           <TestInspector onState={inspector} />
-        </SearchForm>
+        </SearchFormProvider>
       );
 
       expect(inspector.mock.lastCall?.[0].isLoading).toBe(true);
@@ -113,12 +113,12 @@ describe("SearchForm Integration", () => {
       const inspector = vi.fn();
 
       render(
-        <SearchForm store={store} onSearch={onSearch} autoStartDelay={autoStartDelay} manualStart>
+        <SearchFormProvider store={store} onSearch={onSearch} autoStartDelay={autoStartDelay} manualStart>
           <TestInspector onState={inspector} />
           <button type="submit" data-testid="submit">
             Search
           </button>
-        </SearchForm>
+        </SearchFormProvider>
       );
 
       fireEvent.click(screen.getByTestId("submit"));
@@ -145,9 +145,9 @@ describe("SearchForm Integration", () => {
       store.register({ name: "q", type: "string", value: "" });
 
       render(
-        <SearchForm store={store} onSearch={onSearch} submitOnChange={true} manualStart>
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={true} manualStart>
           <div />
-        </SearchForm>
+        </SearchFormProvider>
       );
 
       await act(async () => {
@@ -165,9 +165,9 @@ describe("SearchForm Integration", () => {
       store.register({ name: "q", type: "string", value: "" });
 
       render(
-        <SearchForm store={store} onSearch={onSearch} submitOnChange={false} manualStart>
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={false} manualStart>
           <div />
-        </SearchForm>
+        </SearchFormProvider>
       );
 
       await act(async () => {
@@ -189,9 +189,9 @@ describe("SearchForm Integration", () => {
       });
 
       render(
-        <SearchForm store={store} onSearch={onSearch} submitOnChange={false} manualStart>
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={false} manualStart>
           <div />
-        </SearchForm>
+        </SearchFormProvider>
       );
 
       await act(async () => {
@@ -221,9 +221,9 @@ describe("SearchForm Integration", () => {
       });
 
       render(
-        <SearchForm store={store} onSearch={onSearch} manualStart>
+        <SearchFormProvider store={store} onSearch={onSearch} manualStart>
           <Consumer />
-        </SearchForm>
+        </SearchFormProvider>
       );
 
       await act(async () => {

@@ -40,7 +40,7 @@ export interface SearchBuilderContextState {
   refresh: (params: ValueFilterDictionary) => void;
 }
 
-export type SearchFormProps = {
+export type SearchFormProviderProps = {
   children: ReactNode;
   store?: FieldStore;
   loading?: boolean;
@@ -55,7 +55,7 @@ export type SearchFormProps = {
 
 export const SearchBuilderContext = createContext<SearchBuilderContextState | undefined>(undefined);
 
-export function SearchForm({
+export function SearchFormProvider({
   children,
   store: source,
   loading = false,
@@ -67,7 +67,7 @@ export function SearchForm({
   onSearch,
   onChange,
   ...restOfProps
-}: SearchFormProps) {
+}: SearchFormProviderProps) {
   const store = useResolveFieldStoreInstance(source, configuration);
 
   const isHydrating = useSyncExternalStore(store.subscribe, store.isHydrating, store.isHydrating);
