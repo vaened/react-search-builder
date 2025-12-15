@@ -29,7 +29,7 @@ describe("SearchBar Integration", () => {
       const onSearchMock = vi.fn();
 
       const store = createFieldStore({ persistInUrl: false });
-      store.onRehydrated(onSearchMock);
+      store.onPersist(onSearchMock);
 
       render(
         <SearchForm store={store}>
