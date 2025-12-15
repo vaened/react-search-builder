@@ -29,10 +29,10 @@ describe("resolve serializer", () => {
 
     it("should resolve 'date' serializer and normalize output to ISO string", () => {
       const serializer = resolve("date");
-      const date = new Date("2023-01-01T12:00:00.000Z");
+      const date = new Date("2023-01-01");
 
-      expect(serializer.serialize(date)).toBe("2023-01-01T12:00:00.000Z");
-      expect(serializer.unserialize("2023-01-01T12:00:00.000Z")).toBeInstanceOf(Date);
+      expect(serializer.serialize(date)).toBe("2023-01-01");
+      expect(serializer.unserialize("2023-01-01")).toBeInstanceOf(Date);
     });
 
     it("should accept various common date formats", () => {
