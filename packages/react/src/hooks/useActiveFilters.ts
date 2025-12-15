@@ -44,7 +44,7 @@ export function useActiveFilters({ preserveFieldsOrder }: UseActiveFiltersBarPro
   );
 
   useEffect(() => {
-    const unsubscribe = store.onFieldPersisted(setActivesFrom);
+    const unsubscribe = store.onPersist(setActivesFrom);
     return () => unsubscribe();
   }, [store, setActivesFrom]);
 

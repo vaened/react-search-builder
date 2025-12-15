@@ -32,7 +32,7 @@ export function useWatchFilters<TDefinition extends FieldDefinition>({
   fieldsRef.current = fields;
 
   useEffect(() => {
-    const unsubscribe = store.onStateChange(({ collection, touched, operation }) => {
+    const unsubscribe = store.onChange(({ collection, touched, operation }) => {
       if (!operation || !CHANGE_OPERATIONS.includes(operation)) {
         return;
       }

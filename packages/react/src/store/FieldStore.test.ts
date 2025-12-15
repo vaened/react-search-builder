@@ -224,7 +224,7 @@ describe("FieldStore", () => {
       const persistenceUnsub = vi.fn();
       persistence.subscribe = vi.fn().mockReturnValue(persistenceUnsub);
 
-      const unsub = store.onPersistenceChange(vi.fn());
+      const unsub = store.onRehydrated(vi.fn());
 
       expect(persistence.subscribe).toHaveBeenCalled();
 

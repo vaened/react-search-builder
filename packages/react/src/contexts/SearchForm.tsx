@@ -80,7 +80,7 @@ export function SearchForm({
       return;
     }
 
-    const unsubscribe = store.onStateChange(({ collection, operation, touched, isHydrating }) => {
+    const unsubscribe = store.onChange(({ collection, operation, touched, isHydrating }) => {
       if (operation === null) {
         return;
       }
@@ -108,7 +108,7 @@ export function SearchForm({
   }, [store, isFormReady, autoStartDelay]);
 
   useEffect(() => {
-    const unsubscribe = store.onPersistenceChange(({ touched }) => {
+    const unsubscribe = store.onRehydrated(({ touched }) => {
       if (touched.length === 0) {
         return;
       }

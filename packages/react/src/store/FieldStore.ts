@@ -219,18 +219,18 @@ export class FieldStore {
     this.#commit(this.#initialState());
   };
 
-  public onPersistenceChange = (listener: (state: FieldStoreState) => void): Unsubscribe => {
+  public onRehydrated = (listener: (state: FieldStoreState) => void): Unsubscribe => {
     return this.#persistence.subscribe(async () => {
       await this.rehydrate();
       listener(this.#state);
     });
   };
 
-  public onFieldPersisted = (listener: (fields: FieldsCollection) => void): Unsubscribe => {
+  public onPersist = (listener: (fields: FieldsCollection) => void): Unsubscribe => {
     return this.#emitter.on("persist", listener);
   };
 
-  public onStateChange = (listener: (state: FieldStoreState) => void): Unsubscribe => {
+  public onChange = (listener: (state: FieldStoreState) => void): Unsubscribe => {
     return this.#emitter.on("change", (state) => listener(state));
   };
 
