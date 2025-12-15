@@ -2,9 +2,18 @@
   "name": "@vaened/react-search-builder",
   "version": "1.2.0",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./core": {
+      "types": "./dist/contexts/index.d.ts",
+      "import": "./dist/contexts/index.js",
+      "require": "./dist/contexts/index.cjs"
+    }
+  },
   "files": [
     "dist"
   ],
