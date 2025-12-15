@@ -5,7 +5,8 @@
     "baseUrl": ".",
     "composite": false,
     "paths": {
-      "@vaened/react-search-builder": ["../react/src/index.ts"]
+      "@vaened/react-search-builder": ["../react/src/index.ts"],
+      "@vaened/react-search-builder/core": ["../react/src/contexts/index.ts"]
     },
 
     "types": ["vitest/globals", "@testing-library/jest-dom"]
