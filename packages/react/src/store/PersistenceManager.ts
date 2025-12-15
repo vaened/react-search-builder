@@ -80,13 +80,13 @@ export class PersistenceManager implements PersistenceAdapter {
 
       if (deferred) {
         this.#tracker.capture();
-        this.#repository.override(field, { isHydrating: true });
+        this.#repository.apply(field, { isHydrating: true });
         hydrators[field.name] = hydrated;
         continue;
       }
 
       if (isFieldDirty(field, hydrated)) {
-        this.#repository.override(field, { value: hydrated });
+        this.#repository.apply(field, { value: hydrated });
         touched.push(field.name);
       }
     }
@@ -123,7 +123,7 @@ export class PersistenceManager implements PersistenceAdapter {
         touched.push(field.name);
       }
 
-      this.#repository.override(field, {
+      this.#repository.apply(field, {
         value,
         isHydrating: false,
       });
@@ -159,12 +159,12 @@ export class PersistenceManager implements PersistenceAdapter {
         this.#tracker.release();
 
         if (!isFieldDirty(field, value)) {
-          this.#repository.override(field, { isHydrating: false });
+          this.#repository.apply(field, { isHydrating: false });
 
           return { status: "completed", touched: [] };
         }
 
-        this.#repository.override(field, {
+        this.#repository.apply(field, {
           value,
           isHydrating: false,
         });

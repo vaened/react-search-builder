@@ -20,6 +20,10 @@ import { isFieldDirty } from "./isFieldDirty";
 
 type Operation<Executed> = false | Readonly<Executed>;
 export const NotExecuted = false;
+export type FieldPatch<TValue> = {
+  value: TValue | null;
+  isHydrating: boolean;
+};
 
 export type GenericRegisteredField = {
   [K in FilterTypeKey]: RegisteredField<K, FilterTypeMap[K]>;
@@ -156,6 +160,19 @@ export class FieldRepository implements FieldRegistry {
     return true;
   };
 
+  public apply(name: GenericRegisteredField, partial: Partial<FieldPatch<RegisteredFieldValue>>): void;
+  public apply<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
+    field: RegisteredField<TKey, TValue>,
+    partial: Partial<FieldPatch<TValue>>
+  ): void;
+  public apply<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
+    field: RegisteredField<TKey, TValue>,
+    partial: FieldPatch<TValue>
+  ): void {
+    const newValues = this.#pickAllowedPatch(partial, ["value", "isHydrating"]);
+    this.#override(field, newValues);
+  }
+
   #override(field: GenericRegisteredField, partial: Partial<GenericRegisteredField>): void;
   #override<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
@@ -197,6 +214,18 @@ export class FieldRepository implements FieldRegistry {
     this.#errorManager.remove(field.name);
 
     return NoErrors;
+  }
+
+  #pickAllowedPatch<T extends object, K extends readonly (keyof T)[]>(source: T, allowed: K): Partial<Pick<T, K[number]>> {
+    const out: Partial<Pick<T, K[number]>> = {};
+
+    for (const key of allowed) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        out[key] = source[key];
+      }
+    }
+
+    return out;
   }
 }
 
