@@ -4,16 +4,16 @@
  */
 
 import {
-  Paths,
   SearchBuilderConfigProvider,
   translateFrom,
   useSearchBuilderConfig,
   type GenericTranslator,
-} from "@vaened/react-search-builder";
+} from "@vaened/react-search-builder/core";
 import React, { useMemo } from "react";
 import { Locale } from "../types";
 import defaultIcons from "./icons";
 import defaultTranslations from "./translations";
+import { Paths } from "@vaened/react-search-builder";
 
 export type MuiIcons = typeof defaultIcons;
 

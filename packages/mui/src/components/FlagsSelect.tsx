@@ -16,11 +16,12 @@ import Radio from "@mui/material/Radio";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import type { FilterBag, FilterDictionary, FilterElement, FilterName } from "@vaened/react-search-builder";
-import { createFilterDictionaryFrom, useFilterField, useSearchBuilder } from "@vaened/react-search-builder";
+import { createFilterDictionaryFrom, useFilterField } from "@vaened/react-search-builder";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { Translator, useMuiSearchBuilderConfig } from "../config";
 import { InputSize } from "../types";
 import DropdownMenu from "./DropdownMenu";
+import { useSearchBuilder } from "@vaened/react-search-builder/core";
 
 export type AdditiveFilterFlagBag<N extends FilterName> = Record<N, boolean>;
 

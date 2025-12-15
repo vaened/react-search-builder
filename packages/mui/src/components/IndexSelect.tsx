@@ -10,11 +10,12 @@ import MenuItem from "@mui/material/MenuItem";
 import Tooltip from "@mui/material/Tooltip";
 import { IconChevronDown } from "@tabler/icons-react";
 import type { FilterBag, FilterName } from "@vaened/react-search-builder";
-import { createFilterDictionaryFrom, dictionaryToFilterElements, useFilterField, useSearchBuilder } from "@vaened/react-search-builder";
+import { createFilterDictionaryFrom, dictionaryToFilterElements, useFilterField } from "@vaened/react-search-builder";
 import React, { useMemo, useState, type ReactNode } from "react";
 import { Translator, useMuiSearchBuilderConfig } from "../config";
 import { InputSize } from "../types";
 import DropdownMenu from "./DropdownMenu";
+import { useSearchBuilder } from "@vaened/react-search-builder/core";
 
 type IndexLabels = {
   defaultActionLabel?: string;
