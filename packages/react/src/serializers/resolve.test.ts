@@ -29,16 +29,16 @@ describe("resolve serializer", () => {
 
     it("should resolve 'date' serializer and normalize output to ISO string", () => {
       const serializer = resolve("date");
-      const date = new Date("2023-01-01");
+      const date = new Date("2023-01-01T00:00:00");
 
       expect(serializer.serialize(date)).toBe("2023-01-01");
-      expect(serializer.unserialize("2023-01-01")).toBeInstanceOf(Date);
+      expect(serializer.unserialize("2023-01-01T00:00:00")).toBeInstanceOf(Date);
     });
 
     it("should accept various common date formats", () => {
       const serializer = resolve("date") as SynchronousSerializer<Date>;
 
-      const shortDate = serializer.unserialize("2023-01-30");
+      const shortDate = serializer.unserialize("2023-01-30T00:00:00");
       expect(shortDate).toBeInstanceOf(Date);
       expect(shortDate?.toISOString()).toContain("2023-01-30");
 
@@ -63,7 +63,7 @@ describe("resolve serializer", () => {
 
     it("should resolve 'date[]' serializer correctly", () => {
       const serializer = resolve("date[]");
-      const dates = [new Date("2023-01-01"), new Date("2023-01-02")];
+      const dates = [new Date("2023-01-01T00:00:00"), new Date("2023-01-02T00:00:00")];
 
       const serialized = serializer.serialize(dates);
 
@@ -84,7 +84,7 @@ describe("resolve serializer", () => {
     it("should handle invalid items in 'date[]' by returning undefined elements", () => {
       const serializer = resolve("date[]") as SynchronousSerializer<ArrayFilterValue>;
 
-      const result = serializer.unserialize(["2023-01-01", "not-a-date"]);
+      const result = serializer.unserialize(["2023-01-01T00:00:00", "not-a-date"]);
 
       expect(Array.isArray(result)).toBe(true);
 
