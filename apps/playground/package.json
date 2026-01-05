@@ -11,8 +11,10 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.0.0",
-    "@mui/material": "^7.3.5",
-    "@mui/x-date-pickers": "^7.23.0",
+    "@mui/material": "7.3.6",
+    "@mui/system": "7.3.6",
+    "@mui/utils": "7.3.6",
+    "@mui/x-date-pickers": "8.23.0",
     "@tabler/icons-react": "^3.35.0",
     "@vaened/mui-search-builder": "workspace:*",
     "dayjs": "^1.11.19",

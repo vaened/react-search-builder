@@ -3,8 +3,7 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { DatePicker, DatePickerProps } from "@mui/x-date-pickers";
-import { useUtils } from "@mui/x-date-pickers/internals";
+import { DatePicker, DatePickerProps, usePickerAdapter, } from "@mui/x-date-pickers";
 import {
   FieldStore,
   FilterFieldController,
@@ -17,7 +16,7 @@ import ErrorMessages from "../ErrorMessages";
 import { componentMissingStoreError } from "../utils";
 
 export type DateFilterProps<TEnableAccessibleFieldDOMStructure extends boolean = false> = Omit<
-  DatePickerProps<Date, TEnableAccessibleFieldDOMStructure>,
+  DatePickerProps<TEnableAccessibleFieldDOMStructure>,
   "value" | "name"
 > &
   Omit<ScalarFieldConfig<"date", Date>, "type"> & {
@@ -89,10 +88,10 @@ function InternalDatePicker<TEnableAccessibleFieldDOMStructure extends boolean>(
   maxDate,
   onChange,
   ...restOfProps
-}: DatePickerProps<Date, TEnableAccessibleFieldDOMStructure>) {
-  const utils = useUtils<Date>();
+}: DatePickerProps<TEnableAccessibleFieldDOMStructure>) {
+  const adapter = usePickerAdapter();
 
-  const parse = (value: Date | null | undefined) => (value ? utils.date(value as unknown as string, timezone) : undefined);
+  const parse = (value: Date | null | undefined) => (value ? adapter.date(value as unknown as string, timezone) : undefined);
 
   return (
     <DatePicker
@@ -106,7 +105,7 @@ function InternalDatePicker<TEnableAccessibleFieldDOMStructure extends boolean>(
           return;
         }
 
-        onChange?.(utils.toJsDate(value), context);
+        onChange?.(adapter.toJsDate(value), context);
       }}
       {...restOfProps}
     />
