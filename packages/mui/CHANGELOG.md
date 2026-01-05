@@ -1,5 +1,11 @@
 # @vaened/mui-search-builder
 
+## 1.3.0
+
+### Minor Changes
+
+- Support MUI X Date Pickers v8 and update adapter utilities
+
 ## 1.2.0
 
 ### Minor Changes
