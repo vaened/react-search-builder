@@ -1,8 +1,3 @@
-/**
- * @author enea dhack <contact@vaened.dev>
- * @link https://vaened.dev DevFolio
- */
-
 import type { SynchronousSerializer } from "../field";
 import { createSerializer } from "../serializers/resolve";
 
@@ -12,8 +7,11 @@ export const dateSerializer: SynchronousSerializer<Date> = {
       return "";
     }
 
-    const date = value.toISOString();
-    return date.split("T")[0];
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, "0");
+    const day = String(value.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
   },
 
   unserialize(value: string) {
@@ -23,27 +21,37 @@ export const dateSerializer: SynchronousSerializer<Date> = {
 
     const date = parse(value);
 
+    if (date === null) {
+      return undefined;
+    }
+
     return isNaN(date.getTime()) ? undefined : date;
   },
 };
 
 export const createDateSerializer = () => createSerializer(dateSerializer);
 
-function parse(value: string): Date {
+function parse(value: string): Date | null {
   const trimmed = value.trim();
-  const asNumber = Number(trimmed);
 
-  if (!isNaN(asNumber)) {
-    return new Date(asNumber);
+  if (!trimmed) {
+    return null;
   }
 
-  if (value.length === 10) {
-    return new Date(`${value}T00:00:00.000Z`);
+  const timestamp = Number(trimmed);
+
+  if (!Number.isNaN(timestamp) && trimmed.length >= 10) {
+    const milliseconds = trimmed.length <= 10 ? timestamp * 1000 : timestamp;
+    return new Date(milliseconds);
   }
 
-  if (value.includes("T") || value.endsWith("Z")) {
-    return new Date(value);
+  if (trimmed.length === 10 && trimmed[4] === "-" && trimmed[7] === "-") {
+    const year = Number(trimmed.slice(0, 4));
+    const month = Number(trimmed.slice(5, 7));
+    const day = Number(trimmed.slice(8, 10));
+
+    return new Date(year, month - 1, day);
   }
 
-  return new Date(value);
+  return new Date(trimmed);
 }
