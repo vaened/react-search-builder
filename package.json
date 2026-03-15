@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "pnpm -r dev",
     "build": "pnpm -r build",
+    "verify:pack": "pnpm --filter @vaened/react-search-builder verify:pack && pnpm --filter @vaened/mui-search-builder verify:pack",
     "test": "pnpm -r test",
     "test:ci": "pnpm -r test:ci",
     "test:types": "pnpm -r test:types",

@@ -18,11 +18,12 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "build": "tsup",
     "test": "vitest",
     "test:ci": "vitest run",
     "test:types": "tsc -p tsconfig.typecheck.json",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify:pack": "node ../../scripts/verify-pack-exports.mjs"
   },
   "peerDependencies": {
     "react": ">=19.2",

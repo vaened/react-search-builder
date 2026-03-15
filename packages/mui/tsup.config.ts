@@ -8,5 +8,5 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   treeshake: true,
-  external: [...Object.keys(pkg.peerDependencies || {})],
+  external: [...Object.keys(pkg.peerDependencies || {}), ...Object.keys(pkg.dependencies || {})],
 });

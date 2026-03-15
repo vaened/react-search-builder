@@ -21,9 +21,11 @@
     "build": "tsup",
     "test": "vitest",
     "test:ci": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify:pack": "node ../../scripts/verify-pack-exports.mjs"
   },
   "dependencies": {
+    "@vaened/react-search-builder": "workspace:*",
     "@tabler/icons-react": "^3.35.0"
   },
   "peerDependencies": {
@@ -48,7 +50,6 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.2",
     "@types/react-dom": "^19.2",
-    "@vaened/react-search-builder": "workspace:*",
     "react": ">=19.2",
     "react-dom": ">=19.2",
     "tsup": "^8.5"
