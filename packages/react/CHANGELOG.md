@@ -1,5 +1,11 @@
 # @vaened/react-search-builder
 
+## 1.2.2
+
+### Patch Changes
+
+- Fix package exports/build so ./core is published correctly and add pack export verification.
+
 ## 1.2.1
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @vaened/mui-search-builder
 
+## 2.0.0
+
+### Major Changes
+
+- Fix package exports/build so ./core is published correctly and add pack export verification.
+
+### Patch Changes
+
+- Updated dependencies
+  - @vaened/react-search-builder@1.2.2
+
 ## 1.3.0
 
 ### Minor Changes
