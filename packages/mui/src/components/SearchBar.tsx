@@ -53,10 +53,21 @@ interface SearchBarProps<IB extends FilterBag<FilterName>, FB extends FlagsBag<F
 
 type PanelProps = PaperProps & { size: InputSize };
 
-const Container = styled(Box)(() => ({
-  position: "relative",
-  width: "100%",
-}));
+const Container = styled(Box)(({ theme }) => {
+  const palette = theme.vars || theme;
+
+  return {
+    position: "relative",
+    width: "100%",
+    "& .search-bar-floating-label": {
+      color: palette.palette.text.secondary,
+      transition: theme.transitions.create("color", { duration: theme.transitions.duration.shorter }),
+    },
+    "&:focus-within .search-bar-floating-label": {
+      color: palette.palette.primary.main,
+    },
+  };
+});
 
 const animation = keyframes`
   0% { 
@@ -169,7 +180,8 @@ const FloatingLabel = styled(InputLabel)<{ size: "small" | "medium" }>(({ size }
   transform: "translate(14px, -9px) scale(0.75)",
   left: 0,
   top: size === "small" ? 0 : 0,
-  zIndex: 100,
+  zIndex: 1,
+  pointerEvents: "none",
 }));
 
 export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<FilterName>>({
@@ -225,7 +237,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
   return (
     <>
       <Container>
-        <FloatingLabel size={size} htmlFor={inputId}>
+        <FloatingLabel className="search-bar-floating-label" size={size} htmlFor={inputId}>
           {defaultIndexLabel}
         </FloatingLabel>
 
