@@ -6,22 +6,20 @@
 import { Button, type ButtonProps } from "@mui/material";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
+import FormControl from "@mui/material/FormControl";
+import InputAdornment from "@mui/material/InputAdornment";
 import InputLabel from "@mui/material/InputLabel";
-import MuiPaper, { type PaperProps } from "@mui/material/Paper";
+import OutlinedInput from "@mui/material/OutlinedInput";
 import { keyframes, styled } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import type { FilterBag, FilterName } from "@vaened/react-search-builder";
 import { createFilterDictionaryFrom, useFilterField } from "@vaened/react-search-builder";
 import { useSearchBuilder } from "@vaened/react-search-builder/core";
-import { useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Translator, useMuiSearchBuilderConfig } from "../config";
-import { InputSize } from "../types";
-import DebounceInputSearch from "./DebounceInputSearch";
+import type { InputSize } from "../types";
 import FlagsSelect, { type FlagsBag } from "./FlagsSelect";
 import IndexSelect from "./IndexSelect";
-
-const HEIGHT = { small: 40, medium: 56 } as const;
-const INPUT_PY = { small: 8.5, medium: 16.5 } as const;
 
 type KeysOf<T> = T extends Record<infer K extends FilterName, unknown> ? K : never;
 type FromAdditives<T> = T extends { additives?: Record<infer U extends FilterName, unknown> } ? U : never;
@@ -54,39 +52,6 @@ interface SearchBarProps<IB extends FilterBag<FilterName>, FB extends FlagsBag<F
   onChange?: (params: string) => void;
 }
 
-type SearchBarColor = Exclude<NonNullable<ButtonProps["color"]>, "inherit">;
-type ContainerProps = { color?: SearchBarColor; disabled?: boolean; error?: boolean };
-type PanelProps = PaperProps & { size: InputSize; color?: SearchBarColor; disabled?: boolean; error?: boolean };
-
-function resolveMainColor(themePalette: Record<string, { main?: string }>, color?: SearchBarColor) {
-  if (!color) {
-    return themePalette.primary?.main;
-  }
-
-  return themePalette[color]?.main ?? themePalette.primary?.main;
-}
-
-const Container = styled(Box, {
-  shouldForwardProp: (p) => p !== "color" && p !== "disabled" && p !== "error",
-})<ContainerProps>(({ theme, color, disabled = false, error = false }) => {
-  const palette = theme.vars || theme;
-  const colorMain = resolveMainColor(palette.palette as Record<string, { main?: string }>, color);
-  const focusedLabelColor = error ? palette.palette.error.main : colorMain;
-  const defaultLabelColor = disabled ? palette.palette.action.disabled : palette.palette.text.secondary;
-
-  return {
-    position: "relative",
-    width: "100%",
-    "& .search-bar-floating-label": {
-      color: defaultLabelColor,
-      transition: theme.transitions.create("color", { duration: theme.transitions.duration.shorter }),
-    },
-    "&:focus-within .search-bar-floating-label": {
-      color: disabled ? defaultLabelColor : focusedLabelColor,
-    },
-  };
-});
-
 const animation = keyframes`
   0% { 
     transform: scale(1) rotate(0deg); 
@@ -118,98 +83,6 @@ const AnimateIcon = styled("span")<{
         display: "inline-flex",
       },
 );
-
-const Panel = styled(MuiPaper, {
-  shouldForwardProp: (p) => p !== "size" && p !== "color" && p !== "disabled" && p !== "error",
-})<PanelProps>(({ theme, size, color, disabled = false, error = false }) => {
-  const defaultBorderColor = theme.palette.mode === "light" ? "rgba(0, 0, 0, 0.23)" : "rgba(255, 255, 255, 0.23)";
-  const outlinedBorderColor = theme.vars ? theme.alpha(theme.vars.palette.common.onBackground, 0.23) : defaultBorderColor;
-  const palette = theme.vars || theme;
-  const colorMain = resolveMainColor(palette.palette as Record<string, { main?: string }>, color);
-  const disabledBorderColor = palette.palette.action.disabled;
-  const defaultOutlineColor = disabled ? disabledBorderColor : error ? palette.palette.error.main : outlinedBorderColor;
-  const focusOutlineColor = error ? palette.palette.error.main : colorMain;
-
-  return {
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-
-    minHeight: HEIGHT[size],
-    padding: "0 9px",
-
-    borderRadius: theme.shape.borderRadius,
-    outline: "none",
-    overflow: "visible",
-
-    "& .outline": {
-      pointerEvents: "none",
-      position: "absolute",
-      top: -5,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      margin: 0,
-      padding: "0 8px",
-      borderRadius: "inherit",
-      borderColor: defaultOutlineColor,
-      borderStyle: "solid",
-      borderWidth: 1,
-      zIndex: 0,
-    },
-    "&:hover .outline": {
-      borderColor: disabled ? defaultOutlineColor : error ? palette.palette.error.main : palette.palette.text.primary,
-    },
-    "&:focus-within .outline": {
-      borderColor: disabled ? defaultOutlineColor : focusOutlineColor,
-      borderWidth: disabled ? 1 : 2,
-    },
-    "@media (hover: none)": {
-      "&:hover .outline": {
-        borderColor: defaultOutlineColor,
-      },
-    },
-
-    "& .outline-label": {
-      float: "unset",
-      width: "auto",
-      height: 11,
-      padding: 0,
-      maxWidth: "100%",
-      overflow: "hidden",
-    },
-
-    "& .outline-label > span": {
-      display: "inline-block",
-      paddingRight: "5px",
-      paddingLeft: "5px",
-      fontSize: ".75rem",
-      visibility: "hidden",
-    },
-
-    "& .content": {
-      position: "relative",
-      zIndex: 1,
-      display: "flex",
-      alignItems: "center",
-      width: "100%",
-    },
-
-    "& .MuiInputBase-input": {
-      paddingTop: INPUT_PY[size],
-      paddingBottom: INPUT_PY[size],
-    },
-  };
-});
-
-const FloatingLabel = styled(InputLabel)<{ size: "small" | "medium" }>(({ size }) => ({
-  position: "absolute",
-  transform: "translate(14px, -9px) scale(0.75)",
-  left: 0,
-  top: size === "small" ? 0 : 0,
-  zIndex: 1,
-  pointerEvents: "none",
-}));
 
 export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<FilterName>>({
   id,
@@ -254,6 +127,9 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
   const isSubmitOnChangeEnabled = submittable?.query === undefined ? submitOnChange : submittable?.query;
   const isDisabled = disabled || isLoading;
   const description = dictionary && index ? dictionary[index].description : null;
+  const [queryString, setQueryString] = useState(value ?? "");
+  const debouncedQueryString = useDebounce(queryString || "", debounceDelay);
+  const isQuerySynced = queryString === (value ?? "");
 
   function apply(query?: string | null) {
     set(query ?? "");
@@ -265,65 +141,99 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
     setTimeout(() => inputSearch.current?.focus(), 100);
   }
 
+  function onQueryStringChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setQueryString(event.target.value);
+  }
+
+  function onQueryStringKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== "Enter" || isQuerySynced) {
+      return;
+    }
+
+    if (!isSubmitOnChangeEnabled) {
+      apply(queryString);
+      return;
+    }
+
+    event.preventDefault();
+    apply(queryString);
+  }
+
+  useEffect(() => {
+    setQueryString(value ?? "");
+  }, [value]);
+
+  useEffect(() => {
+    if (isQuerySynced) {
+      return;
+    }
+
+    apply(debouncedQueryString);
+  }, [debouncedQueryString]);
+
   return (
     <>
-      <Container color={color} disabled={isDisabled} error={error}>
-        <FloatingLabel className="search-bar-floating-label" size={size} htmlFor={inputId}>
-          {defaultIndexLabel}
-        </FloatingLabel>
+      <Box sx={{ width: "100%" }}>
+        <FormControl fullWidth variant="outlined" size={size} color={color} disabled={isDisabled} error={error}>
+          <InputLabel shrink htmlFor={inputId}>
+            {defaultIndexLabel}
+          </InputLabel>
 
-        <Panel elevation={0} size={size} color={color} disabled={isDisabled} error={error}>
-          <fieldset className="outline" aria-hidden>
-            <legend className="outline-label">
-              <span>{defaultIndexLabel}</span>
-            </legend>
-          </fieldset>
+          <OutlinedInput
+            id={inputId}
+            inputRef={inputSearch}
+            value={queryString ?? ""}
+            placeholder={placeholder}
+            label={defaultIndexLabel}
+            onChange={onQueryStringChange}
+            onKeyDown={onQueryStringKeyDown}
+            inputProps={{ "aria-label": searchAriaLabel, "data-testid": "search-input-text" }}
+            startAdornment={
+              dictionary && index ? (
+                <InputAdornment position="start" sx={{ mr: 0.5, maxWidth: "50%" }}>
+                  <IndexSelect
+                    name={indexName}
+                    size={size}
+                    submittable={submittable?.index === undefined ? false : submittable?.index}
+                    options={dictionary}
+                    defaultValue={index}
+                    disabled={isDisabled}
+                    onChange={onIndexChange}
+                  />
+                </InputAdornment>
+              ) : undefined
+            }
+            endAdornment={
+              <InputAdornment position="end" sx={{ mr: 0 }}>
+                <Box sx={{ display: "inline-flex", alignItems: "center" }}>
+                  <Button
+                    loading={isLoading}
+                    disabled={isDisabled}
+                    size={size}
+                    type="submit"
+                    aria-label={searchAriaLabel || "submit search"}
+                    sx={{ minWidth: "34px" }}
+                    data-testid="search-trigger-button">
+                    <AnimateIcon>{icon("searchBarSearchIcon")}</AnimateIcon>
+                  </Button>
 
-          <Box className="content">
-            {dictionary && index && (
-              <IndexSelect
-                name={indexName}
-                size={size}
-                submittable={submittable?.index === undefined ? false : submittable?.index}
-                options={dictionary}
-                defaultValue={index}
-                disabled={isDisabled}
-                onChange={onIndexChange}
-              />
-            )}
-
-            <DebounceInputSearch
-              id={inputId}
-              inputRef={inputSearch}
-              disabled={isDisabled}
-              delay={debounceDelay}
-              placeholder={placeholder}
-              inputProps={{ "aria-label": searchAriaLabel, "data-testid": "search-input-text" }}
-              value={value ?? ""}
-              submitOnChange={isSubmitOnChangeEnabled}
-              onChange={apply}
-            />
-
-            <Button
-              loading={isLoading}
-              disabled={isDisabled}
-              size={size}
-              type="submit"
-              aria-label={searchAriaLabel || "submit search"}
-              sx={{ minWidth: "34px" }}
-              data-testid="search-trigger-button">
-              <AnimateIcon>{icon("searchBarSearchIcon")}</AnimateIcon>
-            </Button>
-
-            {flags && (
-              <>
-                <Divider sx={{ height: HEIGHT[size] - 25, m: 0.5 }} orientation="vertical" />
-                <FlagsSelect name={name?.flags} size={size} options={flags} defaultValue={defaultFlags} disabled={isDisabled} />
-              </>
-            )}
-          </Box>
-        </Panel>
-      </Container>
+                  {flags && (
+                    <>
+                      <Divider orientation="vertical" flexItem sx={{ my: 1, mx: 0.5 }} />
+                      <FlagsSelect name={name?.flags} size={size} options={flags} defaultValue={defaultFlags} disabled={isDisabled} />
+                    </>
+                  )}
+                </Box>
+              </InputAdornment>
+            }
+            sx={{
+              "& .MuiInputBase-input": {
+                minWidth: 0,
+              },
+            }}
+          />
+        </FormControl>
+      </Box>
       {index && description && (
         <Typography component="p" textAlign="right" color="text.secondary" sx={{ fontSize: 12, mt: 0.5 }}>
           {description}
@@ -347,6 +257,22 @@ function useSearchBarTranslations(translate: Translator, labels?: SearchBarLabel
     }),
     [labels],
   );
+}
+
+function useDebounce(queryString: string, delay: number) {
+  const [debounced, setDebounced] = useState(queryString);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebounced(queryString);
+    }, delay);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [queryString, delay]);
+
+  return debounced;
 }
 
 export default SearchBar;
