@@ -54,7 +54,6 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({ open, title, childre
         },
       ]}
       transition
-      disablePortal
       sx={{ zIndex: (theme) => theme.zIndex.modal }}>
       {({ TransitionProps, placement }) => (
         <Grow
