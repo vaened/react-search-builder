@@ -13,7 +13,7 @@ import type { FilterBag, FilterName } from "@vaened/react-search-builder";
 import { createFilterDictionaryFrom, dictionaryToFilterElements, useFilterField } from "@vaened/react-search-builder";
 import React, { useMemo, useState, type ReactNode } from "react";
 import { Translator, useMuiSearchBuilderConfig } from "../config";
-import { InputSize } from "../types";
+import type { InputSize } from "../types";
 import DropdownMenu from "./DropdownMenu";
 import { useSearchBuilder } from "@vaened/react-search-builder/core";
 
