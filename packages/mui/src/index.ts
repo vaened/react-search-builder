@@ -4,7 +4,7 @@
  */
 export * from "@vaened/react-search-builder";
 
-export { useSearchBuilder, useSearchBuilderQuietly, useSearchState } from "@vaened/react-search-builder/core";
+export { useSearchBuilder, useSearchState } from "@vaened/react-search-builder/core";
 
 export * from "./components/ActiveFiltersBar";
 export * from "./components/DropdownMenu";
