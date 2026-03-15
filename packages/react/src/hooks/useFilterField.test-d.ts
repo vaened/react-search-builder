@@ -19,9 +19,13 @@ describe("Complex Type Inference (useFilterField)", () => {
 
       expectTypeOf(value).toEqualTypeOf<string | null>();
       expectTypeOf(set).toBeCallableWith("new value");
+      expectTypeOf(set).toBeCallableWith("new value", { submittable: false });
 
       // @ts-expect-error Should not accept numbers
       set(123);
+
+      // @ts-expect-error Should not accept invalid options
+      set("new value", { submittable: "nope" });
     });
 
     test("should correctly infer 'number' type", () => {

@@ -31,12 +31,17 @@ export type ParseValue<TValue> = AsynchronousValue<TValue> | SynchronousValue<TV
 
 export type HydratorResponse = { label: string; value: FilterValue };
 export const NoErrors = null;
+export type FieldSetOptions = { submittable?: boolean };
+export type FieldUpdateContext = Readonly<{
+  autoSubmit: boolean;
+}>;
 
 export type FieldStoreState = Readonly<{
   collection: FieldsCollection;
   operation: FieldOperation;
   touched: readonly FilterName[];
   isHydrating: boolean;
+  context: FieldUpdateContext;
 }>;
 
 export class FieldStore {
@@ -161,8 +166,16 @@ export class FieldStore {
     return this.#repository.get(name);
   };
 
-  public set = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(name: FilterName, value: TValue | null) => {
-    this.#apply(name, value, "set");
+  public set = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
+    name: FilterName,
+    value: TValue | null,
+    options?: FieldSetOptions
+  ) => {
+    this.#apply(name, value, "set", {
+      context: {
+        autoSubmit: options?.submittable !== false,
+      },
+    });
   };
 
   public flush = (name: FilterName, value: RegisteredFieldValue) => {
@@ -237,7 +250,8 @@ export class FieldStore {
   #apply<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     name: FilterName,
     value: TValue | null,
-    operation: Extract<FieldOperation, "set" | "flush">
+    operation: Extract<FieldOperation, "set" | "flush">,
+    options: { context?: FieldUpdateContext } = {}
   ) {
     const response = this.#repository.set(name, value);
 
@@ -248,6 +262,7 @@ export class FieldStore {
     this.#commit({
       operation,
       touched: [name],
+      context: options.context,
     });
   }
 
@@ -262,6 +277,7 @@ export class FieldStore {
       touched,
       collection,
       isHydrating: this.isHydrating(),
+      context: state.context ?? this.#defaultUpdateContext(),
     };
 
     this.#listeners.forEach((listener) => listener());
@@ -273,5 +289,10 @@ export class FieldStore {
     touched: [],
     operation: null,
     isHydrating: false,
+    context: this.#defaultUpdateContext(),
+  });
+
+  #defaultUpdateContext = (): FieldUpdateContext => ({
+    autoSubmit: true,
   });
 }

@@ -58,7 +58,11 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
   );
 
   const performAutoSearch = useCallback(
-    ({ collection, touched, operation }: FieldStoreState) => {
+    ({ collection, touched, operation, context }: FieldStoreState) => {
+      if (context.autoSubmit === false) {
+        return;
+      }
+
       const isForcedOperation = forcedOperations.includes(operation);
       const isSetOperation = operation === "set";
 

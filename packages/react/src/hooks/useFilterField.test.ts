@@ -47,6 +47,25 @@ describe("useFilterField", () => {
     expect(store.get("age")?.value).toBe(25);
   });
 
+  it("should accept set() options for one-shot behavior control", () => {
+    const store = createStore();
+
+    const { result } = renderHook(() =>
+      useFilterField(store, {
+        name: "age",
+        type: "number",
+        defaultValue: 18 as number,
+      })
+    );
+
+    act(() => {
+      result.current.set(25, { submittable: false });
+    });
+
+    expect(result.current.value).toBe(25);
+    expect(store.get("age")?.value).toBe(25);
+  });
+
   it("should react to external store changes", () => {
     const store = createStore();
 

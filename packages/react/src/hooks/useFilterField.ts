@@ -20,14 +20,14 @@ import type {
   Validator,
 } from "../field";
 import resolve from "../serializers/resolve";
-import { FieldStore, NoErrors } from "../store";
+import { type FieldSetOptions, FieldStore, NoErrors } from "../store";
 
 export type FilterFieldReturn<TResolved, TRegistered> = {
   field: TRegistered | undefined;
   value: TResolved | null;
   defaultValue: TResolved | null;
   errors: FieldValidationStatus;
-  set: (value: TResolved) => void;
+  set: (value: TResolved, options?: FieldSetOptions) => void;
 };
 
 export interface UseFilterFieldProps<TValue> {
@@ -142,8 +142,8 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
     store.update(name, touched);
   }, [submittable, field]);
 
-  function set(value: TValue) {
-    store.set(name, value);
+  function set(value: TValue, options?: FieldSetOptions) {
+    store.set(name, value, options);
   }
 
   return {

@@ -200,6 +200,55 @@ describe("SearchForm Integration", () => {
 
       expect(onSearch).toHaveBeenCalled();
     });
+
+    it("should NOT auto-submit a single set() call when { submittable: false } is provided", async () => {
+      const onSearch = vi.fn();
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.register({ name: "q", type: "string", value: "", submittable: true });
+
+      render(
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={true} manualStart>
+          <div />
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.set("q", "first", { submittable: false });
+      });
+
+      expect(onSearch).not.toHaveBeenCalled();
+
+      await act(async () => {
+        store.set("q", "second");
+      });
+
+      expect(onSearch).toHaveBeenCalledTimes(1);
+    });
+
+    it("should skip auto-submit for submittable field when set() receives { submittable: false }", async () => {
+      const onSearch = vi.fn();
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.register({
+        name: "category",
+        type: "string",
+        value: "",
+        submittable: true,
+      });
+
+      render(
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={false} manualStart>
+          <div />
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.set("category", "books", { submittable: false });
+      });
+
+      expect(onSearch).not.toHaveBeenCalled();
+    });
   });
 
   describe("4. Manual Actions & Refresh", () => {

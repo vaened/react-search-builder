@@ -90,6 +90,29 @@ describe("FieldStore", () => {
         expect.objectContaining({
           operation: "set",
           touched: ["query"],
+          context: expect.objectContaining({
+            autoSubmit: true,
+          }),
+        })
+      );
+    });
+
+    it("should allow set() without auto-submit for a single update", () => {
+      store.register(createTestField("query", "initial"));
+      emitSpy.mockClear();
+
+      store.set("query", "updated", { submittable: false });
+
+      expect(store.get("query")?.value).toBe("updated");
+
+      expect(emitSpy).toHaveBeenCalledWith(
+        "change",
+        expect.objectContaining({
+          operation: "set",
+          touched: ["query"],
+          context: expect.objectContaining({
+            autoSubmit: false,
+          }),
         })
       );
     });

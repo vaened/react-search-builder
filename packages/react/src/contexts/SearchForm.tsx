@@ -87,13 +87,13 @@ export function SearchFormProvider({
       return;
     }
 
-    const unsubscribe = store.onChange(({ collection, operation, touched, isHydrating }) => {
+    const unsubscribe = store.onChange(({ collection, operation, touched, isHydrating, context }) => {
       if (operation === null) {
         return;
       }
 
       onChange?.(collection);
-      performAutoSearch({ collection, touched, operation, isHydrating });
+      performAutoSearch({ collection, touched, operation, isHydrating, context });
     });
 
     return () => unsubscribe();
