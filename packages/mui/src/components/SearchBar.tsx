@@ -53,8 +53,9 @@ interface SearchBarProps<IB extends FilterBag<FilterName>, FB extends FlagsBag<F
 
 type PanelProps = PaperProps & { size: InputSize };
 
-const Container = styled(Box)<{ size: InputSize }>(() => ({
+const Container = styled(Box)(() => ({
   position: "relative",
+  width: "100%",
 }));
 
 const animation = keyframes`
@@ -86,69 +87,82 @@ const AnimateIcon = styled("span")<{
       }
     : {
         display: "inline-flex",
-      }
+      },
 );
 
 const Panel = styled(MuiPaper, {
   shouldForwardProp: (p) => p !== "size",
-})<PanelProps>(({ theme, size }) => ({
-  position: "relative",
-  display: "flex",
-  alignItems: "center",
+})<PanelProps>(({ theme, size }) => {
+  const defaultBorderColor = theme.palette.mode === "light" ? "rgba(0, 0, 0, 0.23)" : "rgba(255, 255, 255, 0.23)";
+  const outlinedBorderColor = theme.vars ? theme.alpha(theme.vars.palette.common.onBackground, 0.23) : defaultBorderColor;
+  const palette = theme.vars || theme;
 
-  minHeight: HEIGHT[size],
-  padding: "0 9px",
-
-  borderRadius: theme.shape.borderRadius,
-  outline: "none",
-  overflow: "visible",
-
-  "& .outline": {
-    pointerEvents: "none",
-    position: "absolute",
-    top: -5,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    margin: 0,
-    padding: "0 8px",
-    borderRadius: "inherit",
-    border: "1px solid rgba(0,0,0,0.23)",
-    zIndex: 0,
-  },
-  "&:hover .outline": { borderColor: "rgba(0,0,0,0.87)" },
-  "&:focus-within .outline": { borderColor: "#1976d2", borderWidth: 2 },
-
-  "& .outline-label": {
-    float: "unset",
-    width: "auto",
-    height: 11,
-    padding: 0,
-    maxWidth: "100%",
-    overflow: "hidden",
-  },
-
-  "& .outline-label > span": {
-    display: "inline-block",
-    paddingRight: "5px",
-    paddingLeft: "5px",
-    fontSize: ".75rem",
-    visibility: "hidden",
-  },
-
-  "& .content": {
+  return {
     position: "relative",
-    zIndex: 1,
     display: "flex",
     alignItems: "center",
-    width: "100%",
-  },
 
-  "& .MuiInputBase-input": {
-    paddingTop: INPUT_PY[size],
-    paddingBottom: INPUT_PY[size],
-  },
-}));
+    minHeight: HEIGHT[size],
+    padding: "0 9px",
+
+    borderRadius: theme.shape.borderRadius,
+    outline: "none",
+    overflow: "visible",
+
+    "& .outline": {
+      pointerEvents: "none",
+      position: "absolute",
+      top: -5,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      margin: 0,
+      padding: "0 8px",
+      borderRadius: "inherit",
+      borderColor: outlinedBorderColor,
+      borderStyle: "solid",
+      borderWidth: 1,
+      zIndex: 0,
+    },
+    "&:hover .outline": { borderColor: palette.palette.text.primary },
+    "&:focus-within .outline": { borderColor: palette.palette.primary.main, borderWidth: 2 },
+    "@media (hover: none)": {
+      "&:hover .outline": {
+        borderColor: outlinedBorderColor,
+      },
+    },
+
+    "& .outline-label": {
+      float: "unset",
+      width: "auto",
+      height: 11,
+      padding: 0,
+      maxWidth: "100%",
+      overflow: "hidden",
+    },
+
+    "& .outline-label > span": {
+      display: "inline-block",
+      paddingRight: "5px",
+      paddingLeft: "5px",
+      fontSize: ".75rem",
+      visibility: "hidden",
+    },
+
+    "& .content": {
+      position: "relative",
+      zIndex: 1,
+      display: "flex",
+      alignItems: "center",
+      width: "100%",
+    },
+
+    "& .MuiInputBase-input": {
+      paddingTop: INPUT_PY[size],
+      paddingBottom: INPUT_PY[size],
+    },
+  };
+});
 
 const FloatingLabel = styled(InputLabel)<{ size: "small" | "medium" }>(({ size }) => ({
   position: "absolute",
@@ -210,7 +224,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
 
   return (
     <>
-      <Container size={size}>
+      <Container>
         <FloatingLabel size={size} htmlFor={inputId}>
           {defaultIndexLabel}
         </FloatingLabel>
@@ -286,7 +300,7 @@ function useSearchBarTranslations(translate: Translator, labels?: SearchBarLabel
         fallback: "search",
       }),
     }),
-    [labels]
+    [labels],
   );
 }
 

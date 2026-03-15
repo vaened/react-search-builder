@@ -63,7 +63,7 @@ export const DebounceInputSearch: React.FC<DebounceInputSearchProps> = ({
     <InputBase
       {...restOfProps}
       fullWidth
-      sx={{ ml: 1, flex: 1 }}
+      sx={{ ml: 1, flex: 1, minWidth: 0 }}
       value={queryString ?? ""}
       inputProps={{
         "aria-label": "search query",
