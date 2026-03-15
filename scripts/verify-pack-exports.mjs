@@ -46,6 +46,8 @@ try {
 const descriptor = Array.isArray(parsed) ? parsed[0] : parsed;
 const files = new Set((descriptor.files ?? []).map((entry) => entry.path));
 const missing = expectedTargets.filter((target) => !files.has(target));
+const packedPackage = readPackedPackageJson(cwd, descriptor.filename);
+const workspaceProtocolDependencies = collectWorkspaceProtocolDependencies(packedPackage);
 
 if (descriptor.filename) {
   rmSync(path.join(cwd, descriptor.filename), { force: true });
@@ -55,6 +57,14 @@ if (missing.length > 0) {
   console.error(`[verify:pack] ${pkg.name}: missing export files in packed tarball`);
   for (const target of missing) {
     console.error(` - ${target}`);
+  }
+  process.exit(1);
+}
+
+if (workspaceProtocolDependencies.length > 0) {
+  console.error(`[verify:pack] ${pkg.name}: packed package.json contains workspace protocol dependencies`);
+  for (const entry of workspaceProtocolDependencies) {
+    console.error(` - ${entry}`);
   }
   process.exit(1);
 }
@@ -79,4 +89,47 @@ function collectLeafStrings(node) {
 
 function stripDotSlash(value) {
   return value.startsWith("./") ? value.slice(2) : value;
+}
+
+function readPackedPackageJson(cwd, filename) {
+  if (!filename) {
+    return null;
+  }
+
+  const tarballPath = path.join(cwd, filename);
+  const extracted = spawnSync("tar", ["-xOf", tarballPath, "package/package.json"], {
+    cwd,
+    encoding: "utf8",
+  });
+
+  if (extracted.status !== 0 || !extracted.stdout) {
+    console.error(`[verify:pack] ${pkg.name}: unable to inspect packed package.json`);
+    process.exit(extracted.status ?? 1);
+  }
+
+  return JSON.parse(extracted.stdout);
+}
+
+function collectWorkspaceProtocolDependencies(packedPackage) {
+  if (!packedPackage || typeof packedPackage !== "object") {
+    return [];
+  }
+
+  const sections = ["dependencies", "optionalDependencies", "peerDependencies"];
+  const invalid = [];
+
+  for (const section of sections) {
+    const dependencies = packedPackage[section];
+    if (!dependencies || typeof dependencies !== "object") {
+      continue;
+    }
+
+    for (const [name, version] of Object.entries(dependencies)) {
+      if (typeof version === "string" && version.startsWith("workspace:")) {
+        invalid.push(`${section}.${name}=${version}`);
+      }
+    }
+  }
+
+  return invalid;
 }

@@ -1,5 +1,11 @@
 # @vaened/mui-search-builder
 
+## 2.0.1
+
+### Patch Changes
+
+- Fix published package dependencies so `@vaened/react-search-builder` resolves to a real npm version instead of the workspace protocol.
+
 ## 2.0.0
 
 ### Major Changes
