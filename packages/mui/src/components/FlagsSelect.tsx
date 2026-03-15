@@ -51,6 +51,7 @@ type FlagsLabels = {
 export interface FlagsSelectProps<N extends FilterName> {
   name?: FilterName;
   size?: InputSize;
+  disabled?: boolean;
   labels?: FlagsLabels;
   options: FlagsBag<N>;
   submittable?: boolean;
@@ -61,6 +62,7 @@ export interface FlagsSelectProps<N extends FilterName> {
 export function FlagsSelect<N extends FilterName>({
   name = "flags",
   options,
+  disabled = false,
   labels,
   submittable,
   size = "medium",
@@ -137,6 +139,7 @@ export function FlagsSelect<N extends FilterName>({
           <IconButton
             onClick={openMenu}
             size={size}
+            disabled={disabled}
             sx={{ p: "6px" }}
             color={hasFilter ? "primary" : "inherit"}
             aria-controls={open ? "composition-menu" : undefined}

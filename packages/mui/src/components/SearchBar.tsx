@@ -3,7 +3,7 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { Button } from "@mui/material";
+import { Button, type ButtonProps } from "@mui/material";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import InputLabel from "@mui/material/InputLabel";
@@ -38,6 +38,9 @@ type SearchBarLabels = {
 interface SearchBarProps<IB extends FilterBag<FilterName>, FB extends FlagsBag<FilterName>> {
   id?: string;
   size?: InputSize;
+  color?: Exclude<NonNullable<ButtonProps["color"]>, "inherit">;
+  disabled?: boolean;
+  error?: boolean;
   placeholder?: string;
   labels?: SearchBarLabels;
   indexes?: IB;
@@ -51,20 +54,35 @@ interface SearchBarProps<IB extends FilterBag<FilterName>, FB extends FlagsBag<F
   onChange?: (params: string) => void;
 }
 
-type PanelProps = PaperProps & { size: InputSize };
+type SearchBarColor = Exclude<NonNullable<ButtonProps["color"]>, "inherit">;
+type ContainerProps = { color?: SearchBarColor; disabled?: boolean; error?: boolean };
+type PanelProps = PaperProps & { size: InputSize; color?: SearchBarColor; disabled?: boolean; error?: boolean };
 
-const Container = styled(Box)(({ theme }) => {
+function resolveMainColor(themePalette: Record<string, { main?: string }>, color?: SearchBarColor) {
+  if (!color) {
+    return themePalette.primary?.main;
+  }
+
+  return themePalette[color]?.main ?? themePalette.primary?.main;
+}
+
+const Container = styled(Box, {
+  shouldForwardProp: (p) => p !== "color" && p !== "disabled" && p !== "error",
+})<ContainerProps>(({ theme, color, disabled = false, error = false }) => {
   const palette = theme.vars || theme;
+  const colorMain = resolveMainColor(palette.palette as Record<string, { main?: string }>, color);
+  const focusedLabelColor = error ? palette.palette.error.main : colorMain;
+  const defaultLabelColor = disabled ? palette.palette.action.disabled : palette.palette.text.secondary;
 
   return {
     position: "relative",
     width: "100%",
     "& .search-bar-floating-label": {
-      color: palette.palette.text.secondary,
+      color: defaultLabelColor,
       transition: theme.transitions.create("color", { duration: theme.transitions.duration.shorter }),
     },
     "&:focus-within .search-bar-floating-label": {
-      color: palette.palette.primary.main,
+      color: disabled ? defaultLabelColor : focusedLabelColor,
     },
   };
 });
@@ -102,11 +120,15 @@ const AnimateIcon = styled("span")<{
 );
 
 const Panel = styled(MuiPaper, {
-  shouldForwardProp: (p) => p !== "size",
-})<PanelProps>(({ theme, size }) => {
+  shouldForwardProp: (p) => p !== "size" && p !== "color" && p !== "disabled" && p !== "error",
+})<PanelProps>(({ theme, size, color, disabled = false, error = false }) => {
   const defaultBorderColor = theme.palette.mode === "light" ? "rgba(0, 0, 0, 0.23)" : "rgba(255, 255, 255, 0.23)";
   const outlinedBorderColor = theme.vars ? theme.alpha(theme.vars.palette.common.onBackground, 0.23) : defaultBorderColor;
   const palette = theme.vars || theme;
+  const colorMain = resolveMainColor(palette.palette as Record<string, { main?: string }>, color);
+  const disabledBorderColor = palette.palette.action.disabled;
+  const defaultOutlineColor = disabled ? disabledBorderColor : error ? palette.palette.error.main : outlinedBorderColor;
+  const focusOutlineColor = error ? palette.palette.error.main : colorMain;
 
   return {
     position: "relative",
@@ -130,16 +152,21 @@ const Panel = styled(MuiPaper, {
       margin: 0,
       padding: "0 8px",
       borderRadius: "inherit",
-      borderColor: outlinedBorderColor,
+      borderColor: defaultOutlineColor,
       borderStyle: "solid",
       borderWidth: 1,
       zIndex: 0,
     },
-    "&:hover .outline": { borderColor: palette.palette.text.primary },
-    "&:focus-within .outline": { borderColor: palette.palette.primary.main, borderWidth: 2 },
+    "&:hover .outline": {
+      borderColor: disabled ? defaultOutlineColor : error ? palette.palette.error.main : palette.palette.text.primary,
+    },
+    "&:focus-within .outline": {
+      borderColor: disabled ? defaultOutlineColor : focusOutlineColor,
+      borderWidth: disabled ? 1 : 2,
+    },
     "@media (hover: none)": {
       "&:hover .outline": {
-        borderColor: outlinedBorderColor,
+        borderColor: defaultOutlineColor,
       },
     },
 
@@ -187,6 +214,9 @@ const FloatingLabel = styled(InputLabel)<{ size: "small" | "medium" }>(({ size }
 export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<FilterName>>({
   id,
   size = "medium",
+  color = "primary",
+  disabled = false,
+  error = false,
   indexes,
   flags,
   name,
@@ -222,6 +252,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
   const { defaultIndexLabel, searchAriaLabel } = useSearchBarTranslations(translate, labels);
 
   const isSubmitOnChangeEnabled = submittable?.query === undefined ? submitOnChange : submittable?.query;
+  const isDisabled = disabled || isLoading;
   const description = dictionary && index ? dictionary[index].description : null;
 
   function apply(query?: string | null) {
@@ -236,12 +267,12 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
 
   return (
     <>
-      <Container>
+      <Container color={color} disabled={isDisabled} error={error}>
         <FloatingLabel className="search-bar-floating-label" size={size} htmlFor={inputId}>
           {defaultIndexLabel}
         </FloatingLabel>
 
-        <Panel elevation={0} size={size}>
+        <Panel elevation={0} size={size} color={color} disabled={isDisabled} error={error}>
           <fieldset className="outline" aria-hidden>
             <legend className="outline-label">
               <span>{defaultIndexLabel}</span>
@@ -256,6 +287,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
                 submittable={submittable?.index === undefined ? false : submittable?.index}
                 options={dictionary}
                 defaultValue={index}
+                disabled={isDisabled}
                 onChange={onIndexChange}
               />
             )}
@@ -263,7 +295,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
             <DebounceInputSearch
               id={inputId}
               inputRef={inputSearch}
-              disabled={isLoading}
+              disabled={isDisabled}
               delay={debounceDelay}
               placeholder={placeholder}
               inputProps={{ "aria-label": searchAriaLabel, "data-testid": "search-input-text" }}
@@ -274,6 +306,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
 
             <Button
               loading={isLoading}
+              disabled={isDisabled}
               size={size}
               type="submit"
               aria-label={searchAriaLabel || "submit search"}
@@ -285,7 +318,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
             {flags && (
               <>
                 <Divider sx={{ height: HEIGHT[size] - 25, m: 0.5 }} orientation="vertical" />
-                <FlagsSelect name={name?.flags} size={size} options={flags} defaultValue={defaultFlags} />
+                <FlagsSelect name={name?.flags} size={size} options={flags} defaultValue={defaultFlags} disabled={isDisabled} />
               </>
             )}
           </Box>

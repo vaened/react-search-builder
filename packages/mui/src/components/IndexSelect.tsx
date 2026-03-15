@@ -26,6 +26,7 @@ type IndexLabels = {
 interface IndexSelectProps<N extends FilterName> {
   name?: FilterName;
   size?: InputSize;
+  disabled?: boolean;
   options: FilterBag<N>;
   labels?: IndexLabels;
   submittable?: boolean;
@@ -38,6 +39,7 @@ interface IndexSelectProps<N extends FilterName> {
 export function IndexSelect<N extends FilterName>({
   name = "index",
   size = "medium",
+  disabled = false,
   options,
   labels,
   submittable,
@@ -79,6 +81,7 @@ export function IndexSelect<N extends FilterName>({
           <Button
             onClick={openMenu}
             size={size}
+            disabled={disabled}
             variant="text"
             data-testid="index-trigger-button"
             endIcon={uncaret ? undefined : <IconChevronDown size={16} />}
@@ -97,6 +100,7 @@ export function IndexSelect<N extends FilterName>({
           <IconButton
             onClick={openMenu}
             size={size}
+            disabled={disabled}
             data-testid="index-trigger-button"
             sx={{ display: { xs: "inline-flex", sm: "none" }, p: "6px" }}
             aria-controls={open ? "composition-menu" : undefined}
