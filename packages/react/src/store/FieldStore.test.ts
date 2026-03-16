@@ -141,6 +141,7 @@ describe("FieldStore", () => {
           touched: ["page", "query"],
           context: expect.objectContaining({
             autoSubmit: true,
+            source: "user",
           }),
         })
       );
@@ -156,6 +157,34 @@ describe("FieldStore", () => {
 
       expect(touched).toBeUndefined();
       expect(emitSpy).not.toHaveBeenCalled();
+    });
+
+    it("should emit batch changes with the provided source", () => {
+      store.register(createTestField("page", "2"));
+      store.register(createTestField("query", "initial"));
+      emitSpy.mockClear();
+
+      const touched = store.batch(
+        (tx) => {
+          tx.set("page", "1");
+          tx.set("query", "updated");
+        },
+        { source: "before-submit" }
+      );
+
+      expect(touched).toEqual(["page", "query"]);
+      expect(store.get("page")?.value).toBe("1");
+      expect(store.get("query")?.value).toBe("updated");
+      expect(emitSpy).toHaveBeenCalledWith(
+        "change",
+        expect.objectContaining({
+          operation: "batch",
+          touched: ["page", "query"],
+          context: expect.objectContaining({
+            source: "before-submit",
+          }),
+        })
+      );
     });
 
     it("should NOT emit event if value is identical", () => {
