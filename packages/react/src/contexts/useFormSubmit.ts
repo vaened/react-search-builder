@@ -20,7 +20,7 @@ export type UseFormSubmitProps = {
   manualStart?: boolean;
 };
 
-const forcedOperations: FieldOperation[] = ["reset", "flush"];
+const forcedOperations: FieldOperation[] = ["reset", "flush", "batch"];
 
 export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart, onSearch }: UseFormSubmitProps) {
   const { isFormLoading, setLoadingStatus } = useFormStatus({ isHydrating, manualStart });

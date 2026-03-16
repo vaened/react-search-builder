@@ -3,16 +3,7 @@
  * @link https://vaened.dev DevFolio
  */
 
-import type {
-  Field,
-  FieldOptions,
-  FilterName,
-  FilterTypeKey,
-  FilterTypeMap,
-  FilterValue,
-  RegisteredField,
-  ValueFilterDictionary,
-} from "../field";
+import type { Field, FieldOptions, FilterName, FilterTypeKey, FilterTypeMap, FilterValue, RegisteredField, ValueFilterDictionary } from "../field";
 import { PersistenceAdapter } from "../persistence/PersistenceAdapter";
 import { FieldValidator } from "../validations/FieldValidator";
 import { ErrorManager } from "./ErrorManager";
@@ -23,7 +14,7 @@ import { PersistenceManager } from "./PersistenceManager";
 import { TaskMonitor } from "./TaskMonitor";
 import { type EventEmitter, type Unsubscribe } from "./event-emitter";
 
-export type FieldOperation = "set" | "flush" | "update" | "hydrate" | "unregister" | "register" | "rehydrate" | "reset" | null;
+export type FieldOperation = "set" | "flush" | "update" | "hydrate" | "unregister" | "register" | "rehydrate" | "reset" | "batch" | null;
 
 export type AsynchronousValue<TValue> = { deferred: true; hydrated: Promise<TValue | null> };
 export type SynchronousValue<TValue> = { deferred: false; hydrated: TValue | null };
@@ -32,8 +23,12 @@ export type ParseValue<TValue> = AsynchronousValue<TValue> | SynchronousValue<TV
 export type HydratorResponse = { label: string; value: FilterValue };
 export const NoErrors = null;
 export type FieldSetOptions = { submittable?: boolean };
+export type FieldBatchOptions = { submit?: boolean };
 export type FieldUpdateContext = Readonly<{
   autoSubmit: boolean;
+}>;
+export type FieldBatchTransaction = Readonly<{
+  set<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(name: FilterName, value: TValue | null): void;
 }>;
 
 export type FieldStoreState = Readonly<{
@@ -180,6 +175,44 @@ export class FieldStore {
 
   public flush = (name: FilterName, value: RegisteredFieldValue) => {
     this.#apply(name, value, "flush");
+  };
+
+  public batch = (callback: (tx: FieldBatchTransaction) => void, options: FieldBatchOptions = {}): Readonly<FilterName[]> | undefined => {
+    const queued = new Map<FilterName, RegisteredFieldValue | null>();
+
+    callback({
+      set: (name, value) => {
+        queued.set(name, value);
+      },
+    });
+
+    if (queued.size === 0) {
+      return;
+    }
+
+    const touched: FilterName[] = [];
+
+    queued.forEach((value, name) => {
+      const response = this.#repository.set(name, value);
+
+      if (response !== false) {
+        touched.push(name);
+      }
+    });
+
+    if (touched.length === 0) {
+      return;
+    }
+
+    this.#commit({
+      operation: "batch",
+      touched,
+      context: {
+        autoSubmit: options.submit === true,
+      },
+    });
+
+    return touched;
   };
 
   public persist = () => {
