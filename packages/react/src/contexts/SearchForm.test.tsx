@@ -264,9 +264,9 @@ describe("SearchForm Integration", () => {
 
       await act(async () => {
         store.batch(
-          (tx) => {
-            tx.set("page", 1);
-            tx.set("q", "hello");
+          (transaction) => {
+            transaction.set("page", 1);
+            transaction.set("q", "hello");
           },
           { autoSubmit: true }
         );
@@ -297,9 +297,9 @@ describe("SearchForm Integration", () => {
       );
 
       await act(async () => {
-        store.batch((tx) => {
-          tx.set("page", 1);
-          tx.set("q", "hello");
+        store.batch((transaction) => {
+          transaction.set("page", 1);
+          transaction.set("q", "hello");
         });
       });
 
@@ -311,9 +311,9 @@ describe("SearchForm Integration", () => {
     it("should normalize the final payload in beforeSubmit before searching and persisting", async () => {
       const write = vi.fn();
       const onSearch = vi.fn();
-      const beforeSubmit = vi.fn(({ changed, tx }) => {
+      const beforeSubmit = vi.fn(({ changed, transaction }) => {
         if (changed.includes("q")) {
-          tx.set("page", 1);
+          transaction.set("page", 1);
         }
       });
       const store = createFieldStore({
@@ -362,9 +362,9 @@ describe("SearchForm Integration", () => {
 
     it("should accumulate changed fields until manual submit and expose them to beforeSubmit", async () => {
       const onSearch = vi.fn();
-      const beforeSubmit = vi.fn(({ changed, tx }) => {
+      const beforeSubmit = vi.fn(({ changed, transaction }) => {
         if (changed.some((name: string) => name !== "page")) {
-          tx.set("page", 1);
+          transaction.set("page", 1);
         }
       });
       const store = createFieldStore({ persistInUrl: false });

@@ -177,7 +177,7 @@ export class FieldStore {
     this.#apply(name, value, "flush");
   };
 
-  public batch = (callback: (tx: FieldBatchTransaction) => void, options: FieldBatchOptions = {}): Readonly<FilterName[]> | undefined => {
+  public batch = (callback: (transaction: FieldBatchTransaction) => void, options: FieldBatchOptions = {}): Readonly<FilterName[]> | undefined => {
     const queued = new Map<FilterName, RegisteredFieldValue | null>();
 
     callback({

@@ -20,7 +20,7 @@ export type BeforeSubmitContext = {
   touched: readonly FilterName[];
   operation: FieldOperation;
   collection: FieldsCollection;
-  tx: FieldBatchTransaction;
+  transaction: FieldBatchTransaction;
 };
 
 export type UseFormSubmitProps = {
@@ -58,7 +58,7 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
           touched: state.touched,
           operation: state.operation,
           collection: store.collection(),
-          tx: {
+          transaction: {
             set: (name, value) => {
               queued.set(name, value);
             },

@@ -123,9 +123,9 @@ describe("FieldStore", () => {
       emitSpy.mockClear();
 
       const touched = store.batch(
-        (tx) => {
-          tx.set("page", "1");
-          tx.set("query", "updated");
+        (transaction) => {
+          transaction.set("page", "1");
+          transaction.set("query", "updated");
         },
         { autoSubmit: true }
       );
@@ -150,8 +150,8 @@ describe("FieldStore", () => {
       store.register(createTestField("query", "same"));
       emitSpy.mockClear();
 
-      const touched = store.batch((tx) => {
-        tx.set("query", "same");
+      const touched = store.batch((transaction) => {
+        transaction.set("query", "same");
       });
 
       expect(touched).toBeUndefined();
