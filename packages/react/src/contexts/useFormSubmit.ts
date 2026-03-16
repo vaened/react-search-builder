@@ -4,7 +4,7 @@
  */
 
 import { useCallback, useEffect, useRef } from "react";
-import type { FilterName } from "../field";
+import type { FilterName, FilterValue } from "../field";
 import { type FieldBatchTransaction, FieldOperation, FieldsCollection, FieldStore, FieldStoreState } from "../store";
 import { useFormStatus } from "./useFormStatus";
 
@@ -48,7 +48,7 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
     function (persist: boolean = true) {
       store.whenReady("search-form", () => {
         const state = store.state();
-        const queued = new Map<FilterName, Parameters<FieldBatchTransaction["set"]>[1]>();
+        const queued = new Map<FilterName, FilterValue>();
 
         beforeSubmit?.({
           dirtyFields: Array.from(pendingChangedRef.current),
