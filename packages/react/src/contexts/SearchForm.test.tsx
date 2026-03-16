@@ -121,9 +121,8 @@ describe("SearchForm Integration", () => {
         </SearchFormProvider>
       );
 
-      fireEvent.click(screen.getByTestId("submit"));
-
       await act(async () => {
+        fireEvent.click(screen.getByTestId("submit"));
         vi.advanceTimersByTime(autoStartDelay);
       });
 
@@ -307,6 +306,109 @@ describe("SearchForm Integration", () => {
       expect(store.get("page")?.value).toBe(1);
       expect(store.get("q")?.value).toBe("hello");
       expect(onSearch).not.toHaveBeenCalled();
+    });
+
+    it("should normalize the final payload in beforeSubmit before searching and persisting", async () => {
+      const write = vi.fn();
+      const onSearch = vi.fn();
+      const beforeSubmit = vi.fn(({ changed, tx }) => {
+        if (changed.includes("q")) {
+          tx.set("page", 1);
+        }
+      });
+      const store = createFieldStore({
+        persistence: {
+          read: () => ({}),
+          write,
+          subscribe: () => () => {},
+        },
+      });
+
+      store.register({ name: "page", type: "number", value: 3 });
+      store.register({ name: "q", type: "string", value: "" });
+
+      render(
+        <SearchFormProvider
+          store={store}
+          onSearch={onSearch}
+          beforeSubmit={beforeSubmit}
+          submitOnChange={true}
+          manualStart>
+          <div />
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.set("q", "hello");
+      });
+
+      expect(beforeSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          changed: ["q"],
+          touched: ["q"],
+          operation: "set",
+        })
+      );
+      expect(store.get("page")?.value).toBe(1);
+      expect(onSearch).toHaveBeenCalledTimes(1);
+      expect(onSearch.mock.calls[0]?.[0].toValues()).toEqual(
+        expect.objectContaining({
+          page: 1,
+          q: "hello",
+        })
+      );
+      expect(write).toHaveBeenCalledWith(expect.objectContaining({ page: "1", q: "hello" }), expect.any(Array));
+    });
+
+    it("should accumulate changed fields until manual submit and expose them to beforeSubmit", async () => {
+      const onSearch = vi.fn();
+      const beforeSubmit = vi.fn(({ changed, tx }) => {
+        if (changed.some((name: string) => name !== "page")) {
+          tx.set("page", 1);
+        }
+      });
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.register({ name: "page", type: "number", value: 5 });
+      store.register({ name: "q", type: "string", value: "" });
+      store.register({ name: "status", type: "string", value: "" });
+
+      render(
+        <SearchFormProvider
+          store={store}
+          onSearch={onSearch}
+          beforeSubmit={beforeSubmit}
+          submitOnChange={false}
+          manualStart>
+          <button type="submit">Search</button>
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.set("q", "john");
+        store.set("status", "active");
+      });
+
+      await act(async () => {
+        fireEvent.click(screen.getByText("Search"));
+      });
+
+      expect(beforeSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          changed: expect.arrayContaining(["q", "status"]),
+          touched: ["status"],
+          operation: "set",
+        })
+      );
+      expect(store.get("page")?.value).toBe(1);
+      expect(onSearch).toHaveBeenCalledTimes(1);
+      expect(onSearch.mock.calls[0]?.[0].toValues()).toEqual(
+        expect.objectContaining({
+          page: 1,
+          q: "john",
+          status: "active",
+        })
+      );
     });
   });
 
