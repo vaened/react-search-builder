@@ -249,6 +249,65 @@ describe("SearchForm Integration", () => {
 
       expect(onSearch).not.toHaveBeenCalled();
     });
+
+    it("should submit a batch once when { submit: true } is provided", async () => {
+      const onSearch = vi.fn();
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.register({ name: "page", type: "number", value: 3 });
+      store.register({ name: "q", type: "string", value: "" });
+
+      render(
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={false} manualStart>
+          <div />
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.batch(
+          (tx) => {
+            tx.set("page", 1);
+            tx.set("q", "hello");
+          },
+          { submit: true }
+        );
+      });
+
+      expect(store.get("page")?.value).toBe(1);
+      expect(store.get("q")?.value).toBe("hello");
+      expect(onSearch).toHaveBeenCalledTimes(1);
+      expect(onSearch.mock.calls[0]?.[0].toValues()).toEqual(
+        expect.objectContaining({
+          page: 1,
+          q: "hello",
+        })
+      );
+    });
+
+    it("should NOT auto-submit a batch by default", async () => {
+      const onSearch = vi.fn();
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.register({ name: "page", type: "number", value: 2 });
+      store.register({ name: "q", type: "string", value: "" });
+
+      render(
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={true} manualStart>
+          <div />
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.batch((tx) => {
+          tx.set("page", 1);
+          tx.set("q", "hello");
+        });
+      });
+
+      expect(store.get("page")?.value).toBe(1);
+      expect(store.get("q")?.value).toBe("hello");
+      expect(onSearch).not.toHaveBeenCalled();
+    });
   });
 
   describe("4. Manual Actions & Refresh", () => {

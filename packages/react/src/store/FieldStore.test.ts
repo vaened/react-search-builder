@@ -117,6 +117,47 @@ describe("FieldStore", () => {
       );
     });
 
+    it("should batch multiple updates into a single change event", () => {
+      store.register(createTestField("page", "2"));
+      store.register(createTestField("query", "initial"));
+      emitSpy.mockClear();
+
+      const touched = store.batch(
+        (tx) => {
+          tx.set("page", "1");
+          tx.set("query", "updated");
+        },
+        { submit: true }
+      );
+
+      expect(store.get("page")?.value).toBe("1");
+      expect(store.get("query")?.value).toBe("updated");
+      expect(touched).toEqual(["page", "query"]);
+      expect(emitSpy).toHaveBeenCalledTimes(1);
+      expect(emitSpy).toHaveBeenCalledWith(
+        "change",
+        expect.objectContaining({
+          operation: "batch",
+          touched: ["page", "query"],
+          context: expect.objectContaining({
+            autoSubmit: true,
+          }),
+        })
+      );
+    });
+
+    it("should NOT emit a batch event when no queued value changes", () => {
+      store.register(createTestField("query", "same"));
+      emitSpy.mockClear();
+
+      const touched = store.batch((tx) => {
+        tx.set("query", "same");
+      });
+
+      expect(touched).toBeUndefined();
+      expect(emitSpy).not.toHaveBeenCalled();
+    });
+
     it("should NOT emit event if value is identical", () => {
       store.register(createTestField("query", "same"));
       emitSpy.mockClear();
