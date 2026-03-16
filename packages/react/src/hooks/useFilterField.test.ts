@@ -59,7 +59,7 @@ describe("useFilterField", () => {
     );
 
     act(() => {
-      result.current.set(25, { submittable: false });
+      result.current.set(25, { autoSubmit: false });
     });
 
     expect(result.current.value).toBe(25);

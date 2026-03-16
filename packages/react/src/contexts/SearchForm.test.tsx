@@ -200,7 +200,7 @@ describe("SearchForm Integration", () => {
       expect(onSearch).toHaveBeenCalled();
     });
 
-    it("should NOT auto-submit a single set() call when { submittable: false } is provided", async () => {
+    it("should NOT auto-submit a single set() call when { autoSubmit: false } is provided", async () => {
       const onSearch = vi.fn();
       const store = createFieldStore({ persistInUrl: false });
 
@@ -213,7 +213,7 @@ describe("SearchForm Integration", () => {
       );
 
       await act(async () => {
-        store.set("q", "first", { submittable: false });
+        store.set("q", "first", { autoSubmit: false });
       });
 
       expect(onSearch).not.toHaveBeenCalled();
@@ -225,7 +225,7 @@ describe("SearchForm Integration", () => {
       expect(onSearch).toHaveBeenCalledTimes(1);
     });
 
-    it("should skip auto-submit for submittable field when set() receives { submittable: false }", async () => {
+    it("should skip auto-submit for submittable field when set() receives { autoSubmit: false }", async () => {
       const onSearch = vi.fn();
       const store = createFieldStore({ persistInUrl: false });
 
@@ -243,13 +243,13 @@ describe("SearchForm Integration", () => {
       );
 
       await act(async () => {
-        store.set("category", "books", { submittable: false });
+        store.set("category", "books", { autoSubmit: false });
       });
 
       expect(onSearch).not.toHaveBeenCalled();
     });
 
-    it("should submit a batch once when { submit: true } is provided", async () => {
+    it("should submit a batch once when { autoSubmit: true } is provided", async () => {
       const onSearch = vi.fn();
       const store = createFieldStore({ persistInUrl: false });
 
@@ -268,7 +268,7 @@ describe("SearchForm Integration", () => {
             tx.set("page", 1);
             tx.set("q", "hello");
           },
-          { submit: true }
+          { autoSubmit: true }
         );
       });
 

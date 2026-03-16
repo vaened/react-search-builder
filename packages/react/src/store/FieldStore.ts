@@ -22,8 +22,8 @@ export type ParseValue<TValue> = AsynchronousValue<TValue> | SynchronousValue<TV
 
 export type HydratorResponse = { label: string; value: FilterValue };
 export const NoErrors = null;
-export type FieldSetOptions = { submittable?: boolean };
-export type FieldBatchOptions = { submit?: boolean };
+export type FieldSetOptions = { autoSubmit?: boolean };
+export type FieldBatchOptions = { autoSubmit?: boolean };
 export type FieldUpdateContext = Readonly<{
   autoSubmit: boolean;
 }>;
@@ -168,7 +168,7 @@ export class FieldStore {
   ) => {
     this.#apply(name, value, "set", {
       context: {
-        autoSubmit: options?.submittable !== false,
+        autoSubmit: options?.autoSubmit !== false,
       },
     });
   };
@@ -208,7 +208,7 @@ export class FieldStore {
       operation: "batch",
       touched,
       context: {
-        autoSubmit: options.submit === true,
+        autoSubmit: options.autoSubmit === true,
       },
     });
 

@@ -101,7 +101,7 @@ describe("FieldStore", () => {
       store.register(createTestField("query", "initial"));
       emitSpy.mockClear();
 
-      store.set("query", "updated", { submittable: false });
+      store.set("query", "updated", { autoSubmit: false });
 
       expect(store.get("query")?.value).toBe("updated");
 
@@ -127,7 +127,7 @@ describe("FieldStore", () => {
           tx.set("page", "1");
           tx.set("query", "updated");
         },
-        { submit: true }
+        { autoSubmit: true }
       );
 
       expect(store.get("page")?.value).toBe("1");
