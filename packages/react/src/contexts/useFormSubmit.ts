@@ -3,31 +3,78 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { useCallback } from "react";
-import { FieldOperation, FieldsCollection, FieldStore, FieldStoreState } from "../store";
+import { useCallback, useEffect, useRef } from "react";
+import type { FilterName } from "../field";
+import { type FieldBatchTransaction, FieldOperation, FieldsCollection, FieldStore, FieldStoreState } from "../store";
 import { useFormStatus } from "./useFormStatus";
 
 export type SubmitResult = void | boolean;
 export type Submit = (params: FieldsCollection) => SubmitResult | Promise<SubmitResult>;
+export type BeforeSubmit = (context: BeforeSubmitContext) => void;
 
 export const SKIP_PERSISTENCE = false;
+
+export type BeforeSubmitContext = {
+  store: FieldStore;
+  changed: readonly FilterName[];
+  touched: readonly FilterName[];
+  operation: FieldOperation;
+  collection: FieldsCollection;
+  tx: FieldBatchTransaction;
+};
 
 export type UseFormSubmitProps = {
   store: FieldStore;
   onSearch?: Submit;
+  beforeSubmit?: BeforeSubmit;
   submitOnChange: boolean;
   isHydrating: boolean;
   manualStart?: boolean;
 };
 
-const forcedOperations: FieldOperation[] = ["reset", "flush", "batch"];
+const forcedOperations: FieldOperation[] = ["flush", "batch"];
 
-export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart, onSearch }: UseFormSubmitProps) {
+export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart, onSearch, beforeSubmit }: UseFormSubmitProps) {
   const { isFormLoading, setLoadingStatus } = useFormStatus({ isHydrating, manualStart });
+  const pendingChangedRef = useRef<Set<FilterName>>(new Set());
+
+  useEffect(() => {
+    return store.onChange((state) => {
+      if (state.operation !== null) {
+        state.touched.forEach((name) => pendingChangedRef.current.add(name));
+      }
+    });
+  }, [store]);
 
   const dispatch = useCallback(
     function (persist: boolean = true) {
       store.whenReady("search-form", () => {
+        const state = store.state();
+        const queued = new Map<FilterName, Parameters<FieldBatchTransaction["set"]>[1]>();
+
+        beforeSubmit?.({
+          store,
+          changed: Array.from(pendingChangedRef.current),
+          touched: state.touched,
+          operation: state.operation,
+          collection: store.collection(),
+          tx: {
+            set: (name, value) => {
+              queued.set(name, value);
+            },
+          },
+        });
+
+        if (queued.size > 0) {
+          store.batch(
+            (tx) => {
+              queued.forEach((value, name) => {
+                tx.set(name, value);
+              });
+            },
+          );
+        }
+
         store.revalidate();
 
         if (store.hasErrors()) {
@@ -42,7 +89,13 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
 
         response
           .then((result) => {
-            if (result === false || !persist) {
+            if (result === false) {
+              return;
+            }
+
+            pendingChangedRef.current.clear();
+
+            if (!persist) {
               return;
             }
 
@@ -54,7 +107,7 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
           });
       });
     },
-    [store]
+    [store],
   );
 
   const performAutoSearch = useCallback(
@@ -76,7 +129,7 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
 
       dispatch();
     },
-    [submitOnChange, dispatch]
+    [submitOnChange, dispatch],
   );
 
   return {

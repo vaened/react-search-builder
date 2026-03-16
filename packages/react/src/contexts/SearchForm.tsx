@@ -21,7 +21,7 @@ import type { ValueFilterDictionary } from "../field";
 import { useResolveFieldStoreInstance } from "../hooks/useResolveFieldStoreInstance";
 import { CreateStoreOptions, FieldsCollection, FieldStore } from "../store";
 import { SearchStateContextProvider } from "./SearchState";
-import { SKIP_PERSISTENCE, useFormSubmit } from "./useFormSubmit";
+import { SKIP_PERSISTENCE, useFormSubmit, type BeforeSubmit } from "./useFormSubmit";
 import { useReadyState } from "./useReadyState";
 
 type FormProps = {
@@ -51,6 +51,7 @@ export type SearchFormProviderProps = {
   configuration?: CreateStoreOptions;
   onSearch?: (params: FieldsCollection) => SubmitResult | Promise<SubmitResult>;
   onChange?: (params: FieldsCollection) => void;
+  beforeSubmit?: BeforeSubmit;
 } & Omit<ComponentProps<"form">, "onSubmit" | "onChange">;
 
 export const SearchBuilderContext = createContext<SearchBuilderContextState | undefined>(undefined);
@@ -66,6 +67,7 @@ export function SearchFormProvider({
   Container,
   onSearch,
   onChange,
+  beforeSubmit,
   ...restOfProps
 }: SearchFormProviderProps) {
   const store = useResolveFieldStoreInstance(source, configuration);
@@ -78,6 +80,7 @@ export function SearchFormProvider({
     isHydrating,
     manualStart,
     onSearch,
+    beforeSubmit,
   });
 
   const isLoading = isFormLoading || loading;
@@ -97,7 +100,7 @@ export function SearchFormProvider({
     });
 
     return () => unsubscribe();
-  }, [isFormReady, performAutoSearch]);
+  }, [isFormReady, performAutoSearch, store]);
 
   useEffect(() => {
     if (isFormReady) {
