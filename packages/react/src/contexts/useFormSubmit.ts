@@ -15,10 +15,8 @@ export type BeforeSubmit = (context: BeforeSubmitContext) => void;
 export const SKIP_PERSISTENCE = false;
 
 export type BeforeSubmitContext = {
-  store: FieldStore;
-  changed: readonly FilterName[];
-  touched: readonly FilterName[];
-  operation: FieldOperation;
+  dirtyFields: readonly FilterName[];
+  trigger: FieldOperation;
   collection: FieldsCollection;
   transaction: FieldBatchTransaction;
 };
@@ -53,10 +51,8 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
         const queued = new Map<FilterName, Parameters<FieldBatchTransaction["set"]>[1]>();
 
         beforeSubmit?.({
-          store,
-          changed: Array.from(pendingChangedRef.current),
-          touched: state.touched,
-          operation: state.operation,
+          dirtyFields: Array.from(pendingChangedRef.current),
+          trigger: state.operation,
           collection: store.collection(),
           transaction: {
             set: (name, value) => {

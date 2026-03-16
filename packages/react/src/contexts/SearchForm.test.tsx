@@ -311,8 +311,8 @@ describe("SearchForm Integration", () => {
     it("should normalize the final payload in beforeSubmit before searching and persisting", async () => {
       const write = vi.fn();
       const onSearch = vi.fn();
-      const beforeSubmit = vi.fn(({ changed, transaction }) => {
-        if (changed.includes("q")) {
+      const beforeSubmit = vi.fn(({ dirtyFields, transaction }) => {
+        if (dirtyFields.includes("q")) {
           transaction.set("page", 1);
         }
       });
@@ -344,9 +344,8 @@ describe("SearchForm Integration", () => {
 
       expect(beforeSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
-          changed: ["q"],
-          touched: ["q"],
-          operation: "set",
+          dirtyFields: ["q"],
+          trigger: "set",
         })
       );
       expect(store.get("page")?.value).toBe(1);
@@ -362,8 +361,8 @@ describe("SearchForm Integration", () => {
 
     it("should accumulate changed fields until manual submit and expose them to beforeSubmit", async () => {
       const onSearch = vi.fn();
-      const beforeSubmit = vi.fn(({ changed, transaction }) => {
-        if (changed.some((name: string) => name !== "page")) {
+      const beforeSubmit = vi.fn(({ dirtyFields, transaction }) => {
+        if (dirtyFields.some((name: string) => name !== "page")) {
           transaction.set("page", 1);
         }
       });
@@ -395,9 +394,8 @@ describe("SearchForm Integration", () => {
 
       expect(beforeSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
-          changed: expect.arrayContaining(["q", "status"]),
-          touched: ["status"],
-          operation: "set",
+          dirtyFields: expect.arrayContaining(["q", "status"]),
+          trigger: "set",
         })
       );
       expect(store.get("page")?.value).toBe(1);
