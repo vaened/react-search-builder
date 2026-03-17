@@ -16,6 +16,7 @@ const createField = (
     value,
     defaultValue: null,
     submitted: value ?? null,
+    isDirty: false,
     isHydrating: false,
     updatedAt: Date.now(),
     submittable: true,

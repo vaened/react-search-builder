@@ -42,6 +42,7 @@ describe("FieldStore", () => {
 
       expect(store.get("search")?.value).toBe("");
       expect(store.get("search")?.submitted).toBe("");
+      expect(store.get("search")?.isDirty).toBe(false);
 
       expect(emitSpy).toHaveBeenCalledWith(
         "change",
@@ -86,6 +87,7 @@ describe("FieldStore", () => {
 
       expect(store.get("query")?.value).toBe("updated");
       expect(store.get("query")?.submitted).toBe("initial");
+      expect(store.get("query")?.isDirty).toBe(true);
 
       expect(emitSpy).toHaveBeenCalledWith(
         "change",
@@ -136,6 +138,8 @@ describe("FieldStore", () => {
       expect(store.get("query")?.value).toBe("updated");
       expect(store.get("page")?.submitted).toBe("2");
       expect(store.get("query")?.submitted).toBe("initial");
+      expect(store.get("page")?.isDirty).toBe(true);
+      expect(store.get("query")?.isDirty).toBe(true);
       expect(touched).toEqual(["page", "query"]);
       expect(emitSpy).toHaveBeenCalledTimes(1);
       expect(emitSpy).toHaveBeenCalledWith(
@@ -260,10 +264,31 @@ describe("FieldStore", () => {
       store.register(createTestField("query", "initial"));
       store.set("query", "updated");
 
-      store.markSubmitted();
+      store.markSubmitted({ query: "updated" });
 
       expect(store.get("query")?.value).toBe("updated");
       expect(store.get("query")?.submitted).toBe("updated");
+      expect(store.get("query")?.isDirty).toBe(false);
+    });
+
+    it("should reset isDirty when value returns to submitted", () => {
+      store.register(createTestField("query", "initial"));
+
+      store.set("query", "updated");
+      expect(store.get("query")?.isDirty).toBe(true);
+
+      store.set("query", "initial");
+      expect(store.get("query")?.isDirty).toBe(false);
+    });
+
+    it("should keep isDirty unchanged when a partial submitted snapshot does not include the field", () => {
+      store.register(createTestField("query", "initial"));
+      store.set("query", "updated");
+
+      store.markSubmitted({});
+
+      expect(store.get("query")?.submitted).toBe("initial");
+      expect(store.get("query")?.isDirty).toBe(true);
     });
   });
 

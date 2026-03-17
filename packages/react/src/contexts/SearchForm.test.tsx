@@ -429,6 +429,7 @@ describe("SearchForm Integration", () => {
 
       expect(store.get("q")?.value).toBe("hello");
       expect(store.get("q")?.submitted).toBe("hello");
+      expect(store.get("q")?.isDirty).toBe(false);
     });
 
     it("should NOT sync submitted values when search returns false", async () => {
@@ -449,6 +450,43 @@ describe("SearchForm Integration", () => {
 
       expect(store.get("q")?.value).toBe("hello");
       expect(store.get("q")?.submitted).toBe("");
+      expect(store.get("q")?.isDirty).toBe(true);
+    });
+
+    it("should sync submitted with the successful submit snapshot, not with later local edits", async () => {
+      const { promise, resolve } = createControlledPromise<void>();
+      const onSearch = vi.fn().mockReturnValue(promise);
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.register({ name: "q", type: "string", value: "" });
+
+      render(
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={true} manualStart>
+          <div />
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.set("q", "foo");
+      });
+
+      await act(async () => {
+        store.set("q", "bar", { autoSubmit: false });
+      });
+
+      await act(async () => {
+        resolve();
+      });
+
+      expect(onSearch).toHaveBeenCalledTimes(1);
+      expect(onSearch.mock.calls[0]?.[0].toValues()).toEqual(
+        expect.objectContaining({
+          q: "foo",
+        })
+      );
+      expect(store.get("q")?.value).toBe("bar");
+      expect(store.get("q")?.submitted).toBe("foo");
+      expect(store.get("q")?.isDirty).toBe(true);
     });
 
     it("should allow manual refresh via context which updates store and submits", async () => {
