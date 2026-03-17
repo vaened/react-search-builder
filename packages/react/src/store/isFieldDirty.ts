@@ -47,7 +47,35 @@ export function isFieldDirty<TKey extends FilterTypeKey, TValue extends FilterTy
 
 const defaultEqualityByType: { [K in FilterTypeKey]?: Equality<FilterTypeMap[K]> } = {
   date: (a, b) => a.getTime() === b.getTime(),
+  "string[]": compareArrayValues,
+  "number[]": compareArrayValues,
+  "boolean[]": compareArrayValues,
+  "date[]": compareArrayValues,
 };
+
+function compareArrayValues<TValue>(current: TValue[], next: TValue[]): boolean {
+  if (current.length !== next.length) {
+    return false;
+  }
+
+  return current.every((currentItem, index) => {
+    const nextItem = next[index];
+
+    if (currentItem instanceof Date && nextItem instanceof Date) {
+      return currentItem.getTime() === nextItem.getTime();
+    }
+
+    if (isNonComparableObject(currentItem) || isNonComparableObject(nextItem)) {
+      return false;
+    }
+
+    return Object.is(currentItem, nextItem);
+  });
+}
+
+function isNonComparableObject(value: unknown): boolean {
+  return value !== null && typeof value === "object" && !(value instanceof Date);
+}
 
 function isDirtyComparison<TValue>(value: TValue | null | DirtyComparison<TValue>): value is DirtyComparison<TValue> {
   return (
