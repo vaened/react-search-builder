@@ -170,7 +170,9 @@ export class FieldRepository implements FieldRegistry {
     this.#errorManager.clear();
   };
 
-  public markSubmitted = (submittedValues: ValueFilterDictionary): void => {
+  public markSubmitted = (submittedValues: ValueFilterDictionary): Operation<FilterName[]> => {
+    const touched: FilterName[] = [];
+
     this.#fields.forEach((field) => {
       const hasSubmittedValue = Object.prototype.hasOwnProperty.call(submittedValues, field.name);
 
@@ -185,7 +187,14 @@ export class FieldRepository implements FieldRegistry {
       });
 
       this.#write(field, { submitted }, { isDirty: nextIsDirty });
+      touched.push(field.name);
     });
+
+    if (touched.length === 0) {
+      return NotExecuted;
+    }
+
+    return touched;
   };
 
   public revalidate = (name?: FilterName): Operation<true> => {

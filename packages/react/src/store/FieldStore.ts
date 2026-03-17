@@ -240,7 +240,13 @@ export class FieldStore {
   };
 
   public markSubmitted = (values: ValueFilterDictionary): void => {
-    this.#repository.markSubmitted(values);
+    const touched = this.#repository.markSubmitted(values);
+
+    if (touched === NotExecuted) {
+      return;
+    }
+
+    this.#commit({ touched });
   };
 
   public rehydrate = async (): Promise<void> => {
