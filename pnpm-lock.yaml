@@ -100,8 +100,8 @@ importers:
         specifier: ^3.35.0
         version: 3.35.0(react@19.2.0)
       '@vaened/react-search-builder':
-        specifier: ^1.2.2
-        version: 1.2.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        specifier: ^2.0.0
+        version: 2.0.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     devDependencies:
       '@emotion/react':
         specifier: ^11.14.0
@@ -1128,8 +1128,8 @@ packages:
   '@types/react@19.2.7':
     resolution: {integrity: sha512-MWtvHrGZLFttgeEj28VXHxpmwYbor/ATPYbBfSFZEIRK0ecCFLl2Qo55z52Hss+UV9CRN7trSeq1zbgx7YDWWg==}
 
-  '@vaened/react-search-builder@1.2.2':
-    resolution: {integrity: sha512-kLCknAEZjjrJbLSJHiKwnv4ohx1eP1tq/dBiu+lw/UnU8hyUXplyxqkLSwbn51VbBAPZIgjG1jPyP84n6y1JWw==}
+  '@vaened/react-search-builder@2.0.0':
+    resolution: {integrity: sha512-SLNbrf2pNle6PS9aBWWmGpJw2iNsqO6puHn+MBBzbQLbkq3KlyNdbbXgagVoW55e0svVm2b0LLon+Il0g4kVfw==}
     peerDependencies:
       react: '>=19.2'
       react-dom: '>=19.2'
@@ -3240,7 +3240,7 @@ snapshots:
     dependencies:
       csstype: 3.2.2
 
-  '@vaened/react-search-builder@1.2.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@vaened/react-search-builder@2.0.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
