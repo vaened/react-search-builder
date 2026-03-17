@@ -48,7 +48,7 @@ describe("SearchBar Integration", () => {
 
     it("should animate the search icon when the store has pending submit changes", async () => {
       const user = userEvent.setup();
-      const { store } = renderWithContext(<SearchBar debounceDelay={0} />);
+      const { store } = renderWithContext(<SearchBar debounce={0} />);
 
       let icon = screen.getByTestId("search-trigger-icon");
       expect(icon).toHaveAttribute("data-pending-submit", "false");

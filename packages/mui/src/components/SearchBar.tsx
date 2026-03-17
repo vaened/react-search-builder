@@ -45,7 +45,7 @@ interface SearchBarProps<IB extends FilterBag<FilterName>, FB extends FlagsBag<F
   flags?: FB;
   name?: SearchBarName;
   submittable?: SubmmitableFields;
-  debounceDelay?: number;
+  debounce?: number;
   defaultIndex?: KeysOf<IB>;
   defaultFlags?: FlagsKeysOf<FB>[];
   defaultValue?: string | null;
@@ -62,7 +62,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
   flags,
   name,
   submittable,
-  debounceDelay = 450,
+  debounce = 450,
   placeholder,
   labels,
   defaultIndex,
@@ -84,7 +84,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
     name: name?.query || "q",
     defaultValue: defaultValue ?? "",
     submittable: submittable?.query,
-    debounce: debounceDelay,
+    debounce,
     humanize: (currentValue) => {
       const currentIndex = dictionary && index ? dictionary[index].label : null;
       return [currentIndex, currentValue].filter((label) => label).join(": ");
@@ -95,7 +95,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
 
   const isDisabled = disabled || isLoading;
   const description = dictionary && index ? dictionary[index].description : null;
-  const flagsDebounceDelay = Math.round(debounceDelay * 1.5);
+  const flagsDebounce = Math.round(debounce * 1.5);
 
   function apply(query?: string | null) {
     set(query ?? "");
@@ -155,7 +155,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
                         size={size}
                         options={flags}
                         defaultValue={defaultFlags}
-                        debounceDelay={flagsDebounceDelay}
+                        debounce={flagsDebounce}
                         disabled={isDisabled}
                       />
                     </>

@@ -56,7 +56,7 @@ export interface FlagsSelectProps<N extends FilterName> {
   options: FlagsBag<N>;
   submittable?: boolean;
   defaultValue?: N[];
-  debounceDelay?: number;
+  debounce?: number;
   onChange?: (flags: N[]) => void;
 }
 
@@ -68,7 +68,7 @@ export function FlagsSelect<N extends FilterName>({
   submittable,
   size = "medium",
   defaultValue = [],
-  debounceDelay = 400,
+  debounce = 400,
   onChange,
 }: FlagsSelectProps<N>) {
   const { store } = useSearchBuilder();
@@ -82,7 +82,7 @@ export function FlagsSelect<N extends FilterName>({
     name,
     defaultValue,
     submittable,
-    debounce: debounceDelay,
+    debounce,
     humanize: (flags) => flags.map((flag) => ({ value: flag, label: labeled(dictionary, flag) ?? flag })),
   });
 
