@@ -25,6 +25,18 @@ export type UseFormSubmitProps = {
 
 const forcedOperations: FieldOperation[] = ["flush", "batch"];
 
+function isForcedOperation(operation: FieldOperation): boolean {
+  return forcedOperations.includes(operation);
+}
+
+function isSubmittableOperation({ collection, touched, operation }: Pick<FieldStoreState, "collection" | "touched" | "operation">): boolean {
+  if (operation !== "set") {
+    return false;
+  }
+
+  return touched.some((name) => collection.get(name)?.submittable);
+}
+
 export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart, onSearch, beforeSubmit }: UseFormSubmitProps) {
   const { isFormLoading, setLoadingStatus } = useFormStatus({ isHydrating, manualStart });
   const autoSubmitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -129,29 +141,29 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
     }, 0);
   }, []);
 
+  const shouldAutoSubmit = useCallback(
+    (state: FieldStoreState): boolean => {
+      if (state.context.autoSubmit === false) {
+        return false;
+      }
+
+      return submitOnChange || isForcedOperation(state.operation) || isSubmittableOperation(state);
+    },
+    [submitOnChange],
+  );
+
   const performAutoSearch = useCallback(
-    ({ collection, touched, operation, context }: FieldStoreState) => {
-      if (context.autoSubmit === false) {
+    (state: FieldStoreState) => {
+      if (!shouldAutoSubmit(state)) {
         return;
       }
 
-      const isForcedOperation = forcedOperations.includes(operation);
-      const isSetOperation = operation === "set";
-
-      const isSubmittableField = isSetOperation && touched.some((name) => collection.get(name)?.submittable);
-
-      const canBeSubmitted = submitOnChange || isForcedOperation || isSubmittableField;
-
-      if (!canBeSubmitted) {
-        return;
-      }
-
-      if (isForcedOperation) {
+      if (isForcedOperation(state.operation)) {
         dispatch();
         return;
       }
 
-      const delay = resolveAutoSubmitDelay(collection, touched);
+      const delay = resolveAutoSubmitDelay(state.collection, state.touched);
 
       if (delay <= 0) {
         dispatch();
@@ -160,7 +172,7 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
 
       scheduleAutoSubmit(delay);
     },
-    [cancelAutoSubmit, dispatch, resolveAutoSubmitDelay, scheduleAutoSubmit, submitOnChange],
+    [dispatch, resolveAutoSubmitDelay, scheduleAutoSubmit, shouldAutoSubmit],
   );
 
   return {
