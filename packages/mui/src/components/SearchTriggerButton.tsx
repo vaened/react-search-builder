@@ -30,6 +30,19 @@ const animation = keyframes`
   }
 `;
 
+const pendingAnimation = keyframes`
+  0%, 100% {
+    background-color: var(--search-trigger-bg-rest);
+    box-shadow: 0 0 0 1px var(--search-trigger-ring-rest);
+    transform: scale(1);
+  }
+  50% {
+    background-color: var(--search-trigger-bg-peak);
+    box-shadow: 0 0 0 3px var(--search-trigger-ring-peak);
+    transform: scale(1.035);
+  }
+`;
+
 const SHAKE_DURATION_MS = 700;
 
 const AnimateIcon = styled("span", {
@@ -84,12 +97,17 @@ export default function SearchTriggerButton({ color, size, disabled, ariaLabel }
       sx={(theme) => ({
         minWidth: "34px",
         borderRadius: 1.5,
+        "--search-trigger-bg-rest": alpha(theme.palette[color].main, 0.11),
+        "--search-trigger-bg-peak": alpha(theme.palette[color].main, 0.2),
+        "--search-trigger-ring-rest": alpha(theme.palette[color].main, 0.08),
+        "--search-trigger-ring-peak": alpha(theme.palette[color].main, 0.16),
         color: hasPendingSubmit && !isLoading ? theme.palette[color].main : theme.palette.action.active,
-        backgroundColor: hasPendingSubmit && !isLoading ? alpha(theme.palette[color].main, 0.08) : "transparent",
-        transition: "background-color .18s ease, color .18s ease",
+        backgroundColor: hasPendingSubmit && !isLoading ? "var(--search-trigger-bg-rest)" : "transparent",
+        transition: "background-color .18s ease, color .18s ease, box-shadow .18s ease, transform .18s ease",
+        animation: hasPendingSubmit && !isLoading ? `${pendingAnimation} 2.2s ease-in-out infinite` : "none",
         "&:hover": {
           backgroundColor:
-            hasPendingSubmit && !isLoading ? alpha(theme.palette[color].main, 0.12) : alpha(theme.palette.action.active, 0.06),
+            hasPendingSubmit && !isLoading ? "var(--search-trigger-bg-peak)" : alpha(theme.palette.action.active, 0.06),
         },
       })}
       data-testid="search-trigger-button">
