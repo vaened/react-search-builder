@@ -193,17 +193,31 @@ export class FieldRepository implements FieldRegistry {
     const previousErrors = partial.errors !== undefined ? partial.errors : field.errors;
     const currentErrors = newValue !== undefined ? this.#validate(field, newValue) : previousErrors;
 
-    this.#fields.set(field.name, {
-      ...field,
+    this.#write(field, {
       updatedAt: Date.now(),
       ...partial,
       errors: currentErrors,
+    });
+  }
+
+  #write(field: GenericRegisteredField, partial: Partial<GenericRegisteredField>): void;
+  #write<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
+    field: RegisteredField<TKey, TValue>,
+    partial: Partial<RegisteredField<TKey, TValue>>,
+  ): void;
+  #write<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
+    field: RegisteredField<TKey, TValue>,
+    partial: Partial<RegisteredField<TKey, TValue>>,
+  ): void {
+    this.#fields.set(field.name, {
+      ...field,
+      ...partial,
     } as unknown as GenericRegisteredField);
   }
 
   #validate<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
-    newValue: TValue | null
+    newValue: TValue | null,
   ): FieldValidationStatus {
     if (field.validate === undefined) {
       this.#errorManager.remove(field.name);
@@ -238,7 +252,7 @@ export class FieldRepository implements FieldRegistry {
 
 function throwAlreadyExistsErrorFor<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
   field: Field<TKey, TValue>,
-  fields: Map<string, GenericRegisteredField>
+  fields: Map<string, GenericRegisteredField>,
 ) {
   throw new Error(`
 DUPLICATE FIELD REGISTRATION
