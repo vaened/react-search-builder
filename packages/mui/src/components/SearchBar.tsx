@@ -14,7 +14,7 @@ import Typography from "@mui/material/Typography";
 import type { FilterBag, FilterName } from "@vaened/react-search-builder";
 import { createFilterDictionaryFrom, useFilterField } from "@vaened/react-search-builder";
 import { useSearchBuilder } from "@vaened/react-search-builder/core";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import { Translator, useMuiSearchBuilderConfig } from "../config";
 import type { InputSize } from "../types";
 import FlagsSelect, { type FlagsBag } from "./FlagsSelect";
@@ -71,7 +71,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
   onChange,
 }: SearchBarProps<IB, FB>) {
   const inputId = id || useId();
-  const { store, submitOnChange, isLoading } = useSearchBuilder();
+  const { store, isLoading } = useSearchBuilder();
   const { translate } = useMuiSearchBuilderConfig();
   const inputSearch = useRef<HTMLInputElement>(undefined);
   const dictionary = useMemo(() => createFilterDictionaryFrom<KeysOf<IB>>(indexes), [indexes]);
@@ -84,6 +84,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
     name: name?.query || "q",
     defaultValue: defaultValue ?? "",
     submittable: submittable?.query,
+    debounce: debounceDelay,
     humanize: (currentValue) => {
       const currentIndex = dictionary && index ? dictionary[index].label : null;
       return [currentIndex, currentValue].filter((label) => label).join(": ");
@@ -92,12 +93,8 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
 
   const { defaultIndexLabel, searchAriaLabel } = useSearchBarTranslations(translate, labels);
 
-  const isSubmitOnChangeEnabled = submittable?.query === undefined ? submitOnChange : submittable?.query;
   const isDisabled = disabled || isLoading;
   const description = dictionary && index ? dictionary[index].description : null;
-  const [queryString, setQueryString] = useState(value ?? "");
-  const debouncedQueryString = useDebounce(queryString || "", debounceDelay);
-  const isQuerySynced = queryString === (value ?? "");
 
   function apply(query?: string | null) {
     set(query ?? "");
@@ -110,34 +107,8 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
   }
 
   function onQueryStringChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setQueryString(event.target.value);
+    apply(event.target.value);
   }
-
-  function onQueryStringKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key !== "Enter" || isQuerySynced) {
-      return;
-    }
-
-    if (!isSubmitOnChangeEnabled) {
-      apply(queryString);
-      return;
-    }
-
-    event.preventDefault();
-    apply(queryString);
-  }
-
-  useEffect(() => {
-    setQueryString(value ?? "");
-  }, [value]);
-
-  useEffect(() => {
-    if (isQuerySynced) {
-      return;
-    }
-
-    apply(debouncedQueryString);
-  }, [debouncedQueryString]);
 
   return (
     <>
@@ -150,11 +121,10 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
           <OutlinedInput
             id={inputId}
             inputRef={inputSearch}
-            value={queryString ?? ""}
+            value={value ?? ""}
             placeholder={placeholder}
             label={defaultIndexLabel}
             onChange={onQueryStringChange}
-            onKeyDown={onQueryStringKeyDown}
             inputProps={{ "aria-label": searchAriaLabel, "data-testid": "search-input-text" }}
             startAdornment={
               dictionary && index ? (
@@ -216,22 +186,6 @@ function useSearchBarTranslations(translate: Translator, labels?: SearchBarLabel
     }),
     [labels],
   );
-}
-
-function useDebounce(queryString: string, delay: number) {
-  const [debounced, setDebounced] = useState(queryString);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebounced(queryString);
-    }, delay);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [queryString, delay]);
-
-  return debounced;
 }
 
 export default SearchBar;
