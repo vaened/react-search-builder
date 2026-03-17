@@ -132,8 +132,9 @@ describe("SearchBar Integration", () => {
       const option = screen.getByRole("button", { name: "Active Only" });
       await user.click(option);
 
-      let icon = screen.getByTestId("search-trigger-icon");
-      expect(icon).toHaveAttribute("data-pending-submit", "true");
+      await waitFor(() => {
+        expect(screen.getByTestId("search-trigger-icon")).toHaveAttribute("data-pending-submit", "true");
+      });
 
       const button = screen.getByTestId("search-trigger-button");
       await user.click(button);
