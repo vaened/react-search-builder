@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createFieldStore } from "@vaened/react-search-builder";
 import { describe, expect, it, vi } from "vitest";
@@ -44,6 +44,23 @@ describe("SearchBar Integration", () => {
       await user.click(button);
 
       expect(onSearchMock).toHaveBeenCalled();
+    });
+
+    it("should animate the search icon when the store has pending submit changes", async () => {
+      const user = userEvent.setup();
+      const { store } = renderWithContext(<SearchBar />);
+
+      const icon = screen.getByTestId("search-trigger-icon");
+      expect(icon).not.toHaveStyle({ animation: expect.any(String) });
+
+      const input = screen.getByTestId("search-input-text");
+      await user.type(input, "Test");
+
+      await waitFor(() => {
+        expect(store.hasDirtyFields()).toBe(true);
+      });
+
+      expect(getComputedStyle(icon).animation).toContain("2.5s");
     });
   });
 

@@ -290,6 +290,18 @@ describe("FieldStore", () => {
       expect(store.get("query")?.submitted).toBe("initial");
       expect(store.get("query")?.isDirty).toBe(true);
     });
+
+    it("should report whether the store has dirty fields", () => {
+      store.register(createTestField("query", "initial"));
+
+      expect(store.hasDirtyFields()).toBe(false);
+
+      store.set("query", "updated");
+      expect(store.hasDirtyFields()).toBe(true);
+
+      store.markSubmitted({ query: "updated" });
+      expect(store.hasDirtyFields()).toBe(false);
+    });
   });
 
   describe("3. Persistence (Rehydrate/Persist)", () => {
