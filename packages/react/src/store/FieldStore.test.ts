@@ -41,6 +41,7 @@ describe("FieldStore", () => {
       store.register(field);
 
       expect(store.get("search")?.value).toBe("");
+      expect(store.get("search")?.submitted).toBe("");
 
       expect(emitSpy).toHaveBeenCalledWith(
         "change",
@@ -84,6 +85,7 @@ describe("FieldStore", () => {
       store.set("query", "updated");
 
       expect(store.get("query")?.value).toBe("updated");
+      expect(store.get("query")?.submitted).toBe("initial");
 
       expect(emitSpy).toHaveBeenCalledWith(
         "change",
@@ -132,6 +134,8 @@ describe("FieldStore", () => {
 
       expect(store.get("page")?.value).toBe("1");
       expect(store.get("query")?.value).toBe("updated");
+      expect(store.get("page")?.submitted).toBe("2");
+      expect(store.get("query")?.submitted).toBe("initial");
       expect(touched).toEqual(["page", "query"]);
       expect(emitSpy).toHaveBeenCalledTimes(1);
       expect(emitSpy).toHaveBeenCalledWith(
@@ -250,6 +254,16 @@ describe("FieldStore", () => {
           touched: [],
         })
       );
+    });
+
+    it("should mark current values as submitted explicitly", () => {
+      store.register(createTestField("query", "initial"));
+      store.set("query", "updated");
+
+      store.markSubmitted();
+
+      expect(store.get("query")?.value).toBe("updated");
+      expect(store.get("query")?.submitted).toBe("updated");
     });
   });
 

@@ -411,6 +411,46 @@ describe("SearchForm Integration", () => {
   });
 
   describe("4. Manual Actions & Refresh", () => {
+    it("should sync submitted values after a successful search", async () => {
+      const onSearch = vi.fn();
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.register({ name: "q", type: "string", value: "" });
+
+      render(
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={true} manualStart>
+          <div />
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.set("q", "hello");
+      });
+
+      expect(store.get("q")?.value).toBe("hello");
+      expect(store.get("q")?.submitted).toBe("hello");
+    });
+
+    it("should NOT sync submitted values when search returns false", async () => {
+      const onSearch = vi.fn().mockReturnValue(false);
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.register({ name: "q", type: "string", value: "" });
+
+      render(
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={true} manualStart>
+          <div />
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.set("q", "hello");
+      });
+
+      expect(store.get("q")?.value).toBe("hello");
+      expect(store.get("q")?.submitted).toBe("");
+    });
+
     it("should allow manual refresh via context which updates store and submits", async () => {
       const onSearch = vi.fn();
       const store = createFieldStore({ persistInUrl: false });
