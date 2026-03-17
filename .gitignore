@@ -47,3 +47,4 @@ coverage/
 .pnpm-store/
 .pnpm-debug.log*
 yarn.lock
+.contextual-work-tracker/
