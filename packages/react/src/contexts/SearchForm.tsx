@@ -13,6 +13,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useEffectEvent,
   useMemo,
   useSyncExternalStore,
   type ReactNode,
@@ -20,7 +21,7 @@ import React, {
 import type { ValueFilterDictionary } from "../field";
 import { useResolveFieldStoreInstance } from "../hooks/useResolveFieldStoreInstance";
 import type { BeforeSubmit } from "../store/configuration";
-import { CreateStoreOptions, FieldsCollection, FieldStore } from "../store";
+import { CreateStoreOptions, FieldsCollection, FieldStore, FieldStoreState } from "../store";
 import { SearchStateContextProvider } from "./SearchState";
 import { SKIP_PERSISTENCE, useFormSubmit } from "./useFormSubmit";
 import { useReadyState } from "./useReadyState";
@@ -86,22 +87,39 @@ export function SearchFormProvider({
 
   const isLoading = isFormLoading || loading;
 
+  const notifySearchFormChange = useEffectEvent((state: FieldStoreState) => {
+    if (state.operation === null) {
+      return;
+    }
+
+    onChange?.(state.collection);
+    performAutoSearch(state);
+  });
+
+  const runAutoStartSearch = useEffectEvent(() => {
+    dispatch();
+    markTimerAsCompleted();
+  });
+
+  const syncRehydratedSearch = useEffectEvent(({ touched }: Pick<FieldStoreState, "touched">) => {
+    if (touched.length === 0) {
+      return;
+    }
+
+    dispatch(SKIP_PERSISTENCE);
+  });
+
   useEffect(() => {
     if (!isFormReady) {
       return;
     }
 
-    const unsubscribe = store.onChange(({ collection, operation, touched, isHydrating, context }) => {
-      if (operation === null) {
-        return;
-      }
-
-      onChange?.(collection);
-      performAutoSearch({ collection, touched, operation, isHydrating, context });
+    const unsubscribe = store.onChange((state) => {
+      notifySearchFormChange(state);
     });
 
     return () => unsubscribe();
-  }, [isFormReady, performAutoSearch, store]);
+  }, [isFormReady, store]);
 
   useEffect(() => {
     if (isFormReady) {
@@ -109,22 +127,17 @@ export function SearchFormProvider({
     }
 
     const timer = setTimeout(() => {
-      dispatch();
-      markTimerAsCompleted();
+      runAutoStartSearch();
     }, autoStartDelay);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [store, isFormReady, autoStartDelay]);
+  }, [isFormReady, autoStartDelay]);
 
   useEffect(() => {
-    const unsubscribe = store.onRehydrated(({ touched }) => {
-      if (touched.length === 0) {
-        return;
-      }
-
-      dispatch(SKIP_PERSISTENCE);
+    const unsubscribe = store.onRehydrated((state) => {
+      syncRehydratedSearch(state);
     });
 
     return () => unsubscribe();

@@ -3,9 +3,9 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import { FilterName, FilterTypeKey, FilterTypeMap, ValueFilterDictionary } from "../field";
-import { FieldOperation, FieldStore } from "../store";
+import { FieldOperation, FieldStore, FieldStoreState } from "../store";
 
 export type FieldDefinition = {
   [key: FilterName]: FilterTypeKey;
@@ -20,6 +20,8 @@ export type WatchedFieldValues<TDefinition extends FieldDefinition> = {
   [K in keyof TDefinition]: FilterTypeMap[TDefinition[K]];
 };
 
+type WatchedFieldChange = Pick<FieldStoreState, "collection" | "touched" | "operation">;
+
 const CHANGE_OPERATIONS: FieldOperation[] = ["set", "flush", "register", "unregister", "rehydrate", "reset"];
 
 export function useWatchFilters<TDefinition extends FieldDefinition>({
@@ -27,18 +29,13 @@ export function useWatchFilters<TDefinition extends FieldDefinition>({
   store,
 }: UseWatchFiltersProps<TDefinition>): Partial<WatchedFieldValues<TDefinition>> {
   const [values, setValues] = useState<Partial<WatchedFieldValues<TDefinition>>>(() => snapshot(store, fields));
-  const fieldsRef = useRef(fields);
 
-  fieldsRef.current = fields;
-
-  useEffect(() => {
-    const unsubscribe = store.onChange(({ collection, touched, operation }) => {
+  const syncWatchedFieldValues = useEffectEvent(({ collection, touched, operation }: WatchedFieldChange) => {
       if (!operation || !CHANGE_OPERATIONS.includes(operation)) {
         return;
       }
 
-      const currentFields = fieldsRef.current;
-      const touchedNames = touched.filter((name) => name in currentFields);
+      const touchedNames = touched.filter((name) => name in fields);
 
       if (touchedNames.length === 0) {
         return;
@@ -58,7 +55,12 @@ export function useWatchFilters<TDefinition extends FieldDefinition>({
       });
     });
 
-    const current = snapshot(store, fieldsRef.current);
+  useEffect(() => {
+    const unsubscribe = store.onChange((state) => {
+      syncWatchedFieldValues(state);
+    });
+
+    const current = snapshot(store, fields);
 
     setValues((previous) => {
       const hasChanges = Object.keys(current).some((key: FilterName) => current[key] !== previous[key]);
@@ -66,7 +68,7 @@ export function useWatchFilters<TDefinition extends FieldDefinition>({
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [fields, store]);
 
   return values;
 }
