@@ -1,5 +1,16 @@
 # @vaened/mui-search-builder
 
+## 3.0.0
+
+### Major Changes
+
+- Introduce native submitted-state tracking, real dirty-field derivation, store-level beforeSubmit configuration, and field-level debounce for auto-submit.
+
+### Patch Changes
+
+- Updated dependencies
+  - @vaened/react-search-builder@2.0.0
+
 ## 2.0.1
 
 ### Patch Changes

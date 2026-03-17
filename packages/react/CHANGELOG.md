@@ -1,5 +1,11 @@
 # @vaened/react-search-builder
 
+## 2.0.0
+
+### Major Changes
+
+- Introduce native submitted-state tracking, real dirty-field derivation, store-level beforeSubmit configuration, and field-level debounce for auto-submit.
+
 ## 1.2.2
 
 ### Patch Changes
