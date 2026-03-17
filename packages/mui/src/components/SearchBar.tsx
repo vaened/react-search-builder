@@ -15,7 +15,7 @@ import Typography from "@mui/material/Typography";
 import type { FilterBag, FilterName } from "@vaened/react-search-builder";
 import { createFilterDictionaryFrom, useFilterField } from "@vaened/react-search-builder";
 import { useSearchBuilder } from "@vaened/react-search-builder/core";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Translator, useMuiSearchBuilderConfig } from "../config";
 import type { InputSize } from "../types";
 import FlagsSelect, { type FlagsBag } from "./FlagsSelect";
@@ -104,6 +104,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
 }: SearchBarProps<IB, FB>) {
   const inputId = id || useId();
   const { store, submitOnChange, isLoading } = useSearchBuilder();
+  const hasPendingSubmit = useSyncExternalStore(store.subscribe, store.hasDirtyFields, store.hasDirtyFields);
   const { icon, translate } = useMuiSearchBuilderConfig();
   const inputSearch = useRef<HTMLInputElement>(undefined);
   const dictionary = useMemo(() => createFilterDictionaryFrom<KeysOf<IB>>(indexes), [indexes]);
@@ -214,7 +215,9 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
                     aria-label={searchAriaLabel || "submit search"}
                     sx={{ minWidth: "34px" }}
                     data-testid="search-trigger-button">
-                    <AnimateIcon>{icon("searchBarSearchIcon")}</AnimateIcon>
+                    <AnimateIcon active={hasPendingSubmit && !isLoading} data-testid="search-trigger-icon">
+                      {icon("searchBarSearchIcon")}
+                    </AnimateIcon>
                   </Button>
 
                   {flags && (

@@ -66,6 +66,8 @@ export class FieldStore {
 
   public isHydrating = () => this.#tracker.isWorking();
 
+  public hasDirtyFields = () => this.#repository.hasDirtyFields();
+
   public hasErrors = (name?: FilterName) => this.#repository.hasErrors(name);
 
   public whenReady = (name: string, task: () => void) => this.#tracker.whenReady(name, task);

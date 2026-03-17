@@ -49,6 +49,16 @@ export class FieldRepository implements FieldRegistry {
 
   public all = (): Readonly<RegisteredFieldDictionary> => this.#fields;
 
+  public hasDirtyFields = (): boolean => {
+    for (const field of this.#fields.values()) {
+      if (field.isDirty) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
   public hasErrors = (name?: FilterName) => (name === undefined ? this.#errorManager.has() : this.#errorManager.exists(name));
 
   public get = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
