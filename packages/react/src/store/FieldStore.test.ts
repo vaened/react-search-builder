@@ -36,6 +36,20 @@ describe("FieldStore", () => {
   });
 
   describe("1. Registration and Lifecycle", () => {
+    it("should expose and merge runtime configuration", () => {
+      const beforeSubmit = vi.fn();
+
+      expect(store.configuration()).toEqual({});
+
+      store.configure({ beforeSubmit });
+
+      expect(store.configuration()).toEqual({ beforeSubmit });
+
+      store.configure({});
+
+      expect(store.configuration()).toEqual({ beforeSubmit });
+    });
+
     it("should register a new field correctly and emit change", () => {
       const field = createTestField("search", "");
       store.register(field);

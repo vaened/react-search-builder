@@ -426,6 +426,55 @@ describe("SearchForm Integration", () => {
       expect(write).toHaveBeenCalledWith(expect.objectContaining({ page: "1", q: "hello" }), expect.any(Array));
     });
 
+    it("should run store configuration beforeSubmit before the SearchForm beforeSubmit", async () => {
+      const onSearch = vi.fn();
+      const executionOrder: string[] = [];
+      const beforeSubmit = vi.fn(({ transaction }) => {
+        executionOrder.push("form");
+        transaction.set("sort", "recent");
+      });
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.configure({
+        beforeSubmit: ({ dirtyFields, transaction }) => {
+          executionOrder.push("store");
+          if (dirtyFields.includes("q")) {
+            transaction.set("page", 2);
+          }
+        },
+      });
+
+      store.register({ name: "page", type: "number", value: 5 });
+      store.register({ name: "sort", type: "string", value: "relevance" });
+      store.register({ name: "q", type: "string", value: "" });
+
+      render(
+        <SearchFormProvider
+          store={store}
+          onSearch={onSearch}
+          beforeSubmit={beforeSubmit}
+          submitOnChange={true}
+          manualStart>
+          <div />
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.set("q", "hello");
+      });
+
+      expect(executionOrder).toEqual(["store", "form"]);
+      expect(store.get("page")?.value).toBe(2);
+      expect(store.get("sort")?.value).toBe("recent");
+      expect(onSearch.mock.calls[0]?.[0].toValues()).toEqual(
+        expect.objectContaining({
+          page: 2,
+          sort: "recent",
+          q: "hello",
+        })
+      );
+    });
+
     it("should accumulate changed fields until manual submit and expose them to beforeSubmit", async () => {
       const onSearch = vi.fn();
       const beforeSubmit = vi.fn(({ dirtyFields, transaction }) => {

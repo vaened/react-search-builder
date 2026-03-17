@@ -5,21 +5,14 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import type { FilterName, FilterValue } from "../field";
+import type { BeforeSubmit, BeforeSubmitContext } from "../store/configuration";
 import { type FieldBatchTransaction, FieldOperation, FieldsCollection, FieldStore, FieldStoreState } from "../store";
 import { useFormStatus } from "./useFormStatus";
 
 export type SubmitResult = void | boolean;
 export type Submit = (params: FieldsCollection) => SubmitResult | Promise<SubmitResult>;
-export type BeforeSubmit = (context: BeforeSubmitContext) => void;
 
 export const SKIP_PERSISTENCE = false;
-
-export type BeforeSubmitContext = {
-  dirtyFields: readonly FilterName[];
-  trigger: FieldOperation;
-  collection: FieldsCollection;
-  transaction: FieldBatchTransaction;
-};
 
 export type UseFormSubmitProps = {
   store: FieldStore;
@@ -58,17 +51,20 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
       store.whenReady("search-form", () => {
         const state = store.state();
         const queued = new Map<FilterName, FilterValue>();
-
-        beforeSubmit?.({
+        const transaction: FieldBatchTransaction = {
+          set: (name, value) => {
+            queued.set(name, value);
+          },
+        };
+        const beforeSubmitContext: BeforeSubmitContext = {
           dirtyFields: store.dirtyFields(),
           trigger: state.operation,
           collection: store.collection(),
-          transaction: {
-            set: (name, value) => {
-              queued.set(name, value);
-            },
-          },
-        });
+          transaction,
+        };
+
+        store.configuration().beforeSubmit?.(beforeSubmitContext);
+        beforeSubmit?.(beforeSubmitContext);
 
         if (queued.size > 0) {
           store.batch((tx) => {

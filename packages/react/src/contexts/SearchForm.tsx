@@ -19,9 +19,10 @@ import React, {
 } from "react";
 import type { ValueFilterDictionary } from "../field";
 import { useResolveFieldStoreInstance } from "../hooks/useResolveFieldStoreInstance";
+import type { BeforeSubmit } from "../store/configuration";
 import { CreateStoreOptions, FieldsCollection, FieldStore } from "../store";
 import { SearchStateContextProvider } from "./SearchState";
-import { SKIP_PERSISTENCE, useFormSubmit, type BeforeSubmit } from "./useFormSubmit";
+import { SKIP_PERSISTENCE, useFormSubmit } from "./useFormSubmit";
 import { useReadyState } from "./useReadyState";
 
 type FormProps = {
