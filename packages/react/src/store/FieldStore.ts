@@ -91,6 +91,7 @@ export class FieldStore {
       ...field,
       defaultValue,
       submitted: value,
+      isDirty: false,
       value,
       errors: NoErrors,
       updatedAt: Date.now(),

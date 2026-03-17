@@ -151,6 +151,7 @@ export interface ArrayField<TKey extends ArrayTypeKey, TValue extends FilterType
 export interface RegisteredField<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]> extends Field<TKey, TValue> {
   defaultValue: TValue | null;
   submitted: TValue | null;
+  isDirty: boolean;
   isHydrating: boolean;
   errors: FieldValidationStatus;
   updatedAt: number;

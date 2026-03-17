@@ -32,6 +32,7 @@ export type GenericRegisteredField = {
 export type RegisteredFieldValue = GenericRegisteredField["value"];
 
 export type RegisteredFieldDictionary = Map<FilterName, GenericRegisteredField>;
+type WriteOptions = { isDirty?: boolean };
 
 export class FieldRepository implements FieldRegistry {
   readonly #validator: FieldValidator;
@@ -66,9 +67,12 @@ export class FieldRepository implements FieldRegistry {
       return NotExecuted;
     }
 
-    this.#override(field, {
-      value,
+    const nextIsDirty = isFieldDirty(field, {
+      current: value,
+      next: field.submitted,
     });
+
+    this.#override(field, { value }, { isDirty: nextIsDirty });
 
     return field;
   };
@@ -80,7 +84,12 @@ export class FieldRepository implements FieldRegistry {
       const value = newValues[field.name] ?? field.defaultValue;
 
       if (isFieldDirty(field, value)) {
-        this.#override(field, { value });
+        const nextIsDirty = isFieldDirty(field, {
+          current: value,
+          next: field.submitted,
+        });
+
+        this.#override(field, { value }, { isDirty: nextIsDirty });
         touched.push(field.name);
       }
     });
@@ -147,9 +156,13 @@ export class FieldRepository implements FieldRegistry {
         return;
       }
 
-      this.#write(field, {
-        submitted: submittedValues[field.name] ?? null,
+      const submitted = submittedValues[field.name] ?? null;
+      const nextIsDirty = isFieldDirty(field, {
+        current: field.value,
+        next: submitted,
       });
+
+      this.#write(field, { submitted }, { isDirty: nextIsDirty });
     });
   };
 
@@ -191,41 +204,58 @@ export class FieldRepository implements FieldRegistry {
     partial: FieldPatch<TValue>,
   ): void {
     const newValues = this.#pickAllowedPatch(partial, ["value", "isHydrating"]);
-    this.#override(field, newValues);
+    const touchesValue = Object.prototype.hasOwnProperty.call(newValues, "value");
+    const nextIsDirty = touchesValue
+      ? isFieldDirty(field, {
+          current: newValues.value ?? null,
+          next: field.submitted,
+        })
+      : undefined;
+
+    this.#override(field, newValues, { isDirty: nextIsDirty });
   }
 
-  #override(field: GenericRegisteredField, partial: Partial<GenericRegisteredField>): void;
+  #override(field: GenericRegisteredField, partial: Partial<GenericRegisteredField>, options?: WriteOptions): void;
   #override<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
     partial: Partial<RegisteredField<TKey, TValue>>,
+    options?: WriteOptions,
   ): void;
   #override<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
     partial: Partial<RegisteredField<TKey, TValue>>,
+    options: WriteOptions = {},
   ): void {
     const newValue = partial.value;
     const previousErrors = partial.errors !== undefined ? partial.errors : field.errors;
     const currentErrors = newValue !== undefined ? this.#validate(field, newValue) : previousErrors;
 
-    this.#write(field, {
-      updatedAt: Date.now(),
-      ...partial,
-      errors: currentErrors,
-    });
+    this.#write(
+      field,
+      {
+        updatedAt: Date.now(),
+        ...partial,
+        errors: currentErrors,
+      },
+      options,
+    );
   }
 
-  #write(field: GenericRegisteredField, partial: Partial<GenericRegisteredField>): void;
+  #write(field: GenericRegisteredField, partial: Partial<GenericRegisteredField>, options?: WriteOptions): void;
   #write<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
     partial: Partial<RegisteredField<TKey, TValue>>,
+    options?: WriteOptions,
   ): void;
   #write<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
     partial: Partial<RegisteredField<TKey, TValue>>,
+    options: WriteOptions = {},
   ): void {
     this.#fields.set(field.name, {
       ...field,
       ...partial,
+      isDirty: options.isDirty ?? field.isDirty,
     } as unknown as GenericRegisteredField);
   }
 
