@@ -316,6 +316,80 @@ describe("SearchForm Integration", () => {
       expect(onSearch).not.toHaveBeenCalled();
     });
 
+    it("should include a later { autoSubmit: false } change in an already pending debounced submit", async () => {
+      const onSearch = vi.fn();
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.register({ name: "q", type: "string", value: "", debounce: 400 });
+
+      render(
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={true} manualStart>
+          <div />
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.set("q", "foo");
+      });
+
+      expect(onSearch).not.toHaveBeenCalled();
+
+      await act(async () => {
+        store.set("q", "bar", { autoSubmit: false });
+      });
+
+      expect(onSearch).not.toHaveBeenCalled();
+
+      await act(async () => {
+        vi.advanceTimersByTime(400);
+      });
+
+      expect(onSearch).toHaveBeenCalledTimes(1);
+      expect(onSearch.mock.calls[0]?.[0].toValues()).toEqual(
+        expect.objectContaining({
+          q: "bar",
+        })
+      );
+    });
+
+    it("should include later non-submittable changes in an already pending debounced submit", async () => {
+      const onSearch = vi.fn();
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.register({ name: "category", type: "string", value: "", submittable: true, debounce: 300 });
+      store.register({ name: "notes", type: "string", value: "", submittable: false });
+
+      render(
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={false} manualStart>
+          <div />
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.set("category", "books");
+      });
+
+      expect(onSearch).not.toHaveBeenCalled();
+
+      await act(async () => {
+        store.set("notes", "manual-note");
+      });
+
+      expect(onSearch).not.toHaveBeenCalled();
+
+      await act(async () => {
+        vi.advanceTimersByTime(300);
+      });
+
+      expect(onSearch).toHaveBeenCalledTimes(1);
+      expect(onSearch.mock.calls[0]?.[0].toValues()).toEqual(
+        expect.objectContaining({
+          category: "books",
+          notes: "manual-note",
+        })
+      );
+    });
+
     it("should submit a batch once when { autoSubmit: true } is provided", async () => {
       const onSearch = vi.fn();
       const store = createFieldStore({ persistInUrl: false });
