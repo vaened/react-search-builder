@@ -59,6 +59,18 @@ export class FieldRepository implements FieldRegistry {
     return false;
   };
 
+  public dirtyFields = (): FilterName[] => {
+    const names: FilterName[] = [];
+
+    for (const field of this.#fields.values()) {
+      if (field.isDirty) {
+        names.push(field.name);
+      }
+    }
+
+    return names;
+  };
+
   public hasErrors = (name?: FilterName) => (name === undefined ? this.#errorManager.has() : this.#errorManager.exists(name));
 
   public get = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(

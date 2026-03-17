@@ -175,6 +175,24 @@ describe("FieldStore", () => {
       expect(emitSpy).not.toHaveBeenCalled();
     });
 
+    it("should expose only fields that remain dirty", () => {
+      store.register(createTestField("page", "1"));
+      store.register(createTestField("query", ""));
+
+      store.set("query", "john");
+      store.set("page", "2");
+
+      expect(store.dirtyFields()).toEqual(["page", "query"]);
+
+      store.markSubmitted({ query: "john" });
+
+      expect(store.dirtyFields()).toEqual(["page"]);
+
+      store.set("page", "1");
+
+      expect(store.dirtyFields()).toEqual([]);
+    });
+
     it("should update metadata and emit event", () => {
       store.register(createTestField("query", "val"));
       emitSpy.mockClear();
