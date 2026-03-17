@@ -139,6 +139,18 @@ export class FieldRepository implements FieldRegistry {
     this.#errorManager.clear();
   };
 
+  public markSubmitted = (): void => {
+    this.#fields.forEach((field) => {
+      if (!isFieldDirty(field, field.submitted)) {
+        return;
+      }
+
+      this.#write(field, {
+        submitted: field.value,
+      });
+    });
+  };
+
   public revalidate = (name?: FilterName): Operation<true> => {
     let executed = NotExecuted;
     const fields = name ? [name] : this.#fields.keys();

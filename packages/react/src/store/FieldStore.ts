@@ -90,6 +90,7 @@ export class FieldStore {
     const registered: RegisteredField<TKey, TValue> = {
       ...field,
       defaultValue,
+      submitted: value,
       value,
       errors: NoErrors,
       updatedAt: Date.now(),
@@ -219,6 +220,10 @@ export class FieldStore {
     const collection = this.#state.collection;
     this.#persistence.write(collection.toPrimitives(), this.#whitelist);
     this.#emitter.emit("persist", collection);
+  };
+
+  public markSubmitted = (): void => {
+    this.#repository.markSubmitted();
   };
 
   public rehydrate = async (): Promise<void> => {

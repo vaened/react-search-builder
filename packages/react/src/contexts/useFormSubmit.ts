@@ -89,6 +89,7 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
               return;
             }
 
+            store.markSubmitted();
             pendingChangedRef.current.clear();
 
             if (!persist) {
