@@ -78,6 +78,7 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
     type,
     defaultValue,
     submittable,
+    debounce,
     serializer: configSerializer,
     humanize: configHumanize,
     validate: configValidate,
@@ -139,8 +140,12 @@ export function useFilterField<TKey extends FilterTypeKey, TValue extends Filter
       touched.submittable = submittable;
     }
 
+    if (debounce !== field.debounce) {
+      touched.debounce = debounce;
+    }
+
     store.update(name, touched);
-  }, [submittable, field]);
+  }, [submittable, debounce, field]);
 
   function set(value: TValue, options?: FieldSetOptions) {
     store.set(name, value, options);

@@ -3,7 +3,7 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import type { FilterName, FilterValue } from "../field";
 import { type FieldBatchTransaction, FieldOperation, FieldsCollection, FieldStore, FieldStoreState } from "../store";
 import { useFormStatus } from "./useFormStatus";
@@ -34,9 +34,27 @@ const forcedOperations: FieldOperation[] = ["flush", "batch"];
 
 export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart, onSearch, beforeSubmit }: UseFormSubmitProps) {
   const { isFormLoading, setLoadingStatus } = useFormStatus({ isHydrating, manualStart });
+  const autoSubmitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelAutoSubmit = useCallback(() => {
+    if (autoSubmitTimerRef.current === null) {
+      return;
+    }
+
+    clearTimeout(autoSubmitTimerRef.current);
+    autoSubmitTimerRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      cancelAutoSubmit();
+    };
+  }, [cancelAutoSubmit]);
 
   const dispatch = useCallback(
     function (persist: boolean = true) {
+      cancelAutoSubmit();
+
       store.whenReady("search-form", () => {
         const state = store.state();
         const queued = new Map<FilterName, FilterValue>();
@@ -94,8 +112,26 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
           });
       });
     },
-    [store],
+    [beforeSubmit, cancelAutoSubmit, onSearch, setLoadingStatus, store],
   );
+
+  const scheduleAutoSubmit = useCallback(
+    (delay: number) => {
+      cancelAutoSubmit();
+      autoSubmitTimerRef.current = setTimeout(() => {
+        autoSubmitTimerRef.current = null;
+        dispatch();
+      }, delay);
+    },
+    [cancelAutoSubmit, dispatch],
+  );
+
+  const resolveAutoSubmitDelay = useCallback((collection: FieldsCollection, touched: readonly FilterName[]): number => {
+    return touched.reduce((highestDelay, name) => {
+      const currentDelay = collection.get(name)?.debounce ?? 0;
+      return currentDelay > highestDelay ? currentDelay : highestDelay;
+    }, 0);
+  }, []);
 
   const performAutoSearch = useCallback(
     ({ collection, touched, operation, context }: FieldStoreState) => {
@@ -114,9 +150,21 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
         return;
       }
 
-      dispatch();
+      if (isForcedOperation) {
+        dispatch();
+        return;
+      }
+
+      const delay = resolveAutoSubmitDelay(collection, touched);
+
+      if (delay <= 0) {
+        dispatch();
+        return;
+      }
+
+      scheduleAutoSubmit(delay);
     },
-    [submitOnChange, dispatch],
+    [cancelAutoSubmit, dispatch, resolveAutoSubmitDelay, scheduleAutoSubmit, submitOnChange],
   );
 
   return {

@@ -157,6 +157,42 @@ describe("SearchForm Integration", () => {
       expect(store.get("q")?.value).toBe("hello");
     });
 
+    it("should debounce auto-submit using the field debounce metadata", async () => {
+      const onSearch = vi.fn();
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.register({ name: "q", type: "string", value: "", debounce: 400 });
+
+      render(
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={true} manualStart>
+          <div />
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.set("q", "hello");
+      });
+
+      expect(onSearch).not.toHaveBeenCalled();
+
+      await act(async () => {
+        vi.advanceTimersByTime(399);
+      });
+
+      expect(onSearch).not.toHaveBeenCalled();
+
+      await act(async () => {
+        vi.advanceTimersByTime(1);
+      });
+
+      expect(onSearch).toHaveBeenCalledTimes(1);
+      expect(onSearch.mock.calls[0]?.[0].toValues()).toEqual(
+        expect.objectContaining({
+          q: "hello",
+        })
+      );
+    });
+
     it("should NOT submit when store changes if 'submitOnChange' is false", async () => {
       const onSearch = vi.fn();
       const store = createFieldStore({ persistInUrl: false });
@@ -198,6 +234,37 @@ describe("SearchForm Integration", () => {
       });
 
       expect(onSearch).toHaveBeenCalled();
+    });
+
+    it("should debounce submittable fields even when global submitOnChange is false", async () => {
+      const onSearch = vi.fn();
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.register({
+        name: "category",
+        type: "string",
+        value: "",
+        submittable: true,
+        debounce: 250,
+      });
+
+      render(
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={false} manualStart>
+          <div />
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.set("category", "books");
+      });
+
+      expect(onSearch).not.toHaveBeenCalled();
+
+      await act(async () => {
+        vi.advanceTimersByTime(250);
+      });
+
+      expect(onSearch).toHaveBeenCalledTimes(1);
     });
 
     it("should NOT auto-submit a single set() call when { autoSubmit: false } is provided", async () => {
@@ -449,6 +516,37 @@ describe("SearchForm Integration", () => {
   });
 
   describe("4. Manual Actions & Refresh", () => {
+    it("should prioritize manual submit over a pending debounce timer", async () => {
+      const onSearch = vi.fn();
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.register({ name: "q", type: "string", value: "", debounce: 400 });
+
+      render(
+        <SearchFormProvider store={store} onSearch={onSearch} submitOnChange={true} manualStart>
+          <button type="submit">Search</button>
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.set("q", "hello");
+      });
+
+      expect(onSearch).not.toHaveBeenCalled();
+
+      await act(async () => {
+        fireEvent.click(screen.getByText("Search"));
+      });
+
+      expect(onSearch).toHaveBeenCalledTimes(1);
+
+      await act(async () => {
+        vi.advanceTimersByTime(400);
+      });
+
+      expect(onSearch).toHaveBeenCalledTimes(1);
+    });
+
     it("should sync submitted values after a successful search", async () => {
       const onSearch = vi.fn();
       const store = createFieldStore({ persistInUrl: false });

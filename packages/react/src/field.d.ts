@@ -107,6 +107,7 @@ export type Serializer<TValue> = AsynchronousSerializer<TValue> | SynchronousSer
 
 export interface FieldOptions {
   submittable?: boolean;
+  debounce?: number;
 }
 
 export interface FieldConfig<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]> extends FieldOptions {
