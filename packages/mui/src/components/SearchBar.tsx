@@ -62,7 +62,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
   flags,
   name,
   submittable,
-  debounceDelay = 400,
+  debounceDelay = 450,
   placeholder,
   labels,
   defaultIndex,
