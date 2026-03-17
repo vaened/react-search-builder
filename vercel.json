@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm --filter @vaened/search-builder-playground build:playground",
+  "outputDirectory": "apps/playground/dist"
+}
