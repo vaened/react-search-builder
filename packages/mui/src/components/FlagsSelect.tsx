@@ -17,11 +17,11 @@ import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import type { FilterBag, FilterDictionary, FilterElement, FilterName } from "@vaened/react-search-builder";
 import { createFilterDictionaryFrom, useFilterField } from "@vaened/react-search-builder";
+import { useSearchBuilder } from "@vaened/react-search-builder/core";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { Translator, useMuiSearchBuilderConfig } from "../config";
 import type { InputSize } from "../types";
 import DropdownMenu from "./DropdownMenu";
-import { useSearchBuilder } from "@vaened/react-search-builder/core";
 
 export type AdditiveFilterFlagBag<N extends FilterName> = Record<N, boolean>;
 
@@ -56,6 +56,7 @@ export interface FlagsSelectProps<N extends FilterName> {
   options: FlagsBag<N>;
   submittable?: boolean;
   defaultValue?: N[];
+  debounceDelay?: number;
   onChange?: (flags: N[]) => void;
 }
 
@@ -67,6 +68,7 @@ export function FlagsSelect<N extends FilterName>({
   submittable,
   size = "medium",
   defaultValue = [],
+  debounceDelay = 400,
   onChange,
 }: FlagsSelectProps<N>) {
   const { store } = useSearchBuilder();
@@ -80,6 +82,7 @@ export function FlagsSelect<N extends FilterName>({
     name,
     defaultValue,
     submittable,
+    debounce: debounceDelay,
     humanize: (flags) => flags.map((flag) => ({ value: flag, label: labeled(dictionary, flag) ?? flag })),
   });
 
@@ -218,7 +221,7 @@ function useFlagsSelectTranslations(translate: Translator, labels?: FlagsLabels)
         fallback: "Restart",
       }),
     }),
-    [labels]
+    [labels],
   );
 }
 

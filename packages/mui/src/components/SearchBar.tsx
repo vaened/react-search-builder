@@ -95,6 +95,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
 
   const isDisabled = disabled || isLoading;
   const description = dictionary && index ? dictionary[index].description : null;
+  const flagsDebounceDelay = Math.round(debounceDelay * 1.5);
 
   function apply(query?: string | null) {
     set(query ?? "");
@@ -149,7 +150,14 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
                   {flags && (
                     <>
                       <Divider orientation="vertical" flexItem sx={{ my: 1, mx: 0.5 }} />
-                      <FlagsSelect name={name?.flags} size={size} options={flags} defaultValue={defaultFlags} disabled={isDisabled} />
+                      <FlagsSelect
+                        name={name?.flags}
+                        size={size}
+                        options={flags}
+                        defaultValue={defaultFlags}
+                        debounceDelay={flagsDebounceDelay}
+                        disabled={isDisabled}
+                      />
                     </>
                   )}
                 </Box>
