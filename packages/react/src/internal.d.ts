@@ -13,16 +13,17 @@ export type NoInfer<T> = T & { readonly __noinfer?: never };
 
 export type UnpackedValue<T> = T extends (infer U)[] ? U : T;
 
-export type Paths<T> = IsRecord<T> extends true
-  ? {
-      [K in keyof T & string]: IsRecord<T[K]> extends true ? `${K}.${Paths<T[K]>}` : `${K}`;
-    }[keyof T & string]
-  : never;
+export type Paths<T> =
+  IsRecord<T> extends true
+    ? {
+        [K in keyof T & string]: IsRecord<T[K]> extends true ? `${K}.${Paths<T[K]>}` : `${K}`;
+      }[keyof T & string]
+    : never;
 
 export type PathValue<T, P extends string> = P extends `${infer K}.${infer Rest}`
   ? K extends keyof T
     ? PathValue<T[K], Rest>
     : never
   : P extends keyof T
-  ? T[P]
-  : never;
+    ? T[P]
+    : never;
