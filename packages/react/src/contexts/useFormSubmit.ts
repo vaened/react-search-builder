@@ -3,7 +3,7 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback } from "react";
 import type { FilterName, FilterValue } from "../field";
 import { type FieldBatchTransaction, FieldOperation, FieldsCollection, FieldStore, FieldStoreState } from "../store";
 import { useFormStatus } from "./useFormStatus";
@@ -34,15 +34,6 @@ const forcedOperations: FieldOperation[] = ["flush", "batch"];
 
 export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart, onSearch, beforeSubmit }: UseFormSubmitProps) {
   const { isFormLoading, setLoadingStatus } = useFormStatus({ isHydrating, manualStart });
-  const pendingChangedRef = useRef<Set<FilterName>>(new Set());
-
-  useEffect(() => {
-    return store.onChange((state) => {
-      if (state.operation !== null) {
-        state.touched.forEach((name) => pendingChangedRef.current.add(name));
-      }
-    });
-  }, [store]);
 
   const dispatch = useCallback(
     function (persist: boolean = true) {
@@ -51,7 +42,7 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
         const queued = new Map<FilterName, FilterValue>();
 
         beforeSubmit?.({
-          dirtyFields: Array.from(pendingChangedRef.current),
+          dirtyFields: store.dirtyFields(),
           trigger: state.operation,
           collection: store.collection(),
           transaction: {
@@ -90,7 +81,6 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
 
             const submittedValues = submittedCollection.toValues();
             store.markSubmitted(submittedValues);
-            pendingChangedRef.current.clear();
 
             if (!persist) {
               return;

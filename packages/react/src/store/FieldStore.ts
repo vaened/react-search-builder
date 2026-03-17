@@ -68,6 +68,8 @@ export class FieldStore {
 
   public hasDirtyFields = () => this.#repository.hasDirtyFields();
 
+  public dirtyFields = () => this.#repository.dirtyFields();
+
   public hasErrors = (name?: FilterName) => this.#repository.hasErrors(name);
 
   public whenReady = (name: string, task: () => void) => this.#tracker.whenReady(name, task);

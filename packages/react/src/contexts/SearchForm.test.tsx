@@ -408,6 +408,44 @@ describe("SearchForm Integration", () => {
         })
       );
     });
+
+    it("should exclude fields that returned to their submitted value before submit", async () => {
+      const onSearch = vi.fn();
+      const beforeSubmit = vi.fn();
+      const store = createFieldStore({ persistInUrl: false });
+
+      store.register({ name: "page", type: "number", value: 5 });
+      store.register({ name: "q", type: "string", value: "" });
+      store.register({ name: "status", type: "string", value: "" });
+
+      render(
+        <SearchFormProvider
+          store={store}
+          onSearch={onSearch}
+          beforeSubmit={beforeSubmit}
+          submitOnChange={false}
+          manualStart>
+          <button type="submit">Search</button>
+        </SearchFormProvider>
+      );
+
+      await act(async () => {
+        store.set("q", "john");
+        store.set("q", "");
+        store.set("status", "active");
+      });
+
+      await act(async () => {
+        fireEvent.click(screen.getByText("Search"));
+      });
+
+      expect(beforeSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          dirtyFields: ["status"],
+          trigger: "set",
+        })
+      );
+    });
   });
 
   describe("4. Manual Actions & Refresh", () => {
