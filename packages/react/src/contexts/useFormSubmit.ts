@@ -62,13 +62,11 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
         });
 
         if (queued.size > 0) {
-          store.batch(
-            (tx) => {
-              queued.forEach((value, name) => {
-                tx.set(name, value);
-              });
-            },
-          );
+          store.batch((tx) => {
+            queued.forEach((value, name) => {
+              tx.set(name, value);
+            });
+          });
         }
 
         store.revalidate();
@@ -77,7 +75,8 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
           return;
         }
 
-        const response = Promise.resolve(onSearch?.(store.collection()));
+        const submittedCollection = FieldsCollection.from(store.collection().toMap());
+        const response = Promise.resolve(onSearch?.(submittedCollection));
 
         const loadingTimer = setTimeout(() => {
           setLoadingStatus(true);
@@ -89,7 +88,8 @@ export function useFormSubmit({ store, submitOnChange, isHydrating, manualStart,
               return;
             }
 
-            store.markSubmitted();
+            const submittedValues = submittedCollection.toValues();
+            store.markSubmitted(submittedValues);
             pendingChangedRef.current.clear();
 
             if (!persist) {

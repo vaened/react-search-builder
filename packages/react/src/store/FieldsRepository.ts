@@ -51,14 +51,14 @@ export class FieldRepository implements FieldRegistry {
   public hasErrors = (name?: FilterName) => (name === undefined ? this.#errorManager.has() : this.#errorManager.exists(name));
 
   public get = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
-    name: FilterName
+    name: FilterName,
   ): RegisteredField<TKey, TValue> | undefined => {
     return this.#fields.get(name) as RegisteredField<TKey, TValue> | undefined;
   };
 
   public set = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     name: FilterName,
-    value: TValue | null
+    value: TValue | null,
   ): Operation<RegisteredField<TKey, TValue>> => {
     const field = this.get<TKey, TValue>(name);
 
@@ -104,7 +104,7 @@ export class FieldRepository implements FieldRegistry {
 
   public update = <TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     name: FilterName,
-    partial: Omit<Partial<RegisteredField<TKey, TValue>>, "value">
+    partial: Omit<Partial<RegisteredField<TKey, TValue>>, "value">,
   ): Operation<RegisteredField<TKey, TValue>> => {
     if (Object.keys(partial).length === 0) {
       return NotExecuted;
@@ -139,14 +139,16 @@ export class FieldRepository implements FieldRegistry {
     this.#errorManager.clear();
   };
 
-  public markSubmitted = (): void => {
+  public markSubmitted = (submittedValues: ValueFilterDictionary): void => {
     this.#fields.forEach((field) => {
-      if (!isFieldDirty(field, field.submitted)) {
+      const hasSubmittedValue = Object.prototype.hasOwnProperty.call(submittedValues, field.name);
+
+      if (!hasSubmittedValue) {
         return;
       }
 
       this.#write(field, {
-        submitted: field.value,
+        submitted: submittedValues[field.name] ?? null,
       });
     });
   };
@@ -182,11 +184,11 @@ export class FieldRepository implements FieldRegistry {
   public apply(name: GenericRegisteredField, partial: Partial<FieldPatch<RegisteredFieldValue>>): void;
   public apply<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
-    partial: Partial<FieldPatch<TValue>>
+    partial: Partial<FieldPatch<TValue>>,
   ): void;
   public apply<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
-    partial: FieldPatch<TValue>
+    partial: FieldPatch<TValue>,
   ): void {
     const newValues = this.#pickAllowedPatch(partial, ["value", "isHydrating"]);
     this.#override(field, newValues);
@@ -195,11 +197,11 @@ export class FieldRepository implements FieldRegistry {
   #override(field: GenericRegisteredField, partial: Partial<GenericRegisteredField>): void;
   #override<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
-    partial: Partial<RegisteredField<TKey, TValue>>
+    partial: Partial<RegisteredField<TKey, TValue>>,
   ): void;
   #override<TKey extends FilterTypeKey, TValue extends FilterTypeMap[TKey]>(
     field: RegisteredField<TKey, TValue>,
-    partial: Partial<RegisteredField<TKey, TValue>>
+    partial: Partial<RegisteredField<TKey, TValue>>,
   ): void {
     const newValue = partial.value;
     const previousErrors = partial.errors !== undefined ? partial.errors : field.errors;

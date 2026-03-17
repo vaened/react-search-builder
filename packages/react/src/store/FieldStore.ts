@@ -222,8 +222,8 @@ export class FieldStore {
     this.#emitter.emit("persist", collection);
   };
 
-  public markSubmitted = (): void => {
-    this.#repository.markSubmitted();
+  public markSubmitted = (values: ValueFilterDictionary): void => {
+    this.#repository.markSubmitted(values);
   };
 
   public rehydrate = async (): Promise<void> => {
