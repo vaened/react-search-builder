@@ -3,23 +3,23 @@
  * @link https://vaened.dev DevFolio
  */
 
-import { Button, type ButtonProps } from "@mui/material";
+import type { ButtonProps } from "@mui/material";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
 import InputAdornment from "@mui/material/InputAdornment";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
-import { keyframes, styled } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import type { FilterBag, FilterName } from "@vaened/react-search-builder";
 import { createFilterDictionaryFrom, useFilterField } from "@vaened/react-search-builder";
 import { useSearchBuilder } from "@vaened/react-search-builder/core";
-import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Translator, useMuiSearchBuilderConfig } from "../config";
 import type { InputSize } from "../types";
 import FlagsSelect, { type FlagsBag } from "./FlagsSelect";
 import IndexSelect from "./IndexSelect";
+import SearchTriggerButton from "./SearchTriggerButton";
 
 type KeysOf<T> = T extends Record<infer K extends FilterName, unknown> ? K : never;
 type FromAdditives<T> = T extends { additives?: Record<infer U extends FilterName, unknown> } ? U : never;
@@ -52,38 +52,6 @@ interface SearchBarProps<IB extends FilterBag<FilterName>, FB extends FlagsBag<F
   onChange?: (params: string) => void;
 }
 
-const animation = keyframes`
-  0% { 
-    transform: scale(1) rotate(0deg); 
-  }
-  5%, 10% {
-    transform: scale3d(.9,.9,.9) rotate(-5deg); 
-  }
-  15%, 25%, 35%, 45% { 
-    transform: scale3d(1.1,1.1,1.1) rotate(5deg); 
-  }
-  20%, 30%, 40% {
-    transform: scale3d(1.1, 1.1, 1.1) rotate(-5deg);
-  }
-  50% { 
-    transform: scale(1) rotate(0deg); 
-  }
-`;
-
-const AnimateIcon = styled("span")<{
-  active?: boolean;
-}>(({ active = false }) =>
-  active
-    ? {
-        transition: "all .15s",
-        animation: `2.5s infinite both ${animation}`,
-        display: "inline-flex",
-      }
-    : {
-        display: "inline-flex",
-      },
-);
-
 export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<FilterName>>({
   id,
   size = "medium",
@@ -104,8 +72,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
 }: SearchBarProps<IB, FB>) {
   const inputId = id || useId();
   const { store, submitOnChange, isLoading } = useSearchBuilder();
-  const hasPendingSubmit = useSyncExternalStore(store.subscribe, store.hasDirtyFields, store.hasDirtyFields);
-  const { icon, translate } = useMuiSearchBuilderConfig();
+  const { translate } = useMuiSearchBuilderConfig();
   const inputSearch = useRef<HTMLInputElement>(undefined);
   const dictionary = useMemo(() => createFilterDictionaryFrom<KeysOf<IB>>(indexes), [indexes]);
   const [index, setIndex] = useState<KeysOf<IB> | undefined>(() => {
@@ -207,18 +174,7 @@ export function SearchBar<IB extends FilterBag<FilterName>, FB extends FlagsBag<
             endAdornment={
               <InputAdornment position="end" sx={{ mr: 0 }}>
                 <Box sx={{ display: "inline-flex", alignItems: "center" }}>
-                  <Button
-                    loading={isLoading}
-                    disabled={isDisabled}
-                    size={size}
-                    type="submit"
-                    aria-label={searchAriaLabel || "submit search"}
-                    sx={{ minWidth: "34px" }}
-                    data-testid="search-trigger-button">
-                    <AnimateIcon active={hasPendingSubmit && !isLoading} data-testid="search-trigger-icon">
-                      {icon("searchBarSearchIcon")}
-                    </AnimateIcon>
-                  </Button>
+                  <SearchTriggerButton color={color} size={size} disabled={isDisabled} ariaLabel={searchAriaLabel || "submit search"} />
 
                   {flags && (
                     <>

@@ -48,10 +48,11 @@ describe("SearchBar Integration", () => {
 
     it("should animate the search icon when the store has pending submit changes", async () => {
       const user = userEvent.setup();
-      const { store } = renderWithContext(<SearchBar />);
+      const { store } = renderWithContext(<SearchBar debounceDelay={0} />);
 
-      const icon = screen.getByTestId("search-trigger-icon");
-      expect(icon).not.toHaveStyle({ animation: expect.any(String) });
+      let icon = screen.getByTestId("search-trigger-icon");
+      expect(icon).toHaveAttribute("data-pending-submit", "false");
+      expect(icon).toHaveAttribute("data-shaking", "false");
 
       const input = screen.getByTestId("search-input-text");
       await user.type(input, "Test");
@@ -60,7 +61,9 @@ describe("SearchBar Integration", () => {
         expect(store.hasDirtyFields()).toBe(true);
       });
 
-      expect(getComputedStyle(icon).animation).toContain("2.5s");
+      icon = screen.getByTestId("search-trigger-icon");
+      expect(icon).toHaveAttribute("data-pending-submit", "true");
+      expect(icon).toHaveAttribute("data-shaking", "true");
     });
   });
 
