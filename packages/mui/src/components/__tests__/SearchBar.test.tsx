@@ -117,5 +117,30 @@ describe("SearchBar Integration", () => {
 
       expect(store.get("options")?.value).toEqual(["active"]);
     });
+
+    it("should stop the pending submit animation after submitting array filters", async () => {
+      const user = userEvent.setup();
+      render(
+        <SearchForm store={createFieldStore({ persistInUrl: false })}>
+          <SearchBar flags={flags} />
+        </SearchForm>
+      );
+
+      const trigger = screen.getByTestId("flags-trigger-button");
+      await user.click(trigger);
+
+      const option = screen.getByRole("button", { name: "Active Only" });
+      await user.click(option);
+
+      let icon = screen.getByTestId("search-trigger-icon");
+      expect(icon).toHaveAttribute("data-pending-submit", "true");
+
+      const button = screen.getByTestId("search-trigger-button");
+      await user.click(button);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("search-trigger-icon")).toHaveAttribute("data-pending-submit", "false");
+      });
+    });
   });
 });

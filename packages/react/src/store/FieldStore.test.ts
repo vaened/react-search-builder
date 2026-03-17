@@ -334,6 +334,23 @@ describe("FieldStore", () => {
       store.markSubmitted({ query: "updated" });
       expect(store.hasDirtyFields()).toBe(false);
     });
+
+    it("should notify React subscribers when submitted state changes", () => {
+      const reactListener = vi.fn();
+
+      store.register(createTestField("query", "initial"));
+      store.set("query", "updated");
+      reactListener.mockClear();
+
+      const unsubscribe = store.subscribe(reactListener);
+
+      store.markSubmitted({ query: "updated" });
+
+      expect(store.get("query")?.isDirty).toBe(false);
+      expect(reactListener).toHaveBeenCalledTimes(1);
+
+      unsubscribe();
+    });
   });
 
   describe("3. Persistence (Rehydrate/Persist)", () => {
