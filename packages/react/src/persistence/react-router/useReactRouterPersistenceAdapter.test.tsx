@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { useReactRouterPersistenceAdapter, type ReactRouterLocationLike } from "./useReactRouterPersistenceAdapter";
+import { useReactRouterPersistenceAdapter } from "./useReactRouterPersistenceAdapter";
+import type { ReactRouterLocationLike } from "./adapter";
 
 const createLocation = (search = "", pathname = "/search", hash = ""): ReactRouterLocationLike => ({
   pathname,
