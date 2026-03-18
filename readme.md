@@ -71,7 +71,6 @@ The project is split into two complementary packages:
 - `@vaened/react-search-builder` (Core)  
   Pure logic and state management. Use it if you want to build your own UI or integrate the system into an existing component library.
   Detailed package README: [packages/react/README.md](./packages/react/README.md)
-
   - **Universal Integration (`FilterFieldController`)**: Connect any UI component (from a simple native `<input/>` to complex selectors from libraries like AntD or Chakra). You get `value`, `onChange`, and `errors` ready to use.
 
   - **Asynchronous Hydration**: Support for async serializers that pause initialization until data is ready and verified, preventing inconsistent states.
@@ -85,9 +84,7 @@ The project is split into two complementary packages:
 - `@vaened/mui-search-builder` (UI Kit)  
   Ready-to-use components based on Material UI. Designed for the most common use cases in admin dashboards and backoffice apps.
   Detailed package README: [packages/mui/README.md](./packages/mui/README.md)
-
   - **Unified SearchBar**: A composed component that integrates three features into one visual row:
-
     - **Query Input**: With automatic debounce.
     - **Index Select**: Lets the user change the search criterion without taking extra UI space.
     - **Flags**: Quick boolean filters integrated visually.
@@ -103,7 +100,6 @@ The project is split into two complementary packages:
 - #### 🧠 Headless & Reactive Architecture
 
   State lives completely decoupled from React’s component tree.
-
   - **Atomic Subscriptions**  
     Each field subscribes individually to the Store. Typing in an input does not re-render the whole form—only the affected component.
 
@@ -115,7 +111,6 @@ The project is split into two complementary packages:
 - #### 🔌 Decoupled Persistence (Persistence Adapters)
 
   The storage mechanism is completely agnostic to business logic.
-
   - **Interchangeable Adapters**  
     `WindowUrlPersistenceAdapter` (included) syncs with `window.location`, but the architecture supports async adapters for **Next.js**, **React Router**, or storage in **LocalStorage**.
 
@@ -125,7 +120,6 @@ The project is split into two complementary packages:
 - #### 🛡️ Strict Typing and Serialization
 
   Automatic and transparent data transformation between the persistence layer and the application layer.
-
   - **Declarative Definition**  
     Configure fields as `date`, `number`, `boolean`, or array variants (`number[]`, `string[]`).
 
@@ -135,7 +129,6 @@ The project is split into two complementary packages:
 - #### ✅ Validation Oriented to the Filter Domain
 
   Validation rules are pure and executed in the Store, not in the UI.
-
   - **Composed Rules**
     Native support for complex validation strategies (`allOf` with `failFast` or error collection).
 
@@ -150,15 +143,14 @@ This repository provides a headless core and a ready-to-use Material UI implemen
 Each package has its own detailed documentation:
 
 - **Core (Headless)**
-
   - `@vaened/react-search-builder`  
     Architecture, store, hooks, validation system, and persistence adapters.  
-    See: [packages/react/README.md](./packages/react/README.md)
+    See: [packages/react/README.md](./packages/react/readme.md)
 
 - **Material UI Kit**
   - `@vaened/mui-search-builder`  
     Prebuilt components and real-world examples using Material UI.  
-    See: [packages/mui/README.md](./packages/mui/README.md)
+    See: [packages/mui/README.md](./packages/mui/readme.md)
 
 Use the **Core** package if you need full control over the UI.  
 Use the **MUI** package if you use Material UI and want a set of ready-to-use components.
