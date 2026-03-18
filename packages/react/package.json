@@ -12,6 +12,11 @@
       "types": "./dist/contexts/index.d.ts",
       "import": "./dist/contexts/index.js",
       "require": "./dist/contexts/index.cjs"
+    },
+    "./persistence/react-router": {
+      "types": "./dist/persistence/react-router/index.d.ts",
+      "import": "./dist/persistence/react-router/index.js",
+      "require": "./dist/persistence/react-router/index.cjs"
     }
   },
   "files": [
