@@ -70,6 +70,7 @@ The project is split into two complementary packages:
 
 - `@vaened/react-search-builder` (Core)  
   Pure logic and state management. Use it if you want to build your own UI or integrate the system into an existing component library.
+  Detailed package README: [packages/react/README.md](./packages/react/README.md)
 
   - **Universal Integration (`FilterFieldController`)**: Connect any UI component (from a simple native `<input/>` to complex selectors from libraries like AntD or Chakra). You get `value`, `onChange`, and `errors` ready to use.
 
@@ -83,6 +84,7 @@ The project is split into two complementary packages:
 
 - `@vaened/mui-search-builder` (UI Kit)  
   Ready-to-use components based on Material UI. Designed for the most common use cases in admin dashboards and backoffice apps.
+  Detailed package README: [packages/mui/README.md](./packages/mui/README.md)
 
   - **Unified SearchBar**: A composed component that integrates three features into one visual row:
 
@@ -150,11 +152,13 @@ Each package has its own detailed documentation:
 - **Core (Headless)**
 
   - `@vaened/react-search-builder`  
-    Architecture, store, hooks, validation system, and persistence adapters.
+    Architecture, store, hooks, validation system, and persistence adapters.  
+    See: [packages/react/README.md](./packages/react/README.md)
 
 - **Material UI Kit**
   - `@vaened/mui-search-builder`  
-    Prebuilt components and real-world examples using Material UI.
+    Prebuilt components and real-world examples using Material UI.  
+    See: [packages/mui/README.md](./packages/mui/README.md)
 
 Use the **Core** package if you need full control over the UI.  
 Use the **MUI** package if you use Material UI and want a set of ready-to-use components.
