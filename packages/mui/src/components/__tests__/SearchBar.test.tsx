@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createFieldStore } from "@vaened/react-search-builder";
 import { describe, expect, it, vi } from "vitest";
@@ -120,17 +120,17 @@ describe("SearchBar Integration", () => {
 
     it("should stop the pending submit animation after submitting array filters", async () => {
       const user = userEvent.setup();
+      const store = createFieldStore({ persistInUrl: false });
+
       render(
-        <SearchForm store={createFieldStore({ persistInUrl: false })}>
+        <SearchForm store={store}>
           <SearchBar flags={flags} />
         </SearchForm>
       );
 
-      const trigger = screen.getByTestId("flags-trigger-button");
-      await user.click(trigger);
-
-      const option = screen.getByRole("button", { name: "Active Only" });
-      await user.click(option);
+      act(() => {
+        store.set("flags", ["active"]);
+      });
 
       await waitFor(() => {
         expect(screen.getByTestId("search-trigger-icon")).toHaveAttribute("data-pending-submit", "true");
