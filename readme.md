@@ -70,7 +70,7 @@ The project is split into two complementary packages:
 
 - `@vaened/react-search-builder` (Core)  
   Pure logic and state management. Use it if you want to build your own UI or integrate the system into an existing component library.
-  Detailed package README: [packages/react/README.md](./packages/react/README.md)
+  Detailed package README: [packages/react/README.md](./packages/react/readme.md)
   - **Universal Integration (`FilterFieldController`)**: Connect any UI component (from a simple native `<input/>` to complex selectors from libraries like AntD or Chakra). You get `value`, `onChange`, and `errors` ready to use.
 
   - **Asynchronous Hydration**: Support for async serializers that pause initialization until data is ready and verified, preventing inconsistent states.
@@ -83,7 +83,7 @@ The project is split into two complementary packages:
 
 - `@vaened/mui-search-builder` (UI Kit)  
   Ready-to-use components based on Material UI. Designed for the most common use cases in admin dashboards and backoffice apps.
-  Detailed package README: [packages/mui/README.md](./packages/mui/README.md)
+  Detailed package README: [packages/mui/README.md](./packages/mui/readme.md)
   - **Unified SearchBar**: A composed component that integrates three features into one visual row:
     - **Query Input**: With automatic debounce.
     - **Index Select**: Lets the user change the search criterion without taking extra UI space.
