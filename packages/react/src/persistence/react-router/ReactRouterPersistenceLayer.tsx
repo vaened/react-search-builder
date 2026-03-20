@@ -1,17 +1,12 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import type { SearchBuilderPersistenceLayerProps as SearchBuilderPersistenceRegistrationProps } from "../../contexts/SearchBuilderConfig";
+import { SearchBuilderPersistenceContext, type SearchBuilderPersistenceLayerProps } from "../PersistenceContext";
 import { createNavigationChannel, type NavigationOptions } from "../navigation-channel";
 import { createReactRouterPersistenceAdapter } from "./adapter";
 
-export interface ReactRouterPersistenceLayerProps extends SearchBuilderPersistenceRegistrationProps, NavigationOptions {}
+export interface ReactRouterPersistenceLayerProps extends SearchBuilderPersistenceLayerProps, NavigationOptions {}
 
-export function ReactRouterPersistenceLayer({
-  registerDefaultPersistence,
-  unregisterDefaultPersistence,
-  replace = false,
-  state,
-}: ReactRouterPersistenceLayerProps): null {
+export function ReactRouterPersistenceLayer({ children, replace = false, state }: ReactRouterPersistenceLayerProps): React.ReactElement {
   const location = useLocation();
   const navigate = useNavigate();
   const channel = useMemo(() => createNavigationChannel(location, navigate), []);
@@ -28,10 +23,5 @@ export function ReactRouterPersistenceLayer({
     });
   }, [channel, replace, state]);
 
-  useEffect(() => {
-    registerDefaultPersistence(createPersistence);
-    return () => unregisterDefaultPersistence();
-  }, [createPersistence, registerDefaultPersistence, unregisterDefaultPersistence]);
-
-  return null;
+  return <SearchBuilderPersistenceContext.Provider value={createPersistence}>{children}</SearchBuilderPersistenceContext.Provider>;
 }

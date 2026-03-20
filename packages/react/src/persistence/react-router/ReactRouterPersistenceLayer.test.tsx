@@ -1,7 +1,6 @@
 import { render, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { SearchBuilderConfigProvider } from "../../contexts/SearchBuilderConfig";
 import { useFilterField } from "../../hooks/useFilterField";
 import { useSearchStore } from "../../hooks/useSearchStore";
 import { ReactRouterPersistenceLayer } from "./ReactRouterPersistenceLayer";
@@ -38,9 +37,9 @@ describe("ReactRouterPersistenceLayer", () => {
     }
 
     render(
-      <SearchBuilderConfigProvider translations={{}} icons={{}} persistenceLayer={ReactRouterPersistenceLayer}>
+      <ReactRouterPersistenceLayer>
         <Probe />
-      </SearchBuilderConfigProvider>,
+      </ReactRouterPersistenceLayer>,
     );
 
     await waitFor(() => {

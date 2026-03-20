@@ -4,17 +4,17 @@
  */
 
 import { useRef } from "react";
-import { useSearchBuilderConfig } from "../contexts/SearchBuilderConfig";
+import { useSearchBuilderPersistence } from "../persistence/PersistenceContext";
 import { createFieldStore, CreateStoreOptions, FieldStore, resolveCreateStoreConfigWithDefaultPersistence } from "../store";
 
 export function useResolveFieldStoreInstance(source?: FieldStore, fallback?: CreateStoreOptions): FieldStore {
   const instance = useRef<FieldStore | null>(null);
-  const configuration = useSearchBuilderConfig();
+  const createPersistence = useSearchBuilderPersistence();
 
   if (source) {
     return source;
   }
 
   return (instance.current ??=
-    createFieldStore(resolveCreateStoreConfigWithDefaultPersistence(fallback, configuration?.createPersistence)));
+    createFieldStore(resolveCreateStoreConfigWithDefaultPersistence(fallback, createPersistence)));
 }
