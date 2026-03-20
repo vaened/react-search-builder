@@ -25,7 +25,7 @@
     "verify:pack": "node ../../scripts/verify-pack-exports.mjs"
   },
   "dependencies": {
-    "@vaened/react-search-builder": "^2.0.0",
+    "@vaened/react-search-builder": "^2.1.0",
     "@tabler/icons-react": "^3.35.0"
   },
   "peerDependencies": {
