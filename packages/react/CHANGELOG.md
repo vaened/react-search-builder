@@ -1,5 +1,11 @@
 # @vaened/react-search-builder
 
+## 2.1.0
+
+### Minor Changes
+
+- Add React Router persistence support through `@vaened/react-search-builder/persistence/react-router` and improve persistence integration internals.
+
 ## 2.0.0
 
 ### Major Changes
