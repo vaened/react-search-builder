@@ -1,5 +1,11 @@
 # @vaened/mui-search-builder
 
+## 3.0.1
+
+### Patch Changes
+
+- Align the MUI package with the latest core release that includes React Router persistence support.
+
 ## 3.0.0
 
 ### Major Changes
