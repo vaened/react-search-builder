@@ -29,19 +29,40 @@ export function createFieldStore(arg: CreateStoreOptions | undefined): FieldStor
 export function createFieldStore(): FieldStore;
 
 export function createFieldStore(args: CreateStoreOptions | undefined = undefined): FieldStore {
+  return create(resolveCreateStoreConfig(args));
+}
+
+export function resolveCreateStoreConfig(args: CreateStoreOptions | undefined = undefined): FieldStoreConfig | undefined {
   if (args === undefined) {
-    return create();
+    return undefined;
   }
 
   if (isResolverFunction(args)) {
-    return create(args());
+    return args();
   }
 
-  if (isStoreOptionsObject(args)) {
-    return create({ persistence: args.persistInUrl ? url() : empty() });
+  if (isQuickStoreOptions(args)) {
+    return { persistence: args.persistInUrl ? url() : empty() };
   }
 
-  return create(args);
+  return args;
+}
+
+export function resolveCreateStoreConfigWithDefaultPersistence(
+  args: CreateStoreOptions | undefined,
+  createPersistence: (() => PersistenceAdapter) | undefined
+): FieldStoreConfig | undefined {
+  if (!createPersistence) {
+    return resolveCreateStoreConfig(args);
+  }
+
+  const resolved = resolveCreateStoreConfig(args);
+
+  if (resolved === undefined) {
+    return { persistence: createPersistence() };
+  }
+
+  return resolved.persistence !== undefined ? resolved : { ...resolved, persistence: createPersistence() };
 }
 
 function create({ persistence = undefined, validator = undefined, emitter = undefined }: FieldStoreConfig = {}): FieldStore {
@@ -58,6 +79,6 @@ function isResolverFunction(arg: unknown): arg is CreateStoreConfigResolver {
   return typeof arg === "function";
 }
 
-function isStoreOptionsObject(arg: unknown): arg is CreateStoreQuickOptions {
+function isQuickStoreOptions(arg: unknown): arg is CreateStoreQuickOptions {
   return typeof arg === "object" && arg !== null && "persistInUrl" in arg;
 }
