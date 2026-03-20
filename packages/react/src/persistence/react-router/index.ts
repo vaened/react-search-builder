@@ -1,2 +1,1 @@
-export * from "./adapter";
-export * from "./useReactRouterPersistenceAdapter";
+export * from "./ReactRouterPersistenceLayer";

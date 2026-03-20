@@ -1,46 +1,22 @@
 import type { PersistenceAdapter } from "../PersistenceAdapter";
 import { createSearchParams, readDictionaryFromSearch } from "../url-params";
-
-export type ReactRouterLocationLike = {
-  pathname: string;
-  search: string;
-  hash?: string;
-  key?: string;
-};
-
-export type ReactRouterNavigateOptions = {
-  replace?: boolean;
-  state?: unknown;
-};
-
-export type ReactRouterNavigateLike = (to: string, options?: ReactRouterNavigateOptions) => void | Promise<void>;
-
-export type UseReactRouterPersistenceAdapterOptions = {
-  location: ReactRouterLocationLike;
-  navigate: ReactRouterNavigateLike;
-  replace?: boolean;
-  state?: unknown;
-};
+import type { NavigationChannel } from "../navigation-channel";
 
 type ReactRouterPersistenceAdapterFactoryOptions = {
-  getLocation: () => ReactRouterLocationLike;
-  getNavigate: () => ReactRouterNavigateLike;
-  getListeners: () => Set<() => void>;
+  channel: NavigationChannel;
   replace: boolean;
   state?: unknown;
 };
 
 export function createReactRouterPersistenceAdapter({
-  getLocation,
-  getNavigate,
-  getListeners,
+  channel,
   replace,
   state,
 }: ReactRouterPersistenceAdapterFactoryOptions): PersistenceAdapter {
   return {
-    read: () => readDictionaryFromSearch(getLocation().search),
+    read: () => readDictionaryFromSearch(channel.readLocation().search),
     write: (values, whitelist) => {
-      const currentLocation = getLocation();
+      const currentLocation = channel.readLocation();
       const currentParams = new URLSearchParams(currentLocation.search);
       const nextParams = createSearchParams(values, currentLocation.search, whitelist);
 
@@ -55,15 +31,11 @@ export function createReactRouterPersistenceAdapter({
       const hash = currentLocation.hash ?? "";
       const target = `${pathname}${nextSearch ? `?${nextSearch}` : ""}${hash}`;
 
-      getNavigate()(target, {
+      channel.navigate(target, {
         replace,
         state,
       });
     },
-    subscribe: (callback) => {
-      const listeners = getListeners();
-      listeners.add(callback);
-      return () => listeners.delete(callback);
-    },
+    subscribe: channel.subscribe,
   };
 }
