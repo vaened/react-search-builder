@@ -4,8 +4,6 @@ Headless search form state management for React.
 
 This package contains the core store, hooks, validations, serializers, and form orchestration primitives behind React Search Builder.
 
-Use it when you want full control over the UI and do not want your search logic tied to a component library.
-
 ## Installation
 
 ```sh
@@ -17,7 +15,7 @@ Peer dependencies:
 - `react >= 19.2`
 - `react-dom >= 19.2`
 
-## What This Package Gives You
+## What You Get
 
 - A centralized field store for search forms
 - Per-field subscriptions to avoid full-form rerenders
@@ -32,15 +30,11 @@ Peer dependencies:
 
 ### Main package
 
-Import the store, hooks, serializers, validations, and controller from:
-
 ```ts
 import { createFieldStore, useFilterField, FilterFieldController } from "@vaened/react-search-builder";
 ```
 
 ### Form context entry point
-
-Import form orchestration primitives from:
 
 ```ts
 import { SearchFormProvider, useSearchBuilder, useSearchState } from "@vaened/react-search-builder/core";
@@ -104,7 +98,7 @@ export function Example() {
 
 ### `FieldStore`
 
-Create a store once and use it as the single source of truth for the form.
+The store is the single source of truth for the form.
 
 ```ts
 const store = createFieldStore({ persistInUrl: true });
@@ -123,7 +117,7 @@ Useful methods:
 
 ### `useFilterField`
 
-Use this when building custom headless inputs.
+Use this hook when you want a headless field binding for custom inputs.
 
 ```tsx
 const { value, errors, set, field } = useFilterField(store, {
@@ -133,7 +127,7 @@ const { value, errors, set, field } = useFilterField(store, {
 });
 ```
 
-Important field metadata available through `field`:
+Relevant metadata on `field`:
 
 - `field.submitted`
 - `field.isDirty`
@@ -143,7 +137,7 @@ Important field metadata available through `field`:
 
 ### `FilterFieldController`
 
-Use this when your UI component already expects `value` and `onChange`, but you want the library to normalize event handling for you.
+Use this when your component already expects `value` and `onChange`, but you still want the library to normalize field wiring.
 
 ```tsx
 <FilterFieldController
@@ -157,11 +151,11 @@ Use this when your UI component already expects `value` and `onChange`, but you 
 />
 ```
 
-For array fields, prefer passing an explicit `defaultValue` such as `[]`.
+> For array fields, prefer passing an explicit `defaultValue` such as `[]`.
 
 ### `SearchFormProvider`
 
-`SearchFormProvider` connects the store with submit orchestration.
+Use this provider to connect a store with submit orchestration and search callbacks.
 
 ```tsx
 <SearchFormProvider store={store} onSearch={handleSearch} submitOnChange>
@@ -180,27 +174,35 @@ Relevant props:
 - `autoStartDelay`
 - `configuration`
 
+### `SearchBuilderConfigProvider`
+
+`SearchBuilderConfigProvider` provides translations and icons to the subtree.
+
+```tsx
+import { SearchBuilderConfigProvider } from "@vaened/react-search-builder/core";
+
+function App() {
+  return (
+    <SearchBuilderConfigProvider translations={{}} icons={{}}>
+      <SearchView />
+    </SearchBuilderConfigProvider>
+  );
+}
+```
+
 ## Dirty State and Submit Semantics
 
-Each registered field tracks:
+Each field tracks:
 
 - `value`: current value in the store
 - `submitted`: last value successfully submitted
 - `isDirty`: whether `value` differs from `submitted`
 
-This lets the library distinguish between:
-
-- current UI state
-- committed search state
-- pending changes still not submitted successfully
-
 `dirtyFields()` is derived from real submitted state, not from accumulated interaction history.
 
 ## Debounce
 
-`debounce` is metadata on the field, not delayed store state.
-
-That means:
+`debounce` delays auto-submit, not store updates.
 
 - `store.set(...)` updates the value immediately
 - `isDirty` updates immediately
@@ -217,7 +219,7 @@ useFilterField(store, {
 
 ## Store-Level `beforeSubmit`
 
-If you need reusable form policy, configure it on the store instance.
+Use store-level `beforeSubmit` for reusable submit policy that should live with the store instance.
 
 ```ts
 store.configure({
@@ -233,49 +235,118 @@ store.configure({
 
 ## Persistence
 
-Quick URL persistence:
+### URL Persistence
+
+Use this when you want browser URL persistence without router-specific integration.
 
 ```ts
 const store = createFieldStore({ persistInUrl: true });
 ```
 
-Custom persistence:
+### React Router
 
-```ts
-import { createFieldStore, type PersistenceAdapter } from "@vaened/react-search-builder";
+Use this when the subtree creates stores with `useSearchStore()` and should persist through `react-router-dom`.
 
-const persistence: PersistenceAdapter = {
-  read: async () => new URLSearchParams(window.location.search),
-  write: async (params) => {
-    const search = params.toString();
-    window.history.replaceState({}, "", search ? `?${search}` : window.location.pathname);
-  },
-};
+```tsx
+import { useSearchStore } from "@vaened/react-search-builder";
+import { ReactRouterPersistenceLayer } from "@vaened/react-search-builder/persistence/react-router";
 
-const store = createFieldStore({ persistence });
+function SearchPage() {
+  return (
+    <ReactRouterPersistenceLayer>
+      <SearchView />
+    </ReactRouterPersistenceLayer>
+  );
+}
+
+function SearchView() {
+  const store = useSearchStore();
+  return null;
+}
 ```
+
+This subpath depends on `react-router-dom` and fills the default persistence for the subtree.
+
+### Custom Persistence
+
+Use this when you need a persistence backend that is not covered by the built-in URL or React Router integrations.
+
+Implement the `PersistenceAdapter` contract and pass it to `createFieldStore({ persistence })`.
+
+The adapter must:
+
+- return a `PrimitiveFilterDictionary` from `read()`
+- write the next filter state from `write(values, whitelist?)`
+- notify external navigation changes through `subscribe(callback)`
+
+For browser URL adapters, the important part is not just writing the URL. The adapter must also subscribe to external history changes so back/forward navigation can rehydrate the store correctly.
+
+If you are extending the library itself, reuse the same helpers and patterns used by the built-in adapters:
+
+- `readDictionaryFromSearch(...)`
+- `createSearchParams(...)`
+- `NavigationChannel` for router-driven integrations
 
 ## Validation
 
-Built-in validators are pure and store-driven.
+Validation is field-driven. Each field can expose a `validate(context) => ValidationSchema` function, and that function receives the current `registry`.
+
+That means rules can be:
+
+- static
+- conditional
+- cross-field
+- composed
 
 ```ts
 import { allOf, required, range, when } from "@vaened/react-search-builder";
 ```
 
-Examples:
+Built-in rules:
 
 - `required()`
+- `filled({ field })`
 - `length({ min, max })`
 - `range({ min, max })`
-- `before("endDate")`
-- `after("startDate")`
+- `before({ value })`
+- `after({ value })`
+- `not(rule)`
 - `when(...)`
 - `allOf(...)`
 
+Example:
+
+```tsx
+useFilterField(store, {
+  type: "number",
+  name: "maxPrice",
+  defaultValue: null,
+  validate: ({ registry }) => {
+    const minPrice = registry.get("minPrice")?.value;
+
+    return [
+      when({
+        is: filled({ field: "minPrice" }),
+        apply: [after({ value: minPrice as number })],
+      }),
+      range({ min: 0 }),
+    ];
+  },
+});
+```
+
+Validation errors are normalized into field state as:
+
+- `name`
+- `code`
+- `message`
+- `params`
+
+The default validator runs rules in fail-fast mode, so the first failing rule wins. If you need a different aggregation strategy, provide a custom `validator` when creating the store.
+
 ## Serialization
 
-The package resolves default serializers automatically from `type`, but you can override them per field.
+Default serializers are resolved from `type`, but you can override them per field.
 
 ```ts
 useFilterField(store, {
@@ -298,9 +369,7 @@ Supported built-in types:
 
 ## Package Scope
 
-This package is the headless core.
-
-If you want ready-made Material UI components such as `SearchBar`, `OptionSelect`, `DateFilter`, or `ActiveFiltersBar`, use:
+This package is the headless core. For Material UI components, use:
 
 - `@vaened/mui-search-builder`
 
