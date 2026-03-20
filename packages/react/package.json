@@ -32,7 +32,13 @@
   },
   "peerDependencies": {
     "react": ">=19.2",
-    "react-dom": ">=19.2"
+    "react-dom": ">=19.2",
+    "react-router-dom": ">=7"
+  },
+  "peerDependenciesMeta": {
+    "react-router-dom": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@testing-library/react": "^16.3",
